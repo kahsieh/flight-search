@@ -12,15 +12,38 @@ body {
   flex-direction: column;
 }
 
-button {
-  margin-bottom: 5px;
-}
-
 main {
   flex: 1 0 auto;
   padding: 25px 0px;
 }
 
+td, th {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+td > div.row {
+  margin-bottom: 0px;
+}
+
+.airline-logo {
+  vertical-align: middle;
+  margin: 2px; 
+  width: 32px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.borderless {
+  border: 0;
+}
+
 .page-footer {
   padding: 15px 0px;
+}
+
+#flights-table {
+  line-height: 36px;
 }

@@ -22,14 +22,44 @@ function id(str) {
   return document.getElementById(str);
 }
 
-function europeanDate(str) {
-  let date = new Date(str);
-  return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
+function kiwiDate(str) {
+  return new Date(input(0, 4)).toLocaleDateString("en-GB", {timeZone: "UTC"});
 }
 
-function localDate(unix) {
-  let date = new Date(unix * 1000);
-  return date.toLocaleDateString([], {timeZone: "UTC"}) + " " + date.toLocaleTimeString([], {timeZone: "UTC", hour: "numeric", minute: "2-digit"});
+function localeDate(unix) {
+  return new Date(unix * 1000).toLocaleString([], {
+    timeZone: "UTC",
+    weekday: "short",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function input(r, c) {
+  return id("itinerary").children[r]  // tr
+                        .children[c]  // td
+                        .children[0]  // div
+                        .children[0]  // div
+                        .children[0]  // input
+                        .value;
+}
+
+function startWorking() {
+  id("search").disabled = true;
+  id("results").classList.remove("hide");
+  id("results-message").classList.remove("hide");
+  id("no-results-message").classList.add("hide");
+  id("spinner").classList.remove("hide");
+  id("flights-table").classList.add("hide");
+}
+
+function stopWorking() {
+  id("search").disabled = false;
+  id("results").classList.remove("hide");
+  id("spinner").classList.add("hide");
+  id("flights-table").classList.remove("hide");
 }
 
 // -----------------------------------------------------------------------------
@@ -38,61 +68,112 @@ function localDate(unix) {
 
 addEventListener("load", () => {
   id("app-version").innerText = app.version;
+  addFlight();
 });
 
-function test() {
-  alert("test");
+function addFlight() {
+  let row = id("itinerary").insertRow();
+  row.className = "borderless";
+  row.innerHTML = `
+    <td><div class="row"><div class="input-field col s12">
+      <input type="text" placeholder=" ">
+      <label class="active">Origin</label>
+    </div></div></td>
+    <td><div class="row"><div class="input-field col s12">
+      <input type="text" placeholder=" ">
+      <label class="active">Transfer</label>
+    </div></div></td>
+    <td><div class="row"><div class="input-field col s12">
+      <input type="text" placeholder=" ">
+      <label class="active">Destination</label>
+    </div></div></td>
+    <td><div class="row"><div class="input-field col s12">
+      <input type="date" placeholder=" ">
+      <label class="active">Earliest departure</label>
+    </div></div></td>
+    <td><div class="row"><div class="input-field col s12">
+      <input type="date" placeholder=" ">
+      <label class="active">Latest departure</label>
+    </div></div></td>
+  `;
+}
+
+function removeFlight() {
+  if (id("itinerary").childElementCount > 1) {
+    id("itinerary").lastChild.remove();
+  }
 }
 
 function main() {
-  id("search").disabled = true;
+  startWorking();
+  // Prepare request.
   let req = new XMLHttpRequest();
   req.open("POST", "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky");
+  req.setRequestHeader("Content-Type", "application/json");
+  let body = {
+    "requests": [
+      {
+        "fly_from": input(0, 0),
+        "fly_to": input(0, 2),
+        "date_from": kiwiDate(input(0, 3)),
+        "date_to": kiwiDate(input(0, 4)),
+        "direct_flights": 1,
+        "adults": 1,
+      }
+    ]
+  };
+  console.log("Request:");
+  console.log(body);
+
+  // Handle response.
   req.onreadystatechange = () => {
     if (!(req.readyState == 4 && (!req.status || req.status == 200))) {
       return;
     }
-    const res = JSON.parse(req.responseText);
     id("flights").innerHTML = "";
+    console.log("Response:");
+    let res = JSON.parse(req.responseText)
+    if (res.length == 0) {
+      id("results-message").classList.add("hide");
+      id("no-results-message").classList.remove("hide");
+    }
     for (let itinerary of res) {
       for (let flight of itinerary) {
         console.log(flight);
         let row = id("flights").insertRow();
         row.className = "clickable";
         row.onclick = () => window.open(flight.deep_link);
-        let flight_cell = row.insertCell();
-        let departure_cell = row.insertCell();
-        let arrival_cell = row.insertCell();
-        let aircraft_cell = row.insertCell();
-        let fareclass_cell = row.insertCell();
-        let price_cell = row.insertCell();
-        for (let segment of flight.route) {
-          flight_cell.innerHTML += `<img src="https://images.kiwi.com/airlines/128/${segment.operating_carrier}.png" width=32></img>`
-            + segment.operating_carrier + " " + segment.operating_flight_no;
-          departure_cell.innerHTML += localDate(segment.dTime) + "<br>" + segment.flyFrom;
-          arrival_cell.innerHTML += localDate(segment.aTime) + "<br>" + segment.flyTo;
-          aircraft_cell.innerHTML += segment.equipment;
-          fareclass_cell.innerHTML += segment.fare_classes;
+        let cells = [];
+        for (let i = 0; i < 6; i++) {
+          cells.push(row.insertCell());
         }
-        price_cell.innerHTML = "$" + flight.price;
+        for (let segment of flight.route) {
+          let airline = segment.airline;
+          let flight_no = segment.flight_no;
+          if (segment.operating_carrier && segment.operating_flight_no) {
+            airline = segment.operating_carrier;
+            flight_no = segment.operating_flight_no;
+          }
+          cells[0].innerHTML += `<img src="https://images.kiwi.com/airlines/128/${airline}.png" class="airline-logo"></img>
+            ${airline} ${flight_no}`;
+          cells[1].innerHTML += `${localeDate(segment.dTime)} (${segment.flyFrom})`;
+          cells[2].innerHTML += `${localeDate(segment.aTime)} (${segment.flyTo})`;
+          if (segment.equipment) {
+            cells[3].innerHTML += segment.equipment;
+          }
+          if (segment.fare_classes) {
+            cells[4].innerHTML += segment.fare_classes;
+          }
+        }
+        cells[5].innerHTML = flight.price.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        });
       }
     }
-    id("search").disabled = false;
+    stopWorking();
   }
-  req.setRequestHeader("Content-Type", "application/json");
-  req.send(JSON.stringify({
-    "requests": [
-      {
-        "fly_from": id("origin").value,
-        "fly_to": id("destination").value,
-        "date_from": europeanDate(id("departure-date").value),
-        "date_to": europeanDate(id("departure-date").value),
-        "direct_flights": 1,
-        "passengers": 1,
-        "adults": 1,
-        "infants": 0,
-        "children": 0
-      }
-    ]
-  })); 
+  req.send(JSON.stringify(body)); 
 }

@@ -17,14 +17,6 @@ Truong. All Rights Reserved.
 <link rel="stylesheet" href="styles.css">
 <script src="materialize/materialize.js"></script>
 <script src="flight-search.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  M.Datepicker.init(document.querySelectorAll(".datepicker"), {
-    showClearBtn: true,
-    autoClose: true
-  });
-});
-</script>
 </head>
 <body>
 <header><nav>
@@ -36,36 +28,34 @@ document.addEventListener("DOMContentLoaded", function () {
 <main class="container">
   <div class="row"><div class="col s12">
     <h5>Itinerary</h5>
+    <table class="responsive-table">
+      <tbody id="itinerary"></tbody>
+    </table>
   </div></div>
-  <div class="row">
-    <div class="input-field col s12 m6 l3">
-      <input type="text" id="origin" value="LAX">
-      <label>Origin</label>
-    </div>
-    <div class="input-field col s12 m6 l3">
-      <input type="text" id="destination" value="NYC">
-      <label>Destination</label>
-    </div>
-    <div class="input-field col s12 m6 l3">
-      <input type="text" class="datepicker" id="departure-date" value="4/25/2020">
-      <label>Departure date</label>
-    </div>
-    <div class="input-field col s12 m6 l3">
-      <input type="text" class="datepicker" id="return-date" disabled>
-      <label>Return date</label>
-    </div>
-    <div class="col s12 center-align">
-      <button class="btn waves-effect waves-light" id="search" onClick="main()">
-        <i class="material-icons left">search</i>Search</button>
-    </div>
-  </div>
+  <div class="row"><div class="col s12 center-align">
+    <button class="btn-floating waves-effect waves-light" onclick="addFlight()">
+      <i class="material-icons left">add</i>
+    </button>
+    <button class="btn-floating waves-effect waves-light" onclick="removeFlight()">
+      <i class="material-icons left">remove</i>
+    </button>
+    <button class="btn-floating waves-effect waves-light" id="search" onclick="main()">
+      <i class="material-icons left">search</i>
+    </button>
+  </div></div>
 
-  <div class="row"><div class="col s12">
+  <div class="row hide" id="results"><div class="col s12">
     <h5>Results</h5>
-    Click on a result to open it in a new tab.
-  </div></div>
-  <div class="row"><div class="col s12">
-    <table class="highlight" style="table-layout: fixed">
+    <p id="results-message">Click on a result to open it in a new tab.</p>
+    <p id="no-results-message">No results! Did you enter everything correctly?</p>
+    <div class="preloader-wrapper small active" id="spinner">
+      <div class="spinner-layer spinner-red-only">
+        <div class="circle-clipper left"><div class="circle"></div></div>
+        <div class="gap-patch"><div class="circle"></div></div>
+        <div class="circle-clipper right"><div class="circle"></div></div>
+      </div>
+    </div>
+    <table class="highlight responsive-table" id="flights-table">
       <thead><tr>
         <th>Flight</th>
         <th>Departure</th>
@@ -80,7 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
 </main>
 
 <footer class="page-footer grey lighten-3 black-text"><div class="container">
-  <a target="_blank" href="https://github.com/cs188-software-design-security-w20/project-5-peas-in-a-pod">Five Peas Flight Search</a>
+  <a target="_blank" href="https://github.com/cs188-software-design-security-w20/project-5-peas-in-a-pod">
+    Five Peas Flight Search
+  </a>
   <span id="app-version"></span>
   <br>
   Copyright © 2020
