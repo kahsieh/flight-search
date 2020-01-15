@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<!--
+Five Peas Flight Search
+index.html
+
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Raymond Phan, Quentin
+Truong. All Rights Reserved.
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href="favicon.ico" />
+<title>Five Peas Flight Search</title>
+<link rel="stylesheet" href="materialize/materialize.css">
+<link rel="stylesheet" href="materialize/icon.css">
+<link rel="stylesheet" href="styles.css">
+<script src="materialize/materialize.js"></script>
+<script src="flight-search.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  M.Datepicker.init(document.querySelectorAll(".datepicker"), {
+    showClearBtn: true,
+    autoClose: true
+  });
+});
+</script>
+</head>
+<body>
+<header><nav>
+  <div class="nav-wrapper container"><a href="" class="brand-logo">
+    <i class="material-icons">flight</i>Five Peas Flight Search
+  </a></div>
+</nav></header>
+
+<main class="container">
+  <div class="row"><div class="col s12">
+    <h5>Itinerary</h5>
+  </div></div>
+  <div class="row">
+    <div class="input-field col s12 m6 l3">
+      <input type="text" id="origin" value="LAX">
+      <label>Origin</label>
+    </div>
+    <div class="input-field col s12 m6 l3">
+      <input type="text" id="destination" value="NYC">
+      <label>Destination</label>
+    </div>
+    <div class="input-field col s12 m6 l3">
+      <input type="text" class="datepicker" id="departure-date" value="4/25/2020">
+      <label>Departure date</label>
+    </div>
+    <div class="input-field col s12 m6 l3">
+      <input type="text" class="datepicker" id="return-date" disabled>
+      <label>Return date</label>
+    </div>
+    <div class="col s12 center-align">
+      <button class="btn waves-effect waves-light" id="search" onClick="main()">
+        <i class="material-icons left">search</i>Search</button>
+    </div>
+  </div>
+
+  <div class="row"><div class="col s12">
+    <h5>Results</h5>
+    Click on a result to open it in a new tab.
+  </div></div>
+  <div class="row"><div class="col s12">
+    <table class="highlight" style="table-layout: fixed">
+      <thead><tr>
+        <th>Flight</th>
+        <th>Departure</th>
+        <th>Arrival</th>
+        <th>Aircraft</th>
+        <th>Fare Class</th>
+        <th>Price</th>
+      </tr></thead>
+      <tbody id="flights"></tbody>
+    </table>
+  </div></div>
+</main>
+
+<footer class="page-footer grey lighten-3 black-text"><div class="container">
+  <a target="_blank" href="https://github.com/cs188-software-design-security-w20/project-5-peas-in-a-pod">Five Peas Flight Search</a>
+  <span id="app-version"></span>
+  <br>
+  Copyright © 2020
+  <a target="_blank" href="about:blank">Derek Chu</a>,
+  <a target="_blank" href="https://www.kevinhsieh.net">Kevin Hsieh</a>,
+  <a target="_blank" href="about:blank">Leo Liu</a>,
+  <a target="_blank" href="about:blank">Raymond Phan</a>,
+  <a target="_blank" href="about:blank">Quentin Truong</a>.
+  All Rights Reserved.
+</div></footer>
+</body>
+</html>
