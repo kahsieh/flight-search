@@ -23,7 +23,7 @@ function id(str) {
 }
 
 function kiwiDate(str) {
-  return new Date(input(0, 4)).toLocaleDateString("en-GB", {timeZone: "UTC"});
+  return new Date(str).toLocaleDateString("en-GB", {timeZone: "UTC"});
 }
 
 function localeDate(unix) {
@@ -69,12 +69,16 @@ function stopWorking() {
 addEventListener("load", () => {
   id("app-version").innerText = app.version;
   addFlight();
+  addFlight();
 });
 
 function addFlight() {
   let row = id("itinerary").insertRow();
   row.className = "borderless";
   row.innerHTML = `
+    <td style="padding-right: 20px;">
+      <h6>Flight&nbsp;${id("itinerary").childElementCount}</h6>
+    </td>
     <td><div class="row"><div class="input-field col s12">
       <input type="text" placeholder=" ">
       <label class="active">Origin</label>
@@ -113,10 +117,10 @@ function main() {
   let body = {
     "requests": [
       {
-        "fly_from": input(0, 0),
-        "fly_to": input(0, 2),
-        "date_from": kiwiDate(input(0, 3)),
-        "date_to": kiwiDate(input(0, 4)),
+        "fly_from": input(0, 1),
+        "fly_to": input(0, 3),
+        "date_from": kiwiDate(input(0, 4)),
+        "date_to": kiwiDate(input(0, 5)),
         "direct_flights": 1,
         "adults": 1,
       }
