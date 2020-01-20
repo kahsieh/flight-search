@@ -112,72 +112,46 @@ function main() {
   startWorking();
   // Prepare request.
   let req = new XMLHttpRequest();
-  req.open("POST", "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky");
+  let fly_from = input(0, 1);
+  let fly_to = input(0, 2);
+  let date_from = kiwiDate(input(0, 4));
+  let date_to = kiwiDate(input(0, 5));
+  let partner = "picky";
+  let currency = "USD";
+  let url = `https://api.skypicker.com/flights?fly_from=${fly_from}&fly_to=${fly_to}&date_from=${date_from}&date_to=${date_to}&partner=${partner}&curr=${currency}`;
+  req.open("GET", url);
   req.setRequestHeader("Content-Type", "application/json");
-  let body = {
-    "requests": [
-      {
-        "fly_from": input(0, 1),
-        "fly_to": input(0, 3),
-        "date_from": kiwiDate(input(0, 4)),
-        "date_to": kiwiDate(input(0, 5)),
-        "direct_flights": 1,
-        "adults": 1,
-      }
-    ]
-  };
-  console.log("Request:");
-  console.log(body);
 
   // Handle response.
   req.onreadystatechange = () => {
-    if (!(req.readyState == 4 && (!req.status || req.status == 200))) {
-      return;
-    }
-    id("flights").innerHTML = "";
-    console.log("Response:");
-    let res = JSON.parse(req.responseText)
-    if (res.length == 0) {
-      id("results-message").classList.add("hide");
-      id("no-results-message").classList.remove("hide");
-    }
-    for (let itinerary of res) {
-      for (let flight of itinerary) {
-        console.log(flight);
-        let row = id("flights").insertRow();
-        row.className = "clickable";
-        row.onclick = () => window.open(flight.deep_link);
-        let cells = [];
-        for (let i = 0; i < 6; i++) {
-          cells.push(row.insertCell());
-        }
-        for (let segment of flight.route) {
-          let airline = segment.airline;
-          let flight_no = segment.flight_no;
-          if (segment.operating_carrier && segment.operating_flight_no) {
-            airline = segment.operating_carrier;
-            flight_no = segment.operating_flight_no;
-          }
-          cells[0].innerHTML += `<img src="https://images.kiwi.com/airlines/128/${airline}.png" class="airline-logo"></img>
-            ${airline} ${flight_no}`;
-          cells[1].innerHTML += `${localeDate(segment.dTime)} (${segment.flyFrom})`;
-          cells[2].innerHTML += `${localeDate(segment.aTime)} (${segment.flyTo})`;
-          if (segment.equipment) {
-            cells[3].innerHTML += segment.equipment;
-          }
-          if (segment.fare_classes) {
-            cells[4].innerHTML += segment.fare_classes;
-          }
-        }
-        cells[5].innerHTML = flight.price.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        });
+    if (req.readyState == 4 && req.status == 200) {
+      id("flights").innerHTML = "";
+      let res = JSON.parse(req.responseText);
+      // console.log("Response:");
+      // console.log(res);
+      if (res.data.length == 0) {
+        id("results-message").classList.add("hide");
+        id("no-results-message").classList.remove("hide");
       }
+      for (let i = 0; i < res.data.length; i++) {
+        let itinerary = id("flights").insertRow();
+        itinerary.className = "clickable";
+        itinerary.onclick = () => window.open(res.data[i].deep_link);
+        for (let c = 0; c < 6; c++) {
+          itinerary.insertCell();
+        }
+
+        for (let j = 0; j < res.data[i].route.length; j++) {
+          itinerary.cells[0].innerHTML += `<img src="https://images.kiwi.com/airlines/128/${res.data[i].route[j].airline}.png" class="airline-logo"></img>`;
+        }
+        itinerary.cells[1].innerHTML = `${localeDate(res.data[i].route[0].dTime)} (${res.data[i].route[0].flyFrom})`;
+        itinerary.cells[2].innerHTML = `${localeDate(res.data[i].route[res.data[i].route.length - 1].aTime)} (${res.data[i].route[res.data[i].route.length - 1].flyTo})`;
+        itinerary.cells[3].innerHTML = `${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTime - res.data[i].route[0].dTime, 'seconds').hours()}h ${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTime - res.data[i].route[0].dTime, 'seconds').minutes()}m`;
+        itinerary.cells[4].innerHTML = `${(res.data[i].route.length - 1 == 0) ? 'Nonstop' : (res.data[i].route.length - 1)}`
+        itinerary.cells[5].innerHTML = `$${res.data[i].price}`;
+      }
+      stopWorking();
     }
-    stopWorking();
   }
-  req.send(JSON.stringify(body)); 
+  req.send();
 }
