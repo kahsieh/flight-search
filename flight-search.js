@@ -128,7 +128,7 @@ function main() {
       id("flights").innerHTML = "";
       let res = JSON.parse(req.responseText);
       // console.log("Response:");
-      // console.log(res);
+      console.log(res);
       if (res.data.length == 0) {
         id("results-message").classList.add("hide");
         id("no-results-message").classList.remove("hide");
@@ -146,7 +146,7 @@ function main() {
         }
         itinerary.cells[1].innerHTML = `${localeDate(res.data[i].route[0].dTime)} (${res.data[i].route[0].flyFrom})`;
         itinerary.cells[2].innerHTML = `${localeDate(res.data[i].route[res.data[i].route.length - 1].aTime)} (${res.data[i].route[res.data[i].route.length - 1].flyTo})`;
-        itinerary.cells[3].innerHTML = `${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTime - res.data[i].route[0].dTime, 'seconds').hours()}h ${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTime - res.data[i].route[0].dTime, 'seconds').minutes()}m`;
+        itinerary.cells[3].innerHTML = `${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTimeUTC - res.data[i].route[0].dTimeUTC, 'seconds').hours()}h ${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTime - res.data[i].route[0].dTime, 'seconds').minutes()}m`;
         itinerary.cells[4].innerHTML = `${(res.data[i].route.length - 1 == 0) ? 'Nonstop' : (res.data[i].route.length - 1)}`
         itinerary.cells[5].innerHTML = `$${res.data[i].price}`;
       }
