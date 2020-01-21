@@ -139,12 +139,12 @@ function setInput(row, col, val) {
 }
 
 /**
- * Disables the search button, shows the spinner, and hides the no results
- * message if it's visible.
+ * Disables the search button, shows the spinner, and hides any messages.
  */
 function startWorking() {
   qs("#search").disabled = true;
   qs("#spinner").classList.remove("hide");
+  qs("#results-message").classList.add("hide");
   qs("#no-results-message").classList.add("hide");
 }
 
@@ -409,7 +409,7 @@ function displayFlight(index, itinerary, flight) {
   let row = qsa("#tables tbody")[index].insertRow();
   row.classList.add("clickable");
   row.onclick = () => {
-    selected_flights[index] = flight.id;
+    selected_flights[index] = selected_flights[index] ? null : flight.id;
     displayResults();
   };
   for (let cell of cells) {
@@ -472,7 +472,10 @@ function main() {
       return;
     }
     res = JSON.parse(req.responseText);
-    if (res.length == 0) {
+    if (res.length > 0) {
+      qs("#results-message").classList.remove("hide");
+    }
+    else {
       qs("#no-results-message").classList.remove("hide");
     }
 
