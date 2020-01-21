@@ -2,9 +2,11 @@
 Five Peas Flight Search
 styles.css
 
-Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Raymond Phan, Quentin
-Truong. All Rights Reserved.
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
+All Rights Reserved.
 */
+
+/* Page layout */
 
 body {
   display: flex;
@@ -17,14 +19,11 @@ main {
   padding: 25px 0px;
 }
 
-td, th {
-  padding-top: 5px;
-  padding-bottom: 5px;
+.page-footer {
+  padding: 15px 0px;
 }
 
-td div.row {
-  margin-bottom: 0px;
-}
+/* Classes */
 
 .airline-logo {
   vertical-align: middle;
@@ -32,21 +31,20 @@ td div.row {
   width: 32px;
 }
 
-.borderless {
-  border: 0;
-}
-
-.clickable {
-  cursor: pointer;
-}
-
 .note {
   color: gray;
   font-size: small;
 }
 
-.page-footer {
-  padding: 15px 0px;
+/* Specific modifications */
+
+td, th {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#itinerary div {
+  margin-bottom: 3px;
 }
 
 #tables table {

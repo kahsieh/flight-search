@@ -4,14 +4,14 @@
 Five Peas Flight Search
 index.html
 
-Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Raymond Phan, Quentin
-Truong. All Rights Reserved.
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
+All Rights Reserved.
 -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="shortcut icon" href="favicon.ico" />
 <title>Five Peas Flight Search</title>
+<link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="materialize/materialize.css">
 <link rel="stylesheet" href="materialize/icon.css">
 <link rel="stylesheet" href="styles.css">
@@ -26,6 +26,7 @@ Truong. All Rights Reserved.
 </nav></header>
 
 <main class="container">
+  <!-- Input -->
   <div class="row"><div class="col s12">
     <h5>Itinerary</h5>
     <table class="responsive-table">
@@ -33,6 +34,7 @@ Truong. All Rights Reserved.
     </table>
   </div></div>
 
+  <!-- Buttons -->
   <div class="row"><div class="col s12 center-align">
     <button class="btn-floating waves-effect waves-light" onclick="addFlight()">
       <i class="material-icons left">add</i>
@@ -43,9 +45,9 @@ Truong. All Rights Reserved.
     <button class="btn-floating waves-effect waves-light" id="search" onclick="main()">
       <i class="material-icons left">search</i>
     </button>
-
   </div></div>
 
+  <!-- Status -->
   <div class="row" style="height: 50px"><div class="col s12 center-align">
     <div class="preloader-wrapper small active hide" id="spinner">
       <div class="spinner-layer spinner-red-only">
@@ -58,7 +60,8 @@ Truong. All Rights Reserved.
       No results! Did you enter everything correctly?
     </div>
   </div></div>
-
+  
+  <!-- Results -->
   <div class="row" id="tables"><div class="col s12">
     <h5>Results</h5>
     <ul class="tabs" id="tabs"></ul>
@@ -76,7 +79,6 @@ Truong. All Rights Reserved.
   <a target="_blank" href="about:blank">Derek Chu</a>,
   <a target="_blank" href="https://www.kevinhsieh.net">Kevin Hsieh</a>,
   <a target="_blank" href="about:blank">Leo Liu</a>,
-  <a target="_blank" href="about:blank">Raymond Phan</a>,
   <a target="_blank" href="about:blank">Quentin Truong</a>.
   All Rights Reserved.
 </div></footer>
