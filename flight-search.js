@@ -113,7 +113,7 @@ function main() {
   // Prepare request.
   let req = new XMLHttpRequest();
   let fly_from = input(0, 1);
-  let fly_to = input(0, 2);
+  let fly_to = input(0, 3);
   let date_from = kiwiDate(input(0, 4));
   let date_to = kiwiDate(input(0, 5));
   let partner = "picky";
