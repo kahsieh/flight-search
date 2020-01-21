@@ -110,48 +110,55 @@ function removeFlight() {
 
 function main() {
   startWorking();
-  // Prepare request.
-  let req = new XMLHttpRequest();
-  let fly_from = input(0, 1);
-  let fly_to = input(0, 3);
-  let date_from = kiwiDate(input(0, 4));
-  let date_to = kiwiDate(input(0, 5));
-  let partner = "picky";
-  let currency = "USD";
-  let url = `https://api.skypicker.com/flights?fly_from=${fly_from}&fly_to=${fly_to}&date_from=${date_from}&date_to=${date_to}&partner=${partner}&curr=${currency}`;
-  req.open("GET", url);
-  req.setRequestHeader("Content-Type", "application/json");
+  let num_reqs = id("itinerary").children.length;
+  id("flights").innerHTML = "";
 
-  // Handle response.
-  req.onreadystatechange = () => {
-    if (req.readyState == 4 && req.status == 200) {
-      id("flights").innerHTML = "";
-      let res = JSON.parse(req.responseText);
-      // console.log("Response:");
-      console.log(res);
-      if (res.data.length == 0) {
-        id("results-message").classList.add("hide");
-        id("no-results-message").classList.remove("hide");
-      }
-      for (let i = 0; i < res.data.length; i++) {
-        let itinerary = id("flights").insertRow();
-        itinerary.className = "clickable";
-        itinerary.onclick = () => window.open(res.data[i].deep_link);
-        for (let c = 0; c < 6; c++) {
-          itinerary.insertCell();
-        }
+  for (let r = 0; r < id("itinerary").children.length; r++) {
+    // Prepare request.
+    let req = new XMLHttpRequest();
+    let fly_from = input(r, 1);
+    let fly_to = input(r, 3);
+    let date_from = kiwiDate(input(r, 4));
+    let date_to = kiwiDate(input(r, 5));
+    let partner = "picky";
+    let currency = "USD";
+    let url = `https://api.skypicker.com/flights?fly_from=${fly_from}&fly_to=${fly_to}&date_from=${date_from}&date_to=${date_to}&partner=${partner}&curr=${currency}`;
+    req.open("GET", url);
+    req.setRequestHeader("Content-Type", "application/json");
 
-        for (let j = 0; j < res.data[i].route.length; j++) {
-          itinerary.cells[0].innerHTML += `<img src="https://images.kiwi.com/airlines/128/${res.data[i].route[j].airline}.png" class="airline-logo"></img>`;
+    // Handle response.
+    req.onreadystatechange = () => {
+      if (req.readyState == 4 && req.status == 200) {
+        let res = JSON.parse(req.responseText);
+        // console.log("Response:");
+        console.log(res);
+        
+        for (let i = 0; i < res.data.length; i++) {
+          let itinerary = id("flights").insertRow();
+          itinerary.className = "clickable";
+          itinerary.onclick = () => window.open(res.data[i].deep_link);
+          for (let c = 0; c < 6; c++) {
+            itinerary.insertCell();
+          }
+
+          for (let j = 0; j < res.data[i].route.length; j++) {
+            itinerary.cells[0].innerHTML += `<img src="https://images.kiwi.com/airlines/128/${res.data[i].route[j].airline}.png" class="airline-logo"></img>`;
+          }
+          itinerary.cells[1].innerHTML = `${localeDate(res.data[i].route[0].dTime)} (${res.data[i].route[0].flyFrom})`;
+          itinerary.cells[2].innerHTML = `${localeDate(res.data[i].route[res.data[i].route.length - 1].aTime)} (${res.data[i].route[res.data[i].route.length - 1].flyTo})`;
+          itinerary.cells[3].innerHTML = `${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTimeUTC - res.data[i].route[0].dTimeUTC, 'seconds').hours()}h ${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTime - res.data[i].route[0].dTime, 'seconds').minutes()}m`;
+          itinerary.cells[4].innerHTML = `${(res.data[i].route.length - 1 == 0) ? 'Nonstop' : (res.data[i].route.length - 1)}`
+          itinerary.cells[5].innerHTML = `$${res.data[i].price}`;
         }
-        itinerary.cells[1].innerHTML = `${localeDate(res.data[i].route[0].dTime)} (${res.data[i].route[0].flyFrom})`;
-        itinerary.cells[2].innerHTML = `${localeDate(res.data[i].route[res.data[i].route.length - 1].aTime)} (${res.data[i].route[res.data[i].route.length - 1].flyTo})`;
-        itinerary.cells[3].innerHTML = `${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTimeUTC - res.data[i].route[0].dTimeUTC, 'seconds').hours()}h ${moment.duration(res.data[i].route[res.data[i].route.length - 1].aTime - res.data[i].route[0].dTime, 'seconds').minutes()}m`;
-        itinerary.cells[4].innerHTML = `${(res.data[i].route.length - 1 == 0) ? 'Nonstop' : (res.data[i].route.length - 1)}`
-        itinerary.cells[5].innerHTML = `$${res.data[i].price}`;
+        if (--num_reqs == 0){
+          if (id("flights").innerHTML == "") {
+            id("results-message").classList.add("hide");
+            id("no-results-message").classList.remove("hide");
+          }
+          stopWorking();
+        }
       }
-      stopWorking();
     }
+    req.send();
   }
-  req.send();
 }
