@@ -22,7 +22,7 @@ td, th {
   padding-bottom: 5px;
 }
 
-td > div.row {
+td div.row {
   margin-bottom: 0px;
 }
 
@@ -32,18 +32,23 @@ td > div.row {
   width: 32px;
 }
 
+.borderless {
+  border: 0;
+}
+
 .clickable {
   cursor: pointer;
 }
 
-.borderless {
-  border: 0;
+.note {
+  color: gray;
+  font-size: small;
 }
 
 .page-footer {
   padding: 15px 0px;
 }
 
-#flights-table {
+#tables table {
   line-height: 36px;
 }
