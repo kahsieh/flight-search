@@ -28,10 +28,12 @@ const columns = [
   "Price",
 ];
 
-let tabs_instance = null;
-
+// Stored response from server.
 let single = null;
 let res = null;
+
+// State of tables.
+let tabs_instance = null;
 let displayed_flights = [];
 let selected_flights = [];
 
@@ -415,6 +417,9 @@ function displayFlight(index, itinerary, flight) {
   }
 }
 
+/**
+ * Refreshes the tables with the latest results.
+ */
 function displayResults() {
   // Clear tables.
   qsa("#tables tbody").forEach(e => e.innerHTML = "");
@@ -424,9 +429,12 @@ function displayResults() {
 
   for (const itinerary of res) {
     if (single) {
-      displayFlight(0, itinerary, itinerary);
+      if (!selected_flights[0] || itinerary.id == selected_flights[0]) {
+        displayFlight(0, itinerary, itinerary);
+      }
     }
-    else if (itinerary.route.every((v, i, _) => !selected_flights[i] || v.id == selected_flights[i])) {
+    else if (itinerary.route.every((v, i, _) =>
+             !selected_flights[i] || v.id == selected_flights[i])) {
       for (const [i, segment] of itinerary.route.entries()) {
         displayFlight(i, itinerary, segment);
       }
