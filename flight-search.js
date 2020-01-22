@@ -246,8 +246,12 @@ function addFlight(cells = {}) {
       <label class="active">Origin</label>
     </div></div></td>
     <td class="transfer"><div class="row"><div class="input-field col s12">
+      <input type="number" placeholder="No limit" min="0" value="${cells["max-stops"] || ""}">
+      <label class="active">Max stops</label>
+    </div></div></td>
+    <td class="transfer"><div class="row"><div class="input-field col s12">
       <input type="text" placeholder="No preference" value="${cells["transfer"] || ""}">
-      <label class="active">Transfer</label>
+      <label class="active">Transfer airport</label>
     </div></div></td>
     <td class="destination"><div class="row"><div class="input-field col s12">
       <input type="text" placeholder=" " value="${cells["destination"] || ""}">
@@ -540,19 +544,35 @@ function main() {
   req.setRequestHeader("Content-Type", "application/json");
   let body = {"requests": []};
   for (let i = 0; i < qs("#itinerary").childElementCount; i++) {
-    body["requests"].push({
+    let flight = {
       "fly_from": "airport:" + getInput(i, 1),
-      "select_stop_airport": getInput(i, 2),
-      "fly_to": "airport:" + getInput(i, 3),
-      "select_airlines": getInput(i, 4),
-      "date_from": kiwiDate(getInput(i, 5)),
-      "dtime_from": getInput(i, 6),
-      "date_to": getInput(i, 7) ? kiwiDate(getInput(i, 7)) : kiwiDate(getInput(i, 5)),
-      "dtime_to": getInput(i, 8),
-      "atime_from": getInput(i, 9),
-      "atime_to": getInput(i, 10),
+      "fly_to": "airport:" + getInput(i, 4),
+      "date_from": kiwiDate(getInput(i, 6)),
+      "date_to": kiwiDate(getInput(i, 8)) || kiwiDate(getInput(i, 6)),
       "adults": 1,
-    })
+    };
+    if (getInput(i, 2)) {
+      flight["max_stopovers"] = getInput(i, 2);
+    }
+    if (getInput(i, 3)) {
+      flight["select_stop_airport"] = getInput(i, 3);
+    }
+    if (getInput(i, 5)) {
+      flight["select_airlines"] = getInput(i, 5);
+    }
+    if (getInput(i, 7)) {
+      flight["dtime_from"] = getInput(i, 7);
+    }
+    if (getInput(i, 9)) {
+      flight["dtime_to"] = getInput(i, 9);
+    }
+    if (getInput(i, 10)) {
+      flight["atime_from"] = getInput(i, 10);
+    }
+    if (getInput(i, 11)) {
+      flight["atime_to"] = getInput(i, 11);
+    }
+    body["requests"].push(flight);
   }
   console.log("Request:");
   console.log(body);
