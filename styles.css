@@ -43,19 +43,9 @@ main {
 /* Specific modifications */
 
 td, th {
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding: 5px 5px 5px 5px;
 }
 
 #itinerary div {
   margin-bottom: 3px;
-}
-
-#status {
-  height: 52px;
-  margin-bottom: 0;
-}
-
-#tables table {
-  line-height: 36px;
 }

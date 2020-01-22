@@ -16,6 +16,9 @@ All Rights Reserved.
 <link rel="stylesheet" href="materialize/icon.css">
 <link rel="stylesheet" href="styles.css">
 <script src="materialize/materialize.js"></script>
+<script src="utilities.js"></script>
+<script src="tables.js"></script>
+<script src="itinerary.js"></script>
 <script src="flight-search.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -38,69 +41,74 @@ document.addEventListener("DOMContentLoaded", () => {
       You may enter multiple airport or airline codes by separating them with
       commas.
     </p>
-    <div class="row" style="margin-bottom: 0"><div class="input-field col s12">
-      <select id="filters" onchange="updateFilters()" multiple>
+    <!-- Filter selector -->
+    <div class="row"><div class="col s12 input-field">
+      <select id="filters" onchange="Itinerary.updateFilters()" multiple>
         <option value="transfer">Transfer</option>
         <option value="airline">Airline</option>
         <option value="latest-departure">Latest departure</option>
         <option value="earliest-arrival">Earliest arrival</option>
         <option value="latest-arrival">Latest arrival</option>
       </select>
-      <label>Select filters</label>
+      <label>Filters</label>
     </div></div>
+    <!-- Itinerary -->
     <table class="responsive-table">
       <tbody id="itinerary"></tbody>
     </table>
-  </div></div>
-
-  <!-- Buttons -->
-  <div class="row"><div class="col s12 center-align">
-    <button class="btn-floating waves-effect waves-light" onclick="addFlight()">
-      <i class="material-icons left">add</i>
-    </button>
-    <button class="btn-floating waves-effect waves-light" id="remove-flight" onclick="removeFlight()">
-      <i class="material-icons left">remove</i>
-    </button>
-    <button class="btn-floating waves-effect waves-light" id="search" onclick="main()">
-      <i class="material-icons left">search</i>
-    </button>
-    <button class="btn-floating waves-effect waves-light disabled" id="book">
-      <i class="material-icons left">done</i>
-    </button>
-  </div></div>
-
-  <!-- Status -->
-  <div class="row" id="status"><div class="col s12 center-align">
-    <div class="preloader-wrapper small active hide" id="spinner">
-      <div class="spinner-layer spinner-red-only">
-        <div class="circle-clipper left"><div class="circle"></div></div>
-        <div class="gap-patch"><div class="circle"></div></div>
-        <div class="circle-clipper right"><div class="circle"></div></div>
-      </div>
+    <!-- Buttons -->
+    <div class="section center-align">
+      <button class="btn-floating waves-effect waves-light"
+        onclick="Itinerary.addFlight()">
+        <i class="material-icons left">add</i>
+      </button>
+      <button class="btn-floating waves-effect waves-light"
+        onclick="Itinerary.removeFlight()" id="remove-flight">
+        <i class="material-icons left">remove</i>
+      </button>
+      <button class="btn-floating waves-effect waves-light"
+        onclick="main()" id="search">
+        <i class="material-icons left">search</i>
+      </button>
+      <button class="btn-floating waves-effect waves-light disabled" id="book">
+        <i class="material-icons left">done</i>
+      </button>
     </div>
-    <p class="hide" id="results-message">
-      Click on a result to select it. After making selections for all flights,
-      click ✓ to book with Kiwi.
-    </p>
-    <p class="hide" id="no-results-message">
-      No results! Did you enter everything correctly?
-    </p>
+    <!-- Status -->
+    <div class="section center-align" style="height: 54px" id="status">
+      <div class="preloader-wrapper small active hide" id="spinner">
+        <div class="spinner-layer spinner-red-only">
+          <div class="circle-clipper left"><div class="circle"></div></div>
+          <div class="gap-patch"><div class="circle"></div></div>
+          <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+      </div>
+      <p class="hide" id="results-message">
+        Click on a result to select it. After making selections for all flights,
+        click ✓ to book with Kiwi.
+      </p>
+      <p class="hide" id="no-results-message">
+        No results! Did you enter everything correctly?
+      </p>
+    </div>
   </div></div>
 
-  <!-- Results -->
+  <!-- Output -->
   <div class="row"><div class="col s12">
     <h5>Results</h5>
+    <!-- Tabs -->
     <ul class="tabs" id="tabs"></ul>
-    <br>
-    <div class="row" style="margin-bottom: 0"><div class="input-field col s12">
-      <select id="columns" onchange="updateColumns()" multiple>
+    <!-- Column selector -->
+    <div class="row" style="margin: 30px 0 0 0"><div class="input-field col s12">
+      <select id="columns" onchange="FlightTable.updateColumns()" multiple>
         <option value="flight-time">Flight Time</option>
         <option value="aircraft">Aircraft</option>
         <option value="fare-class">Fare Class</option>
       </select>
-      <label>Select additional columns</label>
+      <label>Additional columns</label>
     </div></div>
-    <div id="tables"></div>
+    <!-- Flight tables -->
+    <div id="tables" style="line-height: 36px"></div>
   </div></div>
 </main>
 
