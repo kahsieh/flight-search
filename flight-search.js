@@ -48,25 +48,21 @@ addEventListener("load", () => {
   Itinerary.addFlight({
     "origin": "LAX",
     "destination": "KHH",
-    "airline": "JL",
     "earliest-departure-date": "2020-05-15",
   });
   Itinerary.addFlight({
     "origin": "KHH",
     "destination": "NRT",
-    "airline": "BR",
     "earliest-departure-date": "2020-05-22",
   });
   Itinerary.addFlight({
     "origin": "KIX",
     "destination": "KHH",
-    "airline": "BR",
     "earliest-departure-date": "2020-05-29",
   });
   Itinerary.addFlight({
     "origin": "KHH",
     "destination": "LAX",
-    "airline": "JL",
     "earliest-departure-date": "2020-06-05",
   });
 });
