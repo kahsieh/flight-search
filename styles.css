@@ -36,6 +36,10 @@ main {
   font-size: small;
 }
 
+.selected {
+  background-color: wheat;
+}
+
 /* Specific modifications */
 
 td, th {
@@ -45,6 +49,11 @@ td, th {
 
 #itinerary div {
   margin-bottom: 3px;
+}
+
+#status {
+  height: 52px;
+  margin-bottom: 0;
 }
 
 #tables table {

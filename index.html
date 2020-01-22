@@ -17,6 +17,11 @@ All Rights Reserved.
 <link rel="stylesheet" href="styles.css">
 <script src="materialize/materialize.js"></script>
 <script src="flight-search.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  M.FormSelect.init(document.querySelectorAll("select"), {});
+});
+</script>
 </head>
 <body>
 <header><nav>
@@ -29,6 +34,19 @@ All Rights Reserved.
   <!-- Input -->
   <div class="row"><div class="col s12">
     <h5>Itinerary</h5>
+    <p>
+      commas.
+    </p>
+    <div class="row" style="margin-bottom: 0"><div class="input-field col s12">
+      <select id="filters" onchange="updateFilters()" multiple>
+        <option value="transfer">Transfer</option>
+        <option value="airline">Airline</option>
+        <option value="latest-departure">Latest departure</option>
+        <option value="earliest-arrival">Earliest arrival</option>
+        <option value="latest-arrival">Latest arrival</option>
+      </select>
+      <label>Select filters</label>
+    </div></div>
     <table class="responsive-table">
       <tbody id="itinerary"></tbody>
     </table>
@@ -39,16 +57,19 @@ All Rights Reserved.
     <button class="btn-floating waves-effect waves-light" onclick="addFlight()">
       <i class="material-icons left">add</i>
     </button>
-    <button class="btn-floating waves-effect waves-light" onclick="removeFlight()">
+    <button class="btn-floating waves-effect waves-light" id="remove-flight" onclick="removeFlight()">
       <i class="material-icons left">remove</i>
     </button>
     <button class="btn-floating waves-effect waves-light" id="search" onclick="main()">
       <i class="material-icons left">search</i>
     </button>
+    <button class="btn-floating waves-effect waves-light disabled" id="book">
+      <i class="material-icons left">done</i>
+    </button>
   </div></div>
 
   <!-- Status -->
-  <div class="row" style="height: 50px"><div class="col s12 center-align">
+  <div class="row" id="status"><div class="col s12 center-align">
     <div class="preloader-wrapper small active hide" id="spinner">
       <div class="spinner-layer spinner-red-only">
         <div class="circle-clipper left"><div class="circle"></div></div>
@@ -56,20 +77,29 @@ All Rights Reserved.
         <div class="circle-clipper right"><div class="circle"></div></div>
       </div>
     </div>
-    <div class="hide" id="results-message">
-      Click on a result to select it for the flight, then click on the price to
-      book when you've made your selection for all flights.
-    </div>
-    <div class="hide" id="no-results-message">
+    <p class="hide" id="results-message">
+      Click on a result to select it. After making selections for all flights,
+      click ✓ to book with Kiwi.
+    </p>
+    <p class="hide" id="no-results-message">
       No results! Did you enter everything correctly?
-    </div>
+    </p>
   </div></div>
-  
+
   <!-- Results -->
-  <div class="row" id="tables"><div class="col s12">
+  <div class="row"><div class="col s12">
     <h5>Results</h5>
     <ul class="tabs" id="tabs"></ul>
     <br>
+    <div class="row" style="margin-bottom: 0"><div class="input-field col s12">
+      <select id="columns" onchange="updateColumns()" multiple>
+        <option value="flight-time">Flight Time</option>
+        <option value="aircraft">Aircraft</option>
+        <option value="fare-class">Fare Class</option>
+      </select>
+      <label>Select additional columns</label>
+    </div></div>
+    <div id="tables"></div>
   </div></div>
 </main>
 

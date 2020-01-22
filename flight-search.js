@@ -17,15 +17,15 @@ const app = {
 const flights_api = "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky";
 
 const columns = [
-  "Flight",
-  "Departure",
-  "Arrival",
-  "Flight Time",
-  "Aircraft",
-  "Fare Class",
-  "Duration",
-  "Stops",
-  "Price",
+  ["Flight", "flight"],
+  ["Departure", "departure"],
+  ["Arrival", "arrival"],
+  ["Flight Time", "flight-time"],
+  ["Aircraft", "aircraft"],
+  ["Fare Class", "fare-class"],
+  ["Duration", "duration"],
+  ["Stops", "stops"],
+  ["Price", "price"],
 ];
 
 // Stored response from server.
@@ -165,22 +165,58 @@ function stopWorking() {
  */
 addEventListener("load", () => {
   qs("#app-version").innerText = app.version;
-  addFlight(["LAX", "", "NYC", "", "2020-04-24", "", "2020-04-24", ""]);
-  addFlight(["NYC", "", "LAX", "", "2020-04-27", "", "2020-04-27", ""]);
+  addFlight({
+    "origin": "LAX",
+    "destination": "EWR",
+    "earliest-departure-date": "2020-04-24",
+  });
+  addFlight({
+    "origin": "EWR",
+    "destination": "LAX",
+    "earliest-departure-date": "2020-04-27",
+  });
 });
+
+/**
+ * Shows or hides filter columns according to the user's selection.
+ */
+function updateFilters() {
+  for (const filter of qs("#filters").children) {
+    if (!filter.value) {
+      continue;
+    }
+    if (filter.selected) {
+      qsa(`.${filter.value}`).forEach(e => e.style.display = "");
+    }
+    else {
+      qsa(`.${filter.value}`).forEach(e => e.style.display = "none");
+    }
+  }
+}
+
+/**
+ * Shows or hides flight data columns according to the user's selection.
+ */
+function updateColumns() {
+  for (const column of qs("#columns").children) {
+    if (!column.value) {
+      continue;
+    }
+    if (column.selected) {
+      qsa(`.${column.value}`).forEach(e => e.style.display = "");
+    }
+    else {
+      qsa(`.${column.value}`).forEach(e => e.style.display = "none");
+    }
+  }
+}
 
 /**
  * Adds a flight to the itinerary.
  * 
- * @param {Array<string>} cells Optional. Values to pre-populate the row with.
+ * @param {object} cells Optional. Values to pre-populate the row with.
  */
-function addFlight(cells = null) {
-  if (!cells) {
-    cells = [];
-    for (let i = 0; i < columns.length; i++) {
-      cells.push("");
-    }
-  }
+function addFlight(cells = {}) {
   let last_index = qs("#itinerary").childElementCount;
 
   // Save active tab.
@@ -205,60 +241,68 @@ function addFlight(cells = null) {
     <td style="padding-right: 20px">
       Flight&nbsp;${last_index + 1}
     </td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="text" placeholder=" " value="${cells[0]}">
+    <td class="origin"><div class="row"><div class="input-field col s12">
+      <input type="text" placeholder=" " value="${cells["origin"] || ""}">
       <label class="active">Origin</label>
     </div></div></td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="text" placeholder="No preference" value="${cells[1]}">
+    <td class="transfer"><div class="row"><div class="input-field col s12">
+      <input type="text" placeholder="No preference" value="${cells["transfer"] || ""}">
       <label class="active">Transfer</label>
     </div></div></td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="text" placeholder=" " value="${cells[2]}">
+    <td class="destination"><div class="row"><div class="input-field col s12">
+      <input type="text" placeholder=" " value="${cells["destination"] || ""}">
       <label class="active">Destination</label>
     </div></div></td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="text" placeholder="No preference" value="${cells[3]}">
+    <td class="airline"><div class="row"><div class="input-field col s12">
+      <input type="text" placeholder="No preference" value="${cells["airline"] || ""}">
       <label class="active">Airline</label>
     </div></div></td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="date" placeholder="" value="${cells[4]}">
+    <td class="earliest-departure"><div class="row"><div class="input-field col s12">
+      <input type="date" placeholder="" value="${cells["earliest-departure-date"] || ""}">
       <label class="active">Earliest departure</label>
     </div></div></td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="time" placeholder="" value="${cells[5]}">
+    <td class="earliest-departure"><div class="row"><div class="input-field col s12">
+      <input type="time" placeholder="" value="${cells["earliest-departure-time"] || ""}">
     </div></div></td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="date" placeholder=" " value="${cells[6]}">
+    <td class="latest-departure"><div class="row"><div class="input-field col s12">
+      <input type="date" placeholder=" " value="${cells["latest-departure-date"] || ""}">
       <label class="active">Latest departure</label>
     </div></div></td>
-    <td><div class="row"><div class="input-field col s12">
-      <input type="time" placeholder=" " value="${cells[7]}">
+    <td class="latest-departure"><div class="row"><div class="input-field col s12">
+      <input type="time" placeholder=" " value="${cells["latest-departure-time"] || ""}">
+    </div></div></td>
+    <td class="earliest-arrival"><div class="row"><div class="input-field col s12">
+      <input type="time" placeholder="" value="${cells["earliest-arrival-time"] || ""}">
+      <label class="active">Earliest arrival</label>
+    </div></div></td>
+    <td class="latest-arrival"><div class="row"><div class="input-field col s12">
+      <input type="time" placeholder=" " value="${cells["latest-arrival-time"] || ""}">
+      <label class="active">Latest arrival</label>
     </div></div></td>
   `;
+  updateFilters();
+  qs("#remove-flight").classList.remove("disabled");
   qs("#tabs").innerHTML += `
     <li class="tab">
-      <a href="#table${last_index + 1}">Flight ${last_index + 1}</a>
+      <a href="#table${last_index + 1}">
+        Flight ${last_index + 1}
+        <span class="check hide">✓</span>
+      </a>
     </li>
   `;
   qs("#tables").innerHTML += `
     <div id="table${last_index + 1}" class="col s12">
       <table class="highlight">
-        <thead><tr>
-          <th>Flight</th>
-          <th>Departure</th>
-          <th>Arrival</th>
-          <th>Flight Time</th>
-          <th>Aircraft</th>
-          <th>Fare Class</th>
-          <th>Duration</th>
-          <th>Stops</th>
-          <th>Price</th>
-        </tr></thead>
+        <thead><tr></tr></thead>
         <tbody></tbody>
       </table>
     </div>
   `;
+  for (const column of columns) {
+    qs(`#table${last_index + 1} tr`).innerHTML +=
+      `<th class="${column[1]}">${column[0]}</th>`
+  }
+  updateColumns();
   displayed_flights.push({});
   selected_flights.push(null);
 
@@ -296,6 +340,9 @@ function removeFlight() {
 
   // Operate.
   qs("#itinerary").lastElementChild.remove();
+  if (last_index == 2) {
+    qs("#remove-flight").classList.add("disabled");
+  }
   qs("#tabs").lastElementChild.remove();
   qs("#tables").lastElementChild.remove();
   displayed_flights.pop();
@@ -389,31 +436,56 @@ function displayFlight(index, itinerary, flight) {
   `;
 
   // Stops.
-  cells[7] += flight.route.length == 1 ? "Nonstop" :
-              flight.route.length == 2 ? "1 stop" :
-              (flight.route.length - 1) + " stops";
-  
+  if (flight.route.length == 1) {
+    cells[7] += "Nonstop";
+  }
+  else if (flight.route.length == 2) {
+    let duration = flight.route[1].dTimeUTC - flight.route[0].aTimeUTC;
+    let duration_text = `${Math.floor(duration / 3600)}h ` +
+                        `${Math.floor(duration % 3600 / 60)}m`;
+    cells[7] += `
+      <div style="line-height: normal">
+        1 stop<br>
+        <span class="note">${duration_text} ${flight.route[0].flyTo}</span>
+      </div>
+    `;
+  }
+  else {
+    let stops = flight.route.slice(0, -1).map(segment => segment.flyTo);
+    cells[7] += `
+      <div style="line-height: normal">
+        ${stops.length} stops<br>
+        <span class="note">${stops.join(", ")}</span>
+      </div>
+    `;
+  }
+
   // Price.
   cells[8] += `
-    <a target="_blank" href="${itinerary.deep_link}">
+    <div style="line-height: normal">
       ${itinerary.price.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      })}
-    </a>
+      })}<br>
+      <span class="note">entire trip</span>
+    </div>
   `;
 
   // Create new row.
   let row = qsa("#tables tbody")[index].insertRow();
   row.classList.add("clickable");
+  if (selected_flights.includes(flight.id)) {
+    row.classList.add("selected");
+  }
   row.onclick = () => {
     selected_flights[index] = selected_flights[index] ? null : flight.id;
+    qs("#book").onclick = () => window.open(itinerary.deep_link);
     displayResults();
   };
-  for (let cell of cells) {
-    row.innerHTML += `<td>${cell}</td>`;
+  for (let [i, cell] of cells.entries()) {
+    row.innerHTML += `<td class="${columns[i][1]}">${cell}</td>`;
   }
 }
 
@@ -433,12 +505,29 @@ function displayResults() {
         displayFlight(0, itinerary, itinerary);
       }
     }
-    else if (itinerary.route.every((v, i, _) =>
+    else if (itinerary.route.every((v, i) =>
              !selected_flights[i] || v.id == selected_flights[i])) {
       for (const [i, segment] of itinerary.route.entries()) {
         displayFlight(i, itinerary, segment);
       }
     }
+  }
+  updateColumns();
+
+  // Handle selected flights.
+  for (let i = 0; i < selected_flights.length; i++) {
+    if (selected_flights[i]) {
+      qsa("#tabs .check")[i].classList.remove("hide");
+    }
+    else {
+      qsa("#tabs .check")[i].classList.add("hide");
+    }
+  }
+  if (selected_flights.every(v => v)) {
+    qs("#book").classList.remove("disabled");
+  }
+  else {
+    qs("#book").classList.add("disabled");
   }
 }
 
@@ -452,14 +541,16 @@ function main() {
   let body = {"requests": []};
   for (let i = 0; i < qs("#itinerary").childElementCount; i++) {
     body["requests"].push({
-      "fly_from": getInput(i, 1),
+      "fly_from": "airport:" + getInput(i, 1),
       "select_stop_airport": getInput(i, 2),
-      "fly_to": getInput(i, 3),
+      "fly_to": "airport:" + getInput(i, 3),
       "select_airlines": getInput(i, 4),
       "date_from": kiwiDate(getInput(i, 5)),
       "dtime_from": getInput(i, 6),
-      "date_to": kiwiDate(getInput(i, 7)),
+      "date_to": getInput(i, 7) ? kiwiDate(getInput(i, 7)) : kiwiDate(getInput(i, 5)),
       "dtime_to": getInput(i, 8),
+      "atime_from": getInput(i, 9),
+      "atime_to": getInput(i, 10),
       "adults": 1,
     })
   }
