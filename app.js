@@ -1,10 +1,10 @@
 'use strict';
 
-const express = require('express');
+const express = require("express");
 const path = require("path");
 const app = express();
 
-app.use(express.static('public'))
+app.use(express.static("public"))
 app.use(function(req, res) {
   res.status(404).sendFile(path.join(__dirname, "/public/404.html"))
 })
