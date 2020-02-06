@@ -29,12 +29,12 @@ class Itinerary {
       <td class="transfer"><div class="row"><div class="input-field col s12">
         <input type="number" placeholder="No limit" min="0"
           value="${cells["max-stops"] != undefined ? cells["max-stops"] : 2}">
-        <label class="active">Max stops</label>
+        <label class="active">Max&nbsp;stops</label>
       </div></div></td>
       <td class="transfer"><div class="row"><div class="input-field col s12">
         <input type="text" placeholder="No preference"
           value="${cells["transfer"] || ""}">
-        <label class="active">Transfer airport</label>
+        <label class="active">Transfer&nbsp;airport</label>
       </div></div></td>
       <td class="destination"><div class="row"><div class="input-field col s12">
         <input type="text" placeholder=" "
@@ -49,32 +49,47 @@ class Itinerary {
       <td class="earliest-date"><div class="row"><div class="input-field col s12">
         <input type="date" placeholder=""
           value="${cells["earliest-date"] || ""}">
-        <label class="active">Earliest date</label>
+        <label class="active">Earliest&nbsp;date</label>
       </div></div></td>
       <td class="latest-date"><div class="row"><div class="input-field col s12">
         <input type="date" placeholder=" "
           value="${cells["latest-date"] || ""}">
-        <label class="active">Latest date</label>
+        <label class="active">Latest&nbsp;date</label>
       </div></div></td>
       <td class="departure-time"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder=""
+        <input type="time" placeholder="" step="3600"
           value="${cells["earliest-departure-time"] || ""}">
-        <label class="active">Earliest dep.</label>
+        <label class="active">Earliest&nbsp;dep.</label>
       </div></div></td>
       <td class="departure-time"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder=" "
+        <input type="time" placeholder=" " step="3600"
           value="${cells["latest-departure-time"] || ""}">
-        <label class="active">Latest dep.</label>
+        <label class="active">Latest&nbsp;dep.</label>
       </div></div></td>
       <td class="arrival-time"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder=""
+        <input type="time" placeholder="" step="3600"
           value="${cells["earliest-arrival-time"] || ""}">
-        <label class="active">Earliest arr.</label>
+        <label class="active">Earliest&nbsp;arr.</label>
       </div></div></td>
       <td class="arrival-time"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder=" "
+        <input type="time" placeholder=" " step="3600"
           value="${cells["latest-arrival-time"] || ""}">
-        <label class="active">Latest arr.</label>
+        <label class="active">Latest&nbsp;arr.</label>
+      </div></div></td>
+      <td class="max-duration"><div class="row"><div class="input-field col s12">
+        <input type="number" placeholder="No limit" min="0"
+          value="${cells["max-duration"] || ""}">
+        <label class="active">Max&nbsp;duration&nbsp;(hrs.)</label>
+      </div></div></td>
+      <td class="bags"><div class="row"><div class="input-field col s12">
+        <input type="number" placeholder="None" min="0" max="2"
+          value="${cells["checked-bags"] || ""}">
+        <label class="active">Checked&nbsp;bags</label>
+      </div></div></td>
+      <td class="bags"><div class="row"><div class="input-field col s12">
+        <input type="number" placeholder="None" min="0" max="1"
+          value="${cells["carryon-bags"] || ""}">
+        <label class="active">Carry-on&nbsp;bags</label>
       </div></div></td>
       <td class="cabin"><div class="row"><div class="col s12 input-field">
         <select>

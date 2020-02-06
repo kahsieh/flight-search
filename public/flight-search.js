@@ -99,7 +99,7 @@ function main() {
     if (Itinerary.get(i, 5)) {
       flight["select_airlines"] = Itinerary.get(i, 5);
     }
-    if (Itinerary.get(i, 7)) {
+    if (Itinerary.get(i, 8)) {
       flight["dtime_from"] = Itinerary.get(i, 8);
     }
     if (Itinerary.get(i, 9)) {
@@ -112,7 +112,16 @@ function main() {
       flight["atime_to"] = Itinerary.get(i, 11);
     }
     if (Itinerary.get(i, 12)) {
-      flight["selected_cabins"] = Itinerary.get(i, 12);
+      flight["max_fly_duration"] = Itinerary.get(i, 12);
+    }
+    if (Itinerary.get(i, 13)) {
+      flight["adult_hold_bag"] = Itinerary.get(i, 13);
+    }
+    if (Itinerary.get(i, 14)) {
+      flight["adult_hand_bag"] = Itinerary.get(i, 14);
+    }
+    if (Itinerary.get(i, 15)) {
+      flight["selected_cabins"] = Itinerary.get(i, 15);
     }
     body["requests"].push(flight);
   }
@@ -134,7 +143,6 @@ function main() {
 
     // Reformat response for single-flight itineraries.
     if (res.length == 1 && Array.isArray(res[0])) {
-      console.log("test");
       res = res[0];
       single = true;
     }
