@@ -48,22 +48,22 @@ addEventListener("load", () => {
   Itinerary.addFlight({
     "origin": "LAX",
     "destination": "KHH",
-    "earliest-departure-date": "2020-05-15",
+    "earliest-date": "2020-05-15",
   });
   Itinerary.addFlight({
     "origin": "KHH",
     "destination": "NRT",
-    "earliest-departure-date": "2020-05-22",
+    "earliest-date": "2020-05-22",
   });
   Itinerary.addFlight({
     "origin": "KIX",
     "destination": "KHH",
-    "earliest-departure-date": "2020-05-29",
+    "earliest-date": "2020-05-29",
   });
   Itinerary.addFlight({
     "origin": "KHH",
     "destination": "LAX",
-    "earliest-departure-date": "2020-06-05",
+    "earliest-date": "2020-06-05",
   });
 });
 
@@ -83,7 +83,7 @@ function main() {
       "fly_from": "airport:" + Itinerary.get(i, 1),
       "fly_to": "airport:" + Itinerary.get(i, 4),
       "date_from": kiwiDate(Itinerary.get(i, 6)),
-      "date_to": kiwiDate(Itinerary.get(i, 8)) || kiwiDate(Itinerary.get(i, 6)),
+      "date_to": kiwiDate(Itinerary.get(i, 7)) || kiwiDate(Itinerary.get(i, 6)),
       "adults": 1,
     };
     if (Itinerary.get(i, 2)) {
@@ -96,7 +96,7 @@ function main() {
       flight["select_airlines"] = Itinerary.get(i, 5);
     }
     if (Itinerary.get(i, 7)) {
-      flight["dtime_from"] = Itinerary.get(i, 7);
+      flight["dtime_from"] = Itinerary.get(i, 8);
     }
     if (Itinerary.get(i, 9)) {
       flight["dtime_to"] = Itinerary.get(i, 9);
@@ -106,6 +106,9 @@ function main() {
     }
     if (Itinerary.get(i, 11)) {
       flight["atime_to"] = Itinerary.get(i, 11);
+    }
+    if (Itinerary.get(i, 12)) {
+      flight["selected_cabins"] = Itinerary.get(i, 12);
     }
     body["requests"].push(flight);
   }
@@ -142,5 +145,5 @@ function main() {
     FlightTable.displayResults(res, single);
     stopWorking();
   }
-  req.send(JSON.stringify(body)); 
+  req.send(JSON.stringify(body));
 }

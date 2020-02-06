@@ -44,11 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
     <!-- Filter selector -->
     <div class="row"><div class="col s12 input-field">
       <select id="filters" onchange="Itinerary.updateFilters()" multiple>
-        <option value="transfer">Transfer</option>
+        <option value="transfer" selected>Transfer</option>
         <option value="airline">Airline</option>
-        <option value="latest-departure">Latest departure</option>
-        <option value="earliest-arrival">Earliest arrival</option>
-        <option value="latest-arrival">Latest arrival</option>
+        <option value="latest-date">Latest date</option>
+        <option value="departure-time">Departure time</option>
+        <option value="arrival-time">Arrival time</option>
+        <option value="cabin">Cabin</option>
       </select>
       <label>Filters</label>
     </div></div>
