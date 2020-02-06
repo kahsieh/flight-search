@@ -1,0 +1,32 @@
+{
+  "name": "project-5-peas-in-a-pod",
+  "version": "1.0.0",
+  "description": "Friendly tabular flight search powered by kiwi.com.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cs188-software-design-security-w20/project-5-peas-in-a-pod.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cs188-software-design-security-w20/project-5-peas-in-a-pod/issues"
+  },
+  "homepage": "https://github.com/cs188-software-design-security-w20/project-5-peas-in-a-pod#readme",
+  "scripts": {
+    "start": "node app.js",
+    "e2e": "repo-tools test deploy",
+    "test": "repo-tools test app",
+    "cover": "nyc --cache npm test; nyc report --reporter=html"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@google-cloud/nodejs-repo-tools": "^3.0.0"
+  }
+}
