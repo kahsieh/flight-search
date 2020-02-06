@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="row"><div class="col s12 input-field">
       <select id="filters" onchange="Itinerary.updateFilters()" multiple>
         <option value="transfer" selected>Transfer</option>
-        <option value="airline">Airline</option>
+        <option value="airline" selected>Airline</option>
         <option value="latest-date">Latest date</option>
         <option value="departure-time">Departure time</option>
         <option value="arrival-time">Arrival time</option>
@@ -84,11 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="circle-clipper right"><div class="circle"></div></div>
         </div>
       </div>
-      <p class="hide" id="results-message">
+      <p class="hide results-message">
         Click on a result to select it. After making selections for all flights,
         click ✓ to book with Kiwi.
       </p>
-      <p class="hide" id="no-results-message">
+      <p class="hide no-results-message">
         No results! Did you enter everything correctly?
       </p>
     </div>
@@ -110,6 +110,9 @@ document.addEventListener("DOMContentLoaded", () => {
     </div></div>
     <!-- Flight tables -->
     <div id="tables" style="line-height: 36px"></div>
+    <p class="hide results-message">
+      More specific filters may reveal additional flight options.
+    </p>
   </div></div>
 </main>
 

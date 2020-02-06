@@ -24,8 +24,8 @@ const app = {
 function startWorking() {
   qs("#search").disabled = true;
   qs("#spinner").classList.remove("hide");
-  qs("#results-message").classList.add("hide");
-  qs("#no-results-message").classList.add("hide");
+  qsa(".results-message").forEach(el => el.classList.add("hide"));
+  qsa(".no-results-message").forEach(el => el.classList.add("hide"));
 }
 
 /**
@@ -47,21 +47,25 @@ addEventListener("load", () => {
   qs("#app-version").innerText = app.version;
   Itinerary.addFlight({
     "origin": "LAX",
+    "max-stops": 1,
     "destination": "KHH",
     "earliest-date": "2020-05-15",
   });
   Itinerary.addFlight({
     "origin": "KHH",
+    "max-stops": 0,
     "destination": "NRT",
     "earliest-date": "2020-05-22",
   });
   Itinerary.addFlight({
     "origin": "KIX",
+    "max-stops": 0,
     "destination": "KHH",
     "earliest-date": "2020-05-29",
   });
   Itinerary.addFlight({
     "origin": "KHH",
+    "max-stops": 1,
     "destination": "LAX",
     "earliest-date": "2020-06-05",
   });
@@ -122,10 +126,10 @@ function main() {
     }
     res = JSON.parse(req.responseText);
     if (res.length > 0) {
-      qs("#results-message").classList.remove("hide");
+      qsa(".results-message").forEach(el => el.classList.remove("hide"));
     }
     else {
-      qs("#no-results-message").classList.remove("hide");
+      qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
     }
 
     // Reformat response for single-flight itineraries.
