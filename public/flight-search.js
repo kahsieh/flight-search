@@ -46,28 +46,28 @@ function stopWorking() {
 addEventListener("load", () => {
   qs("#app-version").innerText = app.version;
   Itinerary.addFlight({
-    "origin": "LAX",
-    "max-stops": 1,
-    "destination": "KHH",
-    "earliest-date": "2020-05-15",
+    "fly_from": "LAX",
+    "max_stopovers": 1,
+    "fly_to": "KHH",
+    "date_from": "2020-05-15",
   });
   Itinerary.addFlight({
-    "origin": "KHH",
-    "max-stops": 0,
-    "destination": "NRT",
-    "earliest-date": "2020-05-22",
+    "fly_from": "KHH",
+    "max_stopovers": 0,
+    "fly_to": "NRT",
+    "date_from": "2020-05-22",
   });
   Itinerary.addFlight({
-    "origin": "KIX",
-    "max-stops": 0,
-    "destination": "KHH",
-    "earliest-date": "2020-05-29",
+    "fly_from": "KIX",
+    "max_stopovers": 0,
+    "fly_to": "KHH",
+    "date_from": "2020-05-29",
   });
   Itinerary.addFlight({
-    "origin": "KHH",
-    "max-stops": 1,
-    "destination": "LAX",
-    "earliest-date": "2020-06-05",
+    "fly_from": "KHH",
+    "max_stopovers": 1,
+    "fly_to": "LAX",
+    "date_from": "2020-06-05",
   });
 });
 
@@ -84,44 +84,33 @@ function main() {
   let body = {"requests": []};
   for (let i = 0; i < Itinerary.length; i++) {
     let flight = {
-      "fly_from": "airport:" + Itinerary.get(i, 1),
-      "fly_to": "airport:" + Itinerary.get(i, 4),
-      "date_from": kiwiDate(Itinerary.get(i, 6)),
-      "date_to": kiwiDate(Itinerary.get(i, 7)) || kiwiDate(Itinerary.get(i, 6)),
+      "fly_from": "airport:" + Itinerary.get(i, "fly_from"),
+      "fly_to": "airport:" + Itinerary.get(i, "fly_to"),
+      "date_from": kiwiDate(Itinerary.get(i, "date_from")),
+      "date_to": kiwiDate(Itinerary.get(i, "date_to")) || kiwiDate(Itinerary.get(i, "date_from")),
       "adults": 1,
     };
-    if (Itinerary.get(i, 2)) {
-      flight["max_stopovers"] = Itinerary.get(i, 2);
-    }
-    if (Itinerary.get(i, 3)) {
-      flight["select_stop_airport"] = Itinerary.get(i, 3);
-    }
-    if (Itinerary.get(i, 5)) {
-      flight["select_airlines"] = Itinerary.get(i, 5);
-    }
-    if (Itinerary.get(i, 8)) {
-      flight["dtime_from"] = Itinerary.get(i, 8);
-    }
-    if (Itinerary.get(i, 9)) {
-      flight["dtime_to"] = Itinerary.get(i, 9);
-    }
-    if (Itinerary.get(i, 10)) {
-      flight["atime_from"] = Itinerary.get(i, 10);
-    }
-    if (Itinerary.get(i, 11)) {
-      flight["atime_to"] = Itinerary.get(i, 11);
-    }
-    if (Itinerary.get(i, 12)) {
-      flight["max_fly_duration"] = Itinerary.get(i, 12);
-    }
-    if (Itinerary.get(i, 13)) {
-      flight["adult_hold_bag"] = Itinerary.get(i, 13);
-    }
-    if (Itinerary.get(i, 14)) {
-      flight["adult_hand_bag"] = Itinerary.get(i, 14);
-    }
-    if (Itinerary.get(i, 15)) {
-      flight["selected_cabins"] = Itinerary.get(i, 15);
+    const optional_fields = [
+      "max_stopovers",
+      "stopover_from",
+      "stopover_to",
+      "select_stop_airport",
+      "select_stop_airport_exclude",
+      "select_airlines",
+      "select_airlines_exclude",
+      "dtime_from",
+      "dtime_to",
+      "atime_from",
+      "atime_to",
+      "max_fly_duration",
+      "adult_hold_bag",
+      "adult_hand_bag",
+      "selected_cabins",
+    ];
+    for (const field of optional_fields) {
+      if (Itinerary.get(i, field)) {
+        flight[field] = Itinerary.get(i, field);
+      }
     }
     body["requests"].push(flight);
   }
