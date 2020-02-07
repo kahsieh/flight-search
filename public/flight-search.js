@@ -55,8 +55,8 @@ function prepareFetches() {
       }
 
       let flight = {
-        "fly_from": "airport:" + Itinerary.get(i, "fly_from"),
-        "fly_to": "airport:" + Itinerary.get(i, "fly_to"),
+        "fly_from": "airport:" + Itinerary.get(i, "fly_from").split("|")[Math.min(Itinerary.get(i, "fly_from").split("|").length - 1, a)],
+        "fly_to": "airport:" + Itinerary.get(i, "fly_to").split("|")[Math.min(Itinerary.get(i, "fly_to").split("|").length - 1, a)],
         "date_from": kiwiDate(Itinerary.get(i, "date_from")),
         "date_to": kiwiDate(Itinerary.get(i, "date_to")) || kiwiDate(Itinerary.get(i, "date_from")),
         "adults": 1,
