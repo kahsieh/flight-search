@@ -36,6 +36,69 @@ function stopWorking() {
   qs("#spinner").classList.add("hide");
 }
 
+/**
+ *
+ */
+function prepareFetches() {
+  let num_airports = 1; // Notice that num_airports is dynamically updated as we discover additional airports
+  let promises = [];
+  for (let a = 0; a < num_airports; a++) {
+    let body = {"requests": []};
+    for (let i = 0; i < Itinerary.length; i++) {
+      let curr_num_airports = Math.max(Itinerary.get(i, 1).split("|").length, Itinerary.get(i, 4).split("|").length);
+      if (num_airports > 1 && curr_num_airports > 1 && num_airports != curr_num_airports){
+        // Error
+        return [];
+      }
+      else{
+        num_airports = Math.max(num_airports, curr_num_airports);
+      }
+      
+      let flight = {
+        "fly_from": "airport:" + Itinerary.get(i, 1).split("|")[Math.min(Itinerary.get(i, 1).split("|").length - 1, a)],
+        "fly_to": "airport:" + Itinerary.get(i, 4).split("|")[Math.min(Itinerary.get(i, 4).split("|").length - 1, a)],
+        "date_from": kiwiDate(Itinerary.get(i, 6)),
+        "date_to": kiwiDate(Itinerary.get(i, 8)) || kiwiDate(Itinerary.get(i, 6)),
+        "adults": 1,
+      };
+      if (Itinerary.get(i, 2)) {
+        flight["max_stopovers"] = Itinerary.get(i, 2);
+      }
+      if (Itinerary.get(i, 3)) {
+        flight["select_stop_airport"] = Itinerary.get(i, 3);
+      }
+      if (Itinerary.get(i, 5)) {
+        flight["select_airlines"] = Itinerary.get(i, 5);
+      }
+      if (Itinerary.get(i, 7)) {
+        flight["dtime_from"] = Itinerary.get(i, 7);
+      }
+      if (Itinerary.get(i, 9)) {
+        flight["dtime_to"] = Itinerary.get(i, 9);
+      }
+      if (Itinerary.get(i, 10)) {
+        flight["atime_from"] = Itinerary.get(i, 10);
+      }
+      if (Itinerary.get(i, 11)) {
+        flight["atime_to"] = Itinerary.get(i, 11);
+      }
+      body["requests"].push(flight);
+    }
+    console.log("Request:");
+    console.log(body);
+
+    promises.push(fetch("https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }));
+  }
+  
+  return promises;
+}
+
 // -----------------------------------------------------------------------------
 // APPLICATION
 // -----------------------------------------------------------------------------
@@ -52,11 +115,11 @@ addEventListener("load", () => {
   });
   Itinerary.addFlight({
     "origin": "KHH",
-    "destination": "NRT",
+    "destination": "NRT|KIX",
     "earliest-departure-date": "2020-05-22",
   });
   Itinerary.addFlight({
-    "origin": "KIX",
+    "origin": "KIX|NRT",
     "destination": "KHH",
     "earliest-departure-date": "2020-05-29",
   });
@@ -70,77 +133,46 @@ addEventListener("load", () => {
 /**
  * Function to run when search button is pressed.
  */
-function main() {
+async function main() {
   startWorking();
 
-  // Prepare request.
-  let req = new XMLHttpRequest();
-  req.open("POST", "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky");
-  req.setRequestHeader("Content-Type", "application/json");
-  let body = {"requests": []};
-  for (let i = 0; i < Itinerary.length; i++) {
-    let flight = {
-      "fly_from": "airport:" + Itinerary.get(i, 1),
-      "fly_to": "airport:" + Itinerary.get(i, 4),
-      "date_from": kiwiDate(Itinerary.get(i, 6)),
-      "date_to": kiwiDate(Itinerary.get(i, 8)) || kiwiDate(Itinerary.get(i, 6)),
-      "adults": 1,
-    };
-    if (Itinerary.get(i, 2)) {
-      flight["max_stopovers"] = Itinerary.get(i, 2);
-    }
-    if (Itinerary.get(i, 3)) {
-      flight["select_stop_airport"] = Itinerary.get(i, 3);
-    }
-    if (Itinerary.get(i, 5)) {
-      flight["select_airlines"] = Itinerary.get(i, 5);
-    }
-    if (Itinerary.get(i, 7)) {
-      flight["dtime_from"] = Itinerary.get(i, 7);
-    }
-    if (Itinerary.get(i, 9)) {
-      flight["dtime_to"] = Itinerary.get(i, 9);
-    }
-    if (Itinerary.get(i, 10)) {
-      flight["atime_from"] = Itinerary.get(i, 10);
-    }
-    if (Itinerary.get(i, 11)) {
-      flight["atime_to"] = Itinerary.get(i, 11);
-    }
-    body["requests"].push(flight);
+  // Prepare fetches
+  let fetches = prepareFetches();
+  
+  // Execute fetches
+  let res = await Promise.all(fetches)
+  .then(values => { 
+    let res = [];
+    values.forEach(value => res = res.concat(value.json()));
+    return Promise.all(res);
+  }).then(values => {
+    let res = [];
+    values.forEach(value => res = res.concat(value));
+    return res;
+  }).catch(function(error) {
+    console.error(error);
+  });
+
+  // Reformat response for single-flight itineraries.
+  if (res.length == 1 && Array.isArray(res[0])) {
+    res = res[0];
+    single = true;
   }
-  console.log("Request:");
-  console.log(body);
-
-  // Handle response.
-  req.onreadystatechange = () => {
-    if (!(req.readyState == 4 && (!req.status || req.status == 200))) {
-      return;
-    }
-    res = JSON.parse(req.responseText);
-    if (res.length > 0) {
-      qs("#results-message").classList.remove("hide");
-    }
-    else {
-      qs("#no-results-message").classList.remove("hide");
-    }
-
-    // Reformat response for single-flight itineraries.
-    if (res.length == 1 && Array.isArray(res[0])) {
-      console.log("test");
-      res = res[0];
-      single = true;
-    }
-    else {
-      single = false;
-    }
-
-    // Display results.
-    console.log("Response:");
-    console.log(res);
-    FlightTable.tables.forEach(ft => ft.clearSelection());
-    FlightTable.displayResults(res, single);
-    stopWorking();
+  else {
+    single = false;
   }
-  req.send(JSON.stringify(body)); 
+
+  // Display results
+  if (res.length > 0) {
+    qs("#results-message").classList.remove("hide");
+  }
+  else {
+    qs("#no-results-message").classList.remove("hide");
+  }
+  
+  console.log("Response:");
+  console.log(res);
+  FlightTable.tables.forEach(ft => ft.clearSelection());
+  FlightTable.displayResults(res, single);
+  stopWorking();
 }
