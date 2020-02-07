@@ -11,7 +11,7 @@ class Itinerary {
 
   /**
    * Adds a flight to the itinerary.
-   * 
+   *
    * @param {object} cells Optional. Values to pre-populate the row with.
    */
   static addFlight(cells = {}) {
@@ -22,46 +22,83 @@ class Itinerary {
         Flight&nbsp;${this.length}
       </td>
       <td class="origin"><div class="row"><div class="input-field col s12">
-        <input type="text" placeholder=" " value="${cells["origin"] || ""}">
+        <input type="text" placeholder=" "
+          value="${cells["origin"] || ""}">
         <label class="active">Origin</label>
       </div></div></td>
       <td class="transfer"><div class="row"><div class="input-field col s12">
-        <input type="number" placeholder="No limit" min="0" value="${cells["max-stops"] || ""}">
-        <label class="active">Max stops</label>
+        <input type="number" placeholder="No limit" min="0"
+          value="${cells["max-stops"] != undefined ? cells["max-stops"] : 2}">
+        <label class="active">Max&nbsp;stops</label>
       </div></div></td>
       <td class="transfer"><div class="row"><div class="input-field col s12">
-        <input type="text" placeholder="No preference" value="${cells["transfer"] || ""}">
-        <label class="active">Transfer airport</label>
+        <input type="text" placeholder="No preference"
+          value="${cells["transfer"] || ""}">
+        <label class="active">Transfer&nbsp;airport</label>
       </div></div></td>
       <td class="destination"><div class="row"><div class="input-field col s12">
-        <input type="text" placeholder=" " value="${cells["destination"] || ""}">
+        <input type="text" placeholder=" "
+          value="${cells["destination"] || ""}">
         <label class="active">Destination</label>
       </div></div></td>
       <td class="airline"><div class="row"><div class="input-field col s12">
-        <input type="text" placeholder="No preference" value="${cells["airline"] || ""}">
+        <input type="text" placeholder="No preference"
+          value="${cells["airline"] || ""}">
         <label class="active">Airline</label>
       </div></div></td>
-      <td class="earliest-departure"><div class="row"><div class="input-field col s12">
-        <input type="date" placeholder="" value="${cells["earliest-departure-date"] || ""}">
-        <label class="active">Earliest departure</label>
+      <td class="earliest-date"><div class="row"><div class="input-field col s12">
+        <input type="date" placeholder=""
+          value="${cells["earliest-date"] || ""}">
+        <label class="active">Earliest&nbsp;date</label>
       </div></div></td>
-      <td class="earliest-departure"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder="" value="${cells["earliest-departure-time"] || ""}">
+      <td class="latest-date"><div class="row"><div class="input-field col s12">
+        <input type="date" placeholder=" "
+          value="${cells["latest-date"] || ""}">
+        <label class="active">Latest&nbsp;date</label>
       </div></div></td>
-      <td class="latest-departure"><div class="row"><div class="input-field col s12">
-        <input type="date" placeholder=" " value="${cells["latest-departure-date"] || ""}">
-        <label class="active">Latest departure</label>
+      <td class="departure-time"><div class="row"><div class="input-field col s12">
+        <input type="time" placeholder="" step="3600"
+          value="${cells["earliest-departure-time"] || ""}">
+        <label class="active">Earliest&nbsp;dep.</label>
       </div></div></td>
-      <td class="latest-departure"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder=" " value="${cells["latest-departure-time"] || ""}">
+      <td class="departure-time"><div class="row"><div class="input-field col s12">
+        <input type="time" placeholder=" " step="3600"
+          value="${cells["latest-departure-time"] || ""}">
+        <label class="active">Latest&nbsp;dep.</label>
       </div></div></td>
-      <td class="earliest-arrival"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder="" value="${cells["earliest-arrival-time"] || ""}">
-        <label class="active">Earliest arrival</label>
+      <td class="arrival-time"><div class="row"><div class="input-field col s12">
+        <input type="time" placeholder="" step="3600"
+          value="${cells["earliest-arrival-time"] || ""}">
+        <label class="active">Earliest&nbsp;arr.</label>
       </div></div></td>
-      <td class="latest-arrival"><div class="row"><div class="input-field col s12">
-        <input type="time" placeholder=" " value="${cells["latest-arrival-time"] || ""}">
-        <label class="active">Latest arrival</label>
+      <td class="arrival-time"><div class="row"><div class="input-field col s12">
+        <input type="time" placeholder=" " step="3600"
+          value="${cells["latest-arrival-time"] || ""}">
+        <label class="active">Latest&nbsp;arr.</label>
+      </div></div></td>
+      <td class="max-duration"><div class="row"><div class="input-field col s12">
+        <input type="number" placeholder="No limit" min="0"
+          value="${cells["max-duration"] || ""}">
+        <label class="active">Max&nbsp;duration&nbsp;(hrs.)</label>
+      </div></div></td>
+      <td class="bags"><div class="row"><div class="input-field col s12">
+        <input type="number" placeholder="None" min="0" max="2"
+          value="${cells["checked-bags"] || ""}">
+        <label class="active">Checked&nbsp;bags</label>
+      </div></div></td>
+      <td class="bags"><div class="row"><div class="input-field col s12">
+        <input type="number" placeholder="None" min="0" max="1"
+          value="${cells["carryon-bags"] || ""}">
+        <label class="active">Carry-on&nbsp;bags</label>
+      </div></div></td>
+      <td class="cabin"><div class="row"><div class="col s12 input-field">
+        <select>
+          <option value="M" selected>Economy</option>
+          <option value="W">Premium Economy</option>
+          <option value="C">Business</option>
+          <option value="F">First</option>
+        </select>
+        <label>Cabin</label>
       </div></div></td>
     `;
     this.updateFilters();
@@ -89,23 +126,30 @@ class Itinerary {
 
   /**
    * Retrieves the value from a cell.
-   * 
+   *
    * @param {number} row Row number.
    * @param {number} col Column number.
    * @return {string} Current value of cell.
    */
   static get(row, col) {
-    return qs("#itinerary").children[row]  // tr
-                          .children[col]  // td
-                          .children[0]  // div
-                          .children[0]  // div
-                          .children[0]  // input
-                          .value;
+    let cell = qs("#itinerary").children[row].children[col];
+    // Special handling for cabin dropdown.
+    if (cell.classList.contains("cabin")) {
+      for (const cabin of cell.querySelector("select")) {
+        if (cabin.selected) {
+          return cabin.value;
+        }
+      }
+    }
+    return cell.children[0]  // div
+               .children[0]  // div
+               .children[0]  // input
+               .value;
   }
 
   /**
    * Sets the value of a cell.
-   * 
+   *
    * @param {number} row Row number.
    * @param {number} col Column number.
    * @param {any} val New value for cell.
@@ -134,5 +178,6 @@ class Itinerary {
         qsa(`.${filter.value}`).forEach(e => e.style.display = "none");
       }
     }
+    M.FormSelect.init(qsa(".cabin select"), {});
   }
 }

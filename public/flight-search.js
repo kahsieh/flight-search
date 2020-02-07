@@ -24,8 +24,8 @@ const app = {
 function startWorking() {
   qs("#search").disabled = true;
   qs("#spinner").classList.remove("hide");
-  qs("#results-message").classList.add("hide");
-  qs("#no-results-message").classList.add("hide");
+  qsa(".results-message").forEach(el => el.classList.add("hide"));
+  qsa(".no-results-message").forEach(el => el.classList.add("hide"));
 }
 
 /**
@@ -70,8 +70,8 @@ function prepareFetches() {
       if (Itinerary.get(i, 5)) {
         flight["select_airlines"] = Itinerary.get(i, 5);
       }
-      if (Itinerary.get(i, 7)) {
-        flight["dtime_from"] = Itinerary.get(i, 7);
+      if (Itinerary.get(i, 8)) {
+        flight["dtime_from"] = Itinerary.get(i, 8);
       }
       if (Itinerary.get(i, 9)) {
         flight["dtime_to"] = Itinerary.get(i, 9);
@@ -81,6 +81,18 @@ function prepareFetches() {
       }
       if (Itinerary.get(i, 11)) {
         flight["atime_to"] = Itinerary.get(i, 11);
+      }
+      if (Itinerary.get(i, 12)) {
+        flight["max_fly_duration"] = Itinerary.get(i, 12);
+      }
+      if (Itinerary.get(i, 13)) {
+        flight["adult_hold_bag"] = Itinerary.get(i, 13);
+      }
+      if (Itinerary.get(i, 14)) {
+        flight["adult_hand_bag"] = Itinerary.get(i, 14);
+      }
+      if (Itinerary.get(i, 15)) {
+        flight["selected_cabins"] = Itinerary.get(i, 15);
       }
       body["requests"].push(flight);
     }
@@ -110,23 +122,27 @@ addEventListener("load", () => {
   qs("#app-version").innerText = app.version;
   Itinerary.addFlight({
     "origin": "LAX",
+    "max-stops": 1,
     "destination": "KHH",
-    "earliest-departure-date": "2020-05-15",
+    "earliest-date": "2020-05-15",
   });
   Itinerary.addFlight({
     "origin": "KHH",
+    "max-stops": 0,
     "destination": "NRT|KIX",
-    "earliest-departure-date": "2020-05-22",
+    "earliest-date": "2020-05-22",
   });
   Itinerary.addFlight({
     "origin": "KIX|NRT",
+    "max-stops": 0,
     "destination": "KHH",
-    "earliest-departure-date": "2020-05-29",
+    "earliest-date": "2020-05-29",
   });
   Itinerary.addFlight({
     "origin": "KHH",
+    "max-stops": 1,
     "destination": "LAX",
-    "earliest-departure-date": "2020-06-05",
+    "earliest-date": "2020-06-05",
   });
 });
 
@@ -164,10 +180,10 @@ async function main() {
 
   // Display results
   if (res.length > 0) {
-    qs("#results-message").classList.remove("hide");
+    qsa(".results-message").forEach(el => el.classList.remove("hide"));
   }
   else {
-    qs("#no-results-message").classList.remove("hide");
+    qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
   }
   
   console.log("Response:");
