@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<!--
+Five Peas Flight Search
+signup.html
+
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
+All Rights Reserved.
+-->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup</title>
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="stylesheet" href="materialize/materialize.css">
+  <link rel="stylesheet" href="materialize/icon.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="materialize/materialize.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</head>
+<body>
+  <header><nav>
+    <div class="nav-wrapper container"><a href="" class="brand-logo">
+      <i class="material-icons">flight</i>Five Peas Flight Search
+    </a></div>
+  </nav></header>
+
+  <header>Signup</header>
+  <form action="/submit-form" method="POST">
+    Email: <input type="text" name="FirstName"><br>
+    Password: <input type="text" name="Password"><br>
+    <input type="submit" value="SignUp">
+  </form>
+</body>
+</html>
