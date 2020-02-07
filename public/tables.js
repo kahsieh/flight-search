@@ -55,7 +55,7 @@ class FlightTable {
 
   /**
    * Adds a tab to the UI.
-   * 
+   *
    * @return {Element} li element.
    */
   _addTab() {
@@ -73,7 +73,7 @@ class FlightTable {
 
   /**
    * Adds a flight table to the UI and updates columns.
-   * 
+   *
    * @return {Element} div element.
    */
   _addTable() {
@@ -95,7 +95,7 @@ class FlightTable {
 
   /**
    * Adds a flight to table if it isn't displayed already.
-   * 
+   *
    * @param {Object} itinerary Itinerary returned by the API.
    * @param {object} flight Flight returned by the API. Same as itinerary for
    *   single flights.
@@ -219,9 +219,9 @@ class FlightTable {
     if (flight.id == this._selected) {
       row.classList.add("selected");
     }
-    
+
     row.onclick = () => {
-      FlightTable.tables[this._i]._selected = 
+      FlightTable.tables[this._i]._selected =
         FlightTable.tables[this._i]._selected ? null : flight.id;
       qs("#book").onclick = () => window.open(itinerary.deep_link);
       this.constructor.displayResults();
@@ -294,10 +294,14 @@ class FlightTable {
     for (const itinerary of this.res) {
       if (this.single) {
         let ft = this.tables[0];
+        // If there's no selection, display all flights. Otherwise, display
+        // only the selected flight.
         if (!ft.selected || itinerary.id == ft.selected) {
           ft.addFlight(itinerary, itinerary);
         }
       }
+      // If there are no selections, process all itineraries. Otherwise,
+      // process only itineraries that don't conflict with the selection.
       else if (itinerary.route.every((v, i) =>
                !this.tables[i].selected || v.id == this.tables[i].selected)) {
         for (const [i, segment] of itinerary.route.entries()) {

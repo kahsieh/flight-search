@@ -42,12 +42,10 @@ class Itinerary {
         <label class="active">Max&nbsp;stop&nbsp;dur.&nbsp;(hrs.)</label>
       </div></div></td>
       <td class="select_stop_airport"><div class="row"><div class="input-field col s12">
-        <div class="right-align" style="position: absolute; right: 15px">
-          <p><label>
-            <input type="checkbox" name="select_stop_airport_exclude" class="filled-in">
-            <span style="padding-left: 25px">Not</span>
-          </label></p>
-        </div>
+        <div class="right-align" style="position: absolute; right: 15px"><p><label>
+          <input type="checkbox" name="select_stop_airport_exclude" class="filled-in">
+          <span style="padding-left: 25px">Not</span>
+        </label></p></div>
         <input type="text" name="select_stop_airport" placeholder="Any"
           value="${cells["select_stop_airport"] || ""}">
         <label class="active">Stop&nbsp;airport</label>
@@ -58,12 +56,10 @@ class Itinerary {
         <label class="active">Destination</label>
       </div></div></td>
       <td class="select_airlines"><div class="row"><div class="input-field col s12">
-        <div class="right-align" style="position: absolute; right: 15px">
-          <p><label>
-            <input type="checkbox" name="select_airlines_exclude" class="filled-in">
-            <span style="padding-left: 25px">Not</span>
-          </label></p>
-        </div>
+        <div class="right-align" style="position: absolute; right: 15px"><p><label>
+          <input type="checkbox" name="select_airlines_exclude" class="filled-in">
+          <span style="padding-left: 25px">Not</span>
+        </label></p></div>
         <input type="text" name="select_airlines" placeholder="Any"
           value="${cells["select_airlines"] || ""}">
         <label class="active">Airline</label>

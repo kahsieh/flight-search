@@ -28,9 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
 </head>
 <body>
 <header><nav>
-  <div class="nav-wrapper container"><a href="/" class="brand-logo">
-    <i class="material-icons">flight</i>Five Peas Flight Search
-  </a><div class="right-align"><a href="signup.html">Sign In</a></div></div>
+  <div class="nav-wrapper container">
+    <a href="/" class="brand-logo">
+      <i class="material-icons">flight</i>Five Peas Flight Search
+    </a>
+    <div class="right-align"><a href="signup.html">Sign In</a></div>
+  </div>
 </nav></header>
 
 <main class="container" onmousedown="stick()">
@@ -39,7 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
     <h5>Itinerary</h5>
     <p>
       You may enter multiple airport or airline codes by separating them with
-      commas.
+      commas. To bind the order of airport lists, use a pipe instead of a comma.
+      Selecting a flight that uses an airport from a pipe-separated list will
+      require that all other pipe-separated lists use the airport in the same
+      list position.
     </p>
     <!-- Filter selector -->
     <div class="row"><div class="col s12 input-field">
@@ -130,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   <a target="_blank" href="about:blank">Derek Chu</a>,
   <a target="_blank" href="https://www.kevinhsieh.net">Kevin Hsieh</a>,
   <a target="_blank" href="about:blank">Leo Liu</a>,
-  <a target="_blank" href="https://www.quentintruong.com/">Quentin Truong</a>.
+  <a target="_blank" href="https://www.quentintruong.com">Quentin Truong</a>.
   All Rights Reserved.
 </div></footer>
 </body>

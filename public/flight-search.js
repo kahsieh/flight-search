@@ -37,28 +37,39 @@ function stopWorking() {
 }
 
 /**
+ * Prepares Promises for calls to the Kiwi API based on the input.
  *
+ * @return {Array} Array of Promises.
  */
 function prepareFetches() {
-  let num_airports = 1; // Notice that num_airports is dynamically updated as we discover additional airports
+  // num_airports is dynamically updated when we discover a pipe-separated
+  // airport list.
+  let num_airports = 1;
   let promises = [];
   for (let a = 0; a < num_airports; a++) {
     let body = {"requests": []};
     for (let i = 0; i < Itinerary.length; i++) {
-      let curr_num_airports = Math.max(Itinerary.get(i, "fly_from").split("|").length, Itinerary.get(i, "fly_to").split("|").length);
-      if (num_airports > 1 && curr_num_airports > 1 && num_airports != curr_num_airports){
-        // Error
+      let curr_num_airports = Math.max(
+        Itinerary.get(i, "fly_from").split("|").length,
+        Itinerary.get(i, "fly_to").split("|").length
+      );
+      if (num_airports > 1 && curr_num_airports > 1 &&
+          num_airports != curr_num_airports) {
+        // Error: pipe-separated airport lists have inconsistent length.
         return [];
       }
-      else{
+      else {
         num_airports = Math.max(num_airports, curr_num_airports);
       }
 
+      let fly_from = Itinerary.get(i, "fly_from").split("|");
+      let fly_to = Itinerary.get(i, "fly_to").split("|");
       let flight = {
-        "fly_from": "airport:" + Itinerary.get(i, "fly_from").split("|")[Math.min(Itinerary.get(i, "fly_from").split("|").length - 1, a)],
-        "fly_to": "airport:" + Itinerary.get(i, "fly_to").split("|")[Math.min(Itinerary.get(i, "fly_to").split("|").length - 1, a)],
+        "fly_from": "airport:" + fly_from[Math.min(fly_from.length - 1, a)],
+        "fly_to": "airport:" + fly_to[Math.min(fly_to.length - 1, a)],
         "date_from": kiwiDate(Itinerary.get(i, "date_from")),
-        "date_to": kiwiDate(Itinerary.get(i, "date_to")) || kiwiDate(Itinerary.get(i, "date_from")),
+        "date_to": kiwiDate(Itinerary.get(i, "date_to")) ||
+                   kiwiDate(Itinerary.get(i, "date_from")),
         "adults": 1,
       };
       const optional_fields = [
@@ -85,7 +96,7 @@ function prepareFetches() {
       }
       body["requests"].push(flight);
     }
-    console.log("Request:");
+    console.log(`Request ${a}:`);
     console.log(body);
 
     promises.push(fetch("https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky", {
@@ -141,33 +152,21 @@ addEventListener("load", () => {
 async function main() {
   startWorking();
 
-  // Prepare fetches
+  // Execute fetches.
   let fetches = prepareFetches();
-
-  // Execute fetches
   let res = await Promise.all(fetches)
-  .then(values => {
-    let res = [];
-    values.forEach(value => res = res.concat(value.json()));
-    return Promise.all(res);
-  }).then(values => {
-    let res = [];
-    values.forEach(value => res = res.concat(value));
-    return res;
-  }).catch(function(error) {
-    console.error(error);
-  });
+    .then(responses => Promise.all(responses.map(res => res.json())))
+    .then(bodies => bodies.flat())
+    .catch(error => console.log(error));
 
   // Reformat response for single-flight itineraries.
+  let single = false;
   if (res.length == 1 && Array.isArray(res[0])) {
     res = res[0];
     single = true;
   }
-  else {
-    single = false;
-  }
 
-  // Display results
+  // Display message.
   if (res.length > 0) {
     qsa(".results-message").forEach(el => el.classList.remove("hide"));
   }
@@ -175,6 +174,7 @@ async function main() {
     qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
   }
 
+  // Display results.
   console.log("Response:");
   console.log(res);
   FlightTable.tables.forEach(ft => ft.clearSelection());
