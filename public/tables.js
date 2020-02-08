@@ -7,13 +7,14 @@ All Rights Reserved.
 */
 
 const columns = [
-  ["Flight", "flight"],
-  ["Departure", "departure"],
-  ["Arrival", "arrival"],
-  ["Flight Time", "flight-time"],
-  ["Aircraft", "aircraft"],
-  ["Fare Class/Basis", "fare-class"],
-  ["Duration", "duration"],
+  ["Flight", "flight_no"],
+  ["Departure", "dTime"],
+  ["Arrival", "aTime"],
+  ["Flight Time", "flight_time"],
+  ["Aircraft", "equipment"],
+  ["Fare Class/Basis", "fare_basis"],
+  ["Tickets", "pnr_count"],
+  ["Duration", "fly_duration"],
   ["Stops", "stops"],
   ["Price", "price"],
 ];
@@ -166,11 +167,13 @@ class FlightTable {
       cells[5] += segment.fare_basis ? ` (${segment.fare_basis})` : "";
     }
 
-    // Duration.
-    if (cells[6]) {
-      cells[6] += "<br>";
-    }
+    // PNR Count.
     cells[6] += `
+      <div style="line-height: normal">${flight.pnr_count}</div>
+    `;
+
+    // Duration.
+    cells[7] += `
       <div style="line-height: normal">
         ${flight.fly_duration}<br>
         <span class="note">${flight.flyFrom}–${flight.flyTo}</span>
@@ -182,31 +185,35 @@ class FlightTable {
       <i class="material-icons tiny tooltipped red-text" data-position="bottom"
         data-tooltip="Self-connection">warning</i>
     ` : "";
+    let ac_warning = flight.has_airport_change ? `
+      <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+        data-tooltip="Airport change">warning</i>
+    ` : "";
     let ta_warning = flight.throw_away_ticketing ? `
       <i class="material-icons tiny tooltipped red-text" data-position="bottom"
         data-tooltip="Throwaway ticketing">warning</i>
     ` : "";
     switch (flight.route.length) {
       case 1:
-        cells[7] += "Nonstop" + vi_warning;
+        cells[8] += `Nonstop${vi_warning}${ac_warning}${ta_warning}`;
         break;
       case 2:
         const duration = flight.route[1].dTimeUTC - flight.route[0].aTimeUTC;
         const duration_text = `
           ${Math.floor(duration / 3600)}h ${Math.floor(duration % 3600 / 60)}m
         `;
-        cells[7] += `
+        cells[8] += `
           <div style="line-height: normal">
-            1 stop${vi_warning}${ta_warning}<br>
+            1 stop${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${duration_text} ${flight.route[0].flyTo}</span>
           </div>
         `;
         break;
       default:
         let stops = flight.route.slice(0, -1).map(segment => segment.flyTo);
-        cells[7] += `
+        cells[8] += `
           <div style="line-height: normal">
-            ${stops.length} stops${vi_warning}${ta_warning}<br>
+            ${stops.length} stops${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${stops.join(", ")}</span>
           </div>
         `;
@@ -214,7 +221,7 @@ class FlightTable {
     }
 
     // Price.
-    cells[8] += `
+    cells[9] += `
       <div style="line-height: normal">
         ${itinerary.price.toLocaleString("en-US", {
           style: "currency",

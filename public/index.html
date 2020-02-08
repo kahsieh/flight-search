@@ -126,9 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
     <!-- Column selector -->
     <div class="row" style="margin: 30px 0 0 0"><div class="input-field col s12">
       <select id="columns" onchange="FlightTable.updateColumns()" multiple>
-        <option value="flight-time">Flight Time</option>
-        <option value="aircraft">Aircraft</option>
-        <option value="fare-class">Fare Class/Basis</option>
+        <option value="flight_time">Flight Time</option>
+        <option value="equipment">Aircraft</option>
+        <option value="fare_basis">Fare Class/Basis</option>
+        <option value="pnr_count">Tickets</option>
       </select>
       <label>Additional columns</label>
     </div></div>
