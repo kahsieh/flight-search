@@ -12,7 +12,7 @@ const columns = [
   ["Arrival", "arrival"],
   ["Flight Time", "flight-time"],
   ["Aircraft", "aircraft"],
-  ["Fare Class", "fare-class"],
+  ["Fare Class/Basis", "fare-class"],
   ["Duration", "duration"],
   ["Stops", "stops"],
   ["Price", "price"],
@@ -131,7 +131,11 @@ class FlightTable {
       if (cells[1]) {
         cells[1] += "<br>";
       }
-      cells[1] += `${localeString(segment.dTime)} (${segment.flyFrom})`;
+      let br_warning = segment.bags_recheck_required ? `
+        <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+          data-tooltip="Bag recheck required">warning</i>
+      ` : "";
+      cells[1] += `${localeString(segment.dTime)} (${segment.flyFrom})${br_warning}`;
 
       // Arrival.
       if (cells[2]) {
@@ -159,6 +163,7 @@ class FlightTable {
         cells[5] += "<br>";
       }
       cells[5] += segment.fare_classes ? segment.fare_classes : "–";
+      cells[5] += segment.fare_basis ? ` (${segment.fare_basis})` : "";
     }
 
     // Duration.
@@ -173,9 +178,17 @@ class FlightTable {
     `;
 
     // Stops.
+    let vi_warning = flight.virtual_interlining ? `
+      <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+        data-tooltip="Self-connection">warning</i>
+    ` : "";
+    let ta_warning = flight.throw_away_ticketing ? `
+      <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+        data-tooltip="Throwaway ticketing">warning</i>
+    ` : "";
     switch (flight.route.length) {
       case 1:
-        cells[7] += "Nonstop";
+        cells[7] += "Nonstop" + vi_warning;
         break;
       case 2:
         const duration = flight.route[1].dTimeUTC - flight.route[0].aTimeUTC;
@@ -184,7 +197,7 @@ class FlightTable {
         `;
         cells[7] += `
           <div style="line-height: normal">
-            1 stop<br>
+            1 stop${vi_warning}${ta_warning}<br>
             <span class="note">${duration_text} ${flight.route[0].flyTo}</span>
           </div>
         `;
@@ -193,7 +206,7 @@ class FlightTable {
         let stops = flight.route.slice(0, -1).map(segment => segment.flyTo);
         cells[7] += `
           <div style="line-height: normal">
-            ${stops.length} stops<br>
+            ${stops.length} stops${vi_warning}${ta_warning}<br>
             <span class="note">${stops.join(", ")}</span>
           </div>
         `;
@@ -345,6 +358,7 @@ class FlightTable {
         qsa(`.${column.value}`).forEach(e => e.style.display = "none");
       }
     }
+    M.Tooltip.init(qsa(".tooltipped"), {});
   }
 }
 
