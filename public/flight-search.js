@@ -78,6 +78,8 @@ function prepareFetches() {
         "adult_hold_bag",
         "adult_hand_bag",
         "selected_cabins",
+        "mix_with_cabins",
+        "adults",
         "price_from",
         "price_to",
         "select_stop_airport",

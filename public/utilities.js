@@ -72,6 +72,26 @@ function isoTime(unix) {
 }
 
 /**
+ * Converts centimeters to inches.
+ *
+ * @param {number} cm A length in centimeters.
+ * @return {number} A length in inches.
+ */
+function cmToIn(cm) {
+  return cm / 2.54;
+}
+
+/**
+ * Converts kilograms to pounds.
+ *
+ * @param {number} kg A mass in kilograms.
+ * @return {number} A mass in pounds.
+ */
+function kgToLb(kg) {
+  return kg / 0.45359237;
+}
+
+/**
  * Prevents main block from shrinking to improve usability.
  */
 function stick() {

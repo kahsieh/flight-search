@@ -65,6 +65,21 @@ class Itinerary {
         </select>
         <label>Cabin</label>
       </div></div></td>
+      <td class="selected_cabins"><div class="row"><div class="col s12 input-field">
+        <select name="mix_with_cabins">
+          <option value="" selected disabled></option>
+          <option value="M">Economy</option>
+          <option value="W">Premium Economy</option>
+          <option value="C">Business</option>
+          <option value="F">First</option>
+        </select>
+        <label>Mixed&nbsp;with</label>
+      </div></div></td>
+      <td class="hide adults"><div class="row"><div class="input-field col s12">
+        <input type="number" name="adults" placeholder="1" min="0" max="9"
+          value="${cells["adults"] || ""}">
+        <label class="active">Passengers</label>
+      </div></div></td>
       <td class="price_from"><div class="row"><div class="input-field col s12">
         <input type="number" name="price_from" placeholder="0" min="0"
           value="${cells["price_from"] || ""}">
@@ -86,7 +101,7 @@ class Itinerary {
         <label class="active">Stop&nbsp;airport</label>
       </div></div></td>
       <td class="max_stopovers"><div class="row"><div class="input-field col s12">
-        <input type="number" name="max_stopovers" placeholder="No limit" min="0"
+        <input type="number" name="max_stopovers" placeholder="∞" min="0"
           value="${cells["max_stopovers"] !== undefined ? cells["max_stopovers"] : 2}">
         <label class="active">Max&nbsp;stops</label>
       </div></div></td>

@@ -10,9 +10,11 @@ const columns = [
   ["Flight", "flight_no"],
   ["Departure", "dTime"],
   ["Arrival", "aTime"],
-  ["Flight Time", "flight_time"],
+  ["Flight time", "flight_time"],
   ["Aircraft", "equipment"],
-  ["Fare Class/Basis", "fare_basis"],
+  ["Fare class/basis", "fare_basis"],
+  ["Checked bag", "hold_weight"],
+  ["Carry-on bag", "hand_weight"],
   ["Tickets", "pnr_count"],
   ["Duration", "fly_duration"],
   ["Stops", "stops"],
@@ -157,23 +159,79 @@ class FlightTable {
       if (cells[4]) {
         cells[4] += "<br>";
       }
-      cells[4] += segment.equipment ? segment.equipment : "–";
+      cells[4] += segment.equipment ? segment.equipment : "";
 
       // Fare Class.
       if (cells[5]) {
         cells[5] += "<br>";
       }
-      cells[5] += segment.fare_classes ? segment.fare_classes : "–";
+      cells[5] += segment.fare_classes ? segment.fare_classes : "";
       cells[5] += segment.fare_basis ? ` (${segment.fare_basis})` : "";
     }
 
-    // PNR Count.
+    // Checked bag.
+    let customary = "", metric = "";
+    if (flight.baglimit.hold_weight) {
+      customary += parseInt(kgToLb(flight.baglimit.hold_weight)) + " lb";
+      metric += flight.baglimit.hold_weight + " kg";
+    }
+    if (flight.baglimit.hold_dimensions_sum) {
+      if (customary) {
+        customary += ", ";
+      }
+      customary += parseInt(cmToIn(flight.baglimit.hold_dimensions_sum))
+                + " in total";
+      if (metric) {
+        metric += ", ";
+      }
+      metric += flight.baglimit.hold_dimensions_sum + " cm total";
+    }
     cells[6] += `
+      <div style="line-height: normal">
+        ${customary}<br>
+        <span class="note">${metric}</span>
+      </div>
+    `;
+
+    // Checked bag.
+    customary = "", metric = "";
+    if (flight.baglimit.hand_weight) {
+      customary += parseInt(kgToLb(flight.baglimit.hand_weight)) + " lb";
+      metric += flight.baglimit.hand_weight + " kg";
+    }
+    if (flight.baglimit.hold_length && flight.baglimit.hold_height &&
+        flight.baglimit.hold_width) {
+      if (customary) {
+        customary += ", ";
+      }
+      customary += `
+        ${parseInt(cmToIn(flight.baglimit.hold_length))} ×
+        ${parseInt(cmToIn(flight.baglimit.hold_height))} ×
+        ${parseInt(cmToIn(flight.baglimit.hold_width))} in
+      `;
+      if (metric) {
+        metric += ", ";
+      }
+      metric += `
+        ${flight.baglimit.hold_length} ×
+        ${flight.baglimit.hold_height} ×
+        ${flight.baglimit.hold_width} cm
+      `;
+    }
+    cells[7] += `
+      <div style="line-height: normal">
+        ${customary}<br>
+        <span class="note">${metric}</span>
+      </div>
+    `;
+
+    // PNR Count.
+    cells[8] += `
       <div style="line-height: normal">${flight.pnr_count}</div>
     `;
 
     // Duration.
-    cells[7] += `
+    cells[9] += `
       <div style="line-height: normal">
         ${flight.fly_duration}<br>
         <span class="note">${flight.flyFrom}–${flight.flyTo}</span>
@@ -195,14 +253,14 @@ class FlightTable {
     ` : "";
     switch (flight.route.length) {
       case 1:
-        cells[8] += `Nonstop${vi_warning}${ac_warning}${ta_warning}`;
+        cells[10] += `Nonstop${vi_warning}${ac_warning}${ta_warning}`;
         break;
       case 2:
         const duration = flight.route[1].dTimeUTC - flight.route[0].aTimeUTC;
         const duration_text = `
           ${Math.floor(duration / 3600)}h ${Math.floor(duration % 3600 / 60)}m
         `;
-        cells[8] += `
+        cells[10] += `
           <div style="line-height: normal">
             1 stop${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${duration_text} ${flight.route[0].flyTo}</span>
@@ -211,7 +269,7 @@ class FlightTable {
         break;
       default:
         let stops = flight.route.slice(0, -1).map(segment => segment.flyTo);
-        cells[8] += `
+        cells[10] += `
           <div style="line-height: normal">
             ${stops.length} stops${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${stops.join(", ")}</span>
@@ -221,7 +279,7 @@ class FlightTable {
     }
 
     // Price.
-    cells[9] += `
+    cells[11] += `
       <div style="line-height: normal">
         ${itinerary.price.toLocaleString("en-US", {
           style: "currency",
