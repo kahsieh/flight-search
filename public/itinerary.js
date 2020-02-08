@@ -170,16 +170,6 @@ class Itinerary {
           value="${cells["max_fly_duration"] || ""}">
         <label class="active">Max&nbsp;duration&nbsp;(hrs)</label>
       </div></div></td>
-
-      <td class="hide sort"><div class="row"><div class="col s12 input-field">
-        <select name="sort">
-          <option value="price" selected>Price</option>
-          <option value="duration">Duration</option>
-          <option value="quality">Quality</option>
-          <option value="date">Date</option>
-        </select>
-        <label>Sorting&nbsp;method</label>
-      </div></div></td>
     `;
     this.updateFilters();
     qs("#remove-flight").classList.remove("disabled");

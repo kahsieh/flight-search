@@ -95,7 +95,6 @@ function prepareFetches() {
         "max_fly_duration",
         "nights_in_dst_from",
         "nights_in_dst_to",
-        "sort",
       ];
       for (const field of optional_fields) {
         // "" won't be added, but be careful of 0 and false.
@@ -187,6 +186,7 @@ async function main() {
   }
 
   // Display results.
+  res.sort((a, b) => a.price - b.price);
   console.log("Response:");
   console.log(res);
   FlightTable.tables.forEach(ft => ft.clearSelection());
