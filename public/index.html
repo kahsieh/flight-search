@@ -50,16 +50,30 @@ document.addEventListener("DOMContentLoaded", () => {
     <!-- Filter selector -->
     <div class="row"><div class="col s12 input-field">
       <select id="filters" onchange="Itinerary.updateFilters()" multiple>
-        <option value="max_stopovers" selected>Stop count</option>
-        <option value="stopover_from">Stop duration</option>
-        <option value="select_stop_airport">Stop airport</option>
-        <option value="select_airlines" selected>Airline</option>
-        <option value="date_to">Latest date</option>
-        <option value="dtime_from">Departure time</option>
-        <option value="atime_from">Arrival time</option>
-        <option value="max_fly_duration">Duration</option>
-        <option value="adult_hold_bag">Bags</option>
-        <option value="selected_cabins">Cabin</option>
+        <optgroup label="Flight">
+          <option value="select_airlines" selected>Airline</option>
+          <option value="adult_hold_bag">Bags</option>
+          <option value="selected_cabins">Cabin</option>
+          <option value="price_from">Price</option>
+        </optgroup>
+        <optgroup label="Stops">
+          <option value="select_stop_airport">Stop airport</option>
+          <option value="max_stopovers" selected>Stop count</option>
+          <option value="stopover_from">Stop duration</option>
+          <option value="conn_on_diff_airport">Inter-airport transfers</option>
+        </optgroup>
+        <optgroup label="Timing">
+          <option value="date_to">Latest date</option>
+          <option value="fly_days">Day of week</option>
+          <option value="dtime_from">Departure time</option>
+          <option value="atime_from">Arrival time</option>
+          <option value="max_fly_duration">Duration</option>
+        </optgroup>
+        <!--
+        <optgroup label="Other">
+          <option value="sort">Sorting method</option>
+        </optgroup>
+        -->
       </select>
       <label>Filters</label>
     </div></div>
