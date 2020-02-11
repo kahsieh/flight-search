@@ -21,16 +21,30 @@ All Rights Reserved.
 <script src="itinerary.js"></script>
 <script src="flight-search.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  M.FormSelect.init(document.querySelectorAll("select"), {});
-});
+  document.addEventListener("DOMContentLoaded", () => {
+    M.FormSelect.init(document.querySelectorAll("select"), {});
+  });
+
+  let xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/auth');
+  xhr.send();
+
+  xhr.onload = () => {
+    if (xhr.readyState === xhr.DONE) {
+        if (xhr.status === 200) {
+            if (xhr.responseText === true) {
+              document.getElementById('sign-up').innerHTML = "Sign Out";
+            }
+        }
+    }
+  };
 </script>
 </head>
 <body>
 <header><nav>
   <div class="nav-wrapper container"><a href="/" class="brand-logo">
     <i class="material-icons">flight</i>Five Peas Flight Search
-  </a><div class="right-align"><a href="signup.html">Sign In</a></div></div>
+  </a><div class="right-align"><a href="signup.html" id="sign-up">Sign In</a></div></div>
 </nav></header>
 
 <main class="container" onmousedown="stick()">

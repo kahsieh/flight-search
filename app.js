@@ -1,7 +1,7 @@
 'use strict';
 
-let firebase = require('firebase');
-let firebaseapp = firebase.initializeApp({
+const firebase = require('firebase');
+const firebaseapp = firebase.initializeApp({
   apiKey: "AIzaSyC26YKW4qgCCQhJSN_7ZzXsm_n5d_wx2j0",
   authDomain: "five-peas-flight-search.firebaseapp.com",
   databaseURL: "https://five-peas-flight-search.firebaseio.com",
@@ -13,6 +13,8 @@ let firebaseapp = firebase.initializeApp({
 const express = require("express");
 const path = require("path");
 const app = express();
+
+const authMap = {};
 
 app.use(express.static("public"))
 
@@ -26,21 +28,40 @@ if (module === require.main) {
     console.log(`App listening on port ${port}`);
   });
   
-  app.post('/submit-form', (req, res) => {
-    createUser(req.body.FirstName, req.body.Password)
-    res.redirect(303, "/")
+  app.post('/api/sign-up', (req, res) => {
+    createUser(req.body.email, req.body.password).then(userCredential => {
+      return userCredential.user.getIdTokenResult();
+    }).then(idTokenResult => {
+      res.cookie('access_token', 'Bearer ' + idTokenResult.token).redirect(303, "/")
+    }).catch(error => {
+      console.log(error);
+    });
+  })
+
+  app.post('/api/auth', (req, res) => {
+    res.send(isUserAuthenticated());
   })
 
   app.use(function(req, res) {
     res.status(404).sendFile(path.join(__dirname, "/public/404.html"))
   })
+
+  firebaseapp.auth().onAuthStateChanged(user => {
+    if (user) {
+      user.getIdTokenResult().then(idTokenResult => {
+        authMap[idTokenResult.token] = idTokenResult.expirationTime;
+      })
+    }
+  });
   // [END server]
 }
 
-function createUser(email, password) {
-  firebaseapp.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
-    console.log(error.message)
-  })
+async function createUser(email, password) {
+  return firebaseapp.auth().createUserWithEmailAndPassword(email, password);
+}
+
+function isUserAuthenticated() {
+  return firebase.auth().currentUser !== null;  
 }
 
 module.exports = app;

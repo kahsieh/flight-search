@@ -18,6 +18,9 @@ All Rights Reserved.
   <script src="materialize/materialize.js"></script>
   <script src="auth.js"></script>
   <script src="app.js"></script>
+  <script>
+
+  </script>
 </head>
 <body>
   <header><nav>
@@ -27,10 +30,10 @@ All Rights Reserved.
   </nav></header>
 
   <header>Signup</header>
-  <form action="/submit-form" method="POST">
-    Email: <input type="text" name="FirstName"><br>
-    Password: <input type="text" name="Password"><br>
-    <input type="submit" value="SignUp">
+  <form onsubmit="event.preventDefault();">
+    Email: <input type="text" name="email" id="email"><br>
+    Password: <input type="text" name="password" id="password"><br>
+    <input type="submit" value="SignUp" id="submit">
   </form>
 </body>
 </html>
