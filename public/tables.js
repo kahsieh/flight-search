@@ -7,13 +7,16 @@ All Rights Reserved.
 */
 
 const columns = [
-  ["Flight", "flight"],
-  ["Departure", "departure"],
-  ["Arrival", "arrival"],
-  ["Flight Time", "flight-time"],
-  ["Aircraft", "aircraft"],
-  ["Fare Class", "fare-class"],
-  ["Duration", "duration"],
+  ["Flight", "flight_no"],
+  ["Departure", "dTime"],
+  ["Arrival", "aTime"],
+  ["Flight time", "flight_time"],
+  ["Aircraft", "equipment"],
+  ["Fare class/basis", "fare_basis"],
+  ["Checked bag", "hold_weight"],
+  ["Carry-on bag", "hand_weight"],
+  ["Tickets", "pnr_count"],
+  ["Duration", "fly_duration"],
   ["Stops", "stops"],
   ["Price", "price"],
 ];
@@ -55,7 +58,7 @@ class FlightTable {
 
   /**
    * Adds a tab to the UI.
-   * 
+   *
    * @return {Element} li element.
    */
   _addTab() {
@@ -73,7 +76,7 @@ class FlightTable {
 
   /**
    * Adds a flight table to the UI and updates columns.
-   * 
+   *
    * @return {Element} div element.
    */
   _addTable() {
@@ -95,7 +98,7 @@ class FlightTable {
 
   /**
    * Adds a flight to table if it isn't displayed already.
-   * 
+   *
    * @param {Object} itinerary Itinerary returned by the API.
    * @param {object} flight Flight returned by the API. Same as itinerary for
    *   single flights.
@@ -131,7 +134,11 @@ class FlightTable {
       if (cells[1]) {
         cells[1] += "<br>";
       }
-      cells[1] += `${localeString(segment.dTime)} (${segment.flyFrom})`;
+      let br_warning = segment.bags_recheck_required ? `
+        <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+          data-tooltip="Bag recheck required">warning</i>
+      ` : "";
+      cells[1] += `${localeString(segment.dTime)} (${segment.flyFrom})${br_warning}`;
 
       // Arrival.
       if (cells[2]) {
@@ -152,20 +159,79 @@ class FlightTable {
       if (cells[4]) {
         cells[4] += "<br>";
       }
-      cells[4] += segment.equipment ? segment.equipment : "–";
+      cells[4] += segment.equipment ? segment.equipment : "";
 
       // Fare Class.
       if (cells[5]) {
         cells[5] += "<br>";
       }
-      cells[5] += segment.fare_classes ? segment.fare_classes : "–";
+      cells[5] += segment.fare_classes ? segment.fare_classes : "";
+      cells[5] += segment.fare_basis ? ` (${segment.fare_basis})` : "";
     }
 
-    // Duration.
-    if (cells[6]) {
-      cells[6] += "<br>";
+    // Checked bag.
+    let customary = "", metric = "";
+    if (flight.baglimit.hold_weight) {
+      customary += parseInt(kgToLb(flight.baglimit.hold_weight)) + " lb";
+      metric += flight.baglimit.hold_weight + " kg";
+    }
+    if (flight.baglimit.hold_dimensions_sum) {
+      if (customary) {
+        customary += ", ";
+      }
+      customary += parseInt(cmToIn(flight.baglimit.hold_dimensions_sum))
+                + " in total";
+      if (metric) {
+        metric += ", ";
+      }
+      metric += flight.baglimit.hold_dimensions_sum + " cm total";
     }
     cells[6] += `
+      <div style="line-height: normal">
+        ${customary}<br>
+        <span class="note">${metric}</span>
+      </div>
+    `;
+
+    // Checked bag.
+    customary = "", metric = "";
+    if (flight.baglimit.hand_weight) {
+      customary += parseInt(kgToLb(flight.baglimit.hand_weight)) + " lb";
+      metric += flight.baglimit.hand_weight + " kg";
+    }
+    if (flight.baglimit.hold_length && flight.baglimit.hold_height &&
+        flight.baglimit.hold_width) {
+      if (customary) {
+        customary += ", ";
+      }
+      customary += `
+        ${parseInt(cmToIn(flight.baglimit.hold_length))} ×
+        ${parseInt(cmToIn(flight.baglimit.hold_height))} ×
+        ${parseInt(cmToIn(flight.baglimit.hold_width))} in
+      `;
+      if (metric) {
+        metric += ", ";
+      }
+      metric += `
+        ${flight.baglimit.hold_length} ×
+        ${flight.baglimit.hold_height} ×
+        ${flight.baglimit.hold_width} cm
+      `;
+    }
+    cells[7] += `
+      <div style="line-height: normal">
+        ${customary}<br>
+        <span class="note">${metric}</span>
+      </div>
+    `;
+
+    // PNR Count.
+    cells[8] += `
+      <div style="line-height: normal">${flight.pnr_count}</div>
+    `;
+
+    // Duration.
+    cells[9] += `
       <div style="line-height: normal">
         ${flight.fly_duration}<br>
         <span class="note">${flight.flyFrom}–${flight.flyTo}</span>
@@ -173,27 +239,39 @@ class FlightTable {
     `;
 
     // Stops.
+    let vi_warning = flight.virtual_interlining ? `
+      <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+        data-tooltip="Self-connection">warning</i>
+    ` : "";
+    let ac_warning = flight.has_airport_change ? `
+      <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+        data-tooltip="Airport change">warning</i>
+    ` : "";
+    let ta_warning = flight.throw_away_ticketing ? `
+      <i class="material-icons tiny tooltipped red-text" data-position="bottom"
+        data-tooltip="Throwaway ticketing">warning</i>
+    ` : "";
     switch (flight.route.length) {
       case 1:
-        cells[7] += "Nonstop";
+        cells[10] += `Nonstop${vi_warning}${ac_warning}${ta_warning}`;
         break;
       case 2:
         const duration = flight.route[1].dTimeUTC - flight.route[0].aTimeUTC;
         const duration_text = `
           ${Math.floor(duration / 3600)}h ${Math.floor(duration % 3600 / 60)}m
         `;
-        cells[7] += `
+        cells[10] += `
           <div style="line-height: normal">
-            1 stop<br>
+            1 stop${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${duration_text} ${flight.route[0].flyTo}</span>
           </div>
         `;
         break;
       default:
         let stops = flight.route.slice(0, -1).map(segment => segment.flyTo);
-        cells[7] += `
+        cells[10] += `
           <div style="line-height: normal">
-            ${stops.length} stops<br>
+            ${stops.length} stops${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${stops.join(", ")}</span>
           </div>
         `;
@@ -201,7 +279,7 @@ class FlightTable {
     }
 
     // Price.
-    cells[8] += `
+    cells[11] += `
       <div style="line-height: normal">
         ${itinerary.price.toLocaleString("en-US", {
           style: "currency",
@@ -219,9 +297,9 @@ class FlightTable {
     if (flight.id == this._selected) {
       row.classList.add("selected");
     }
-    
+
     row.onclick = () => {
-      FlightTable.tables[this._i]._selected = 
+      FlightTable.tables[this._i]._selected =
         FlightTable.tables[this._i]._selected ? null : flight.id;
       qs("#book").onclick = () => window.open(itinerary.deep_link);
       this.constructor.displayResults();
@@ -294,10 +372,14 @@ class FlightTable {
     for (const itinerary of this.res) {
       if (this.single) {
         let ft = this.tables[0];
+        // If there's no selection, display all flights. Otherwise, display
+        // only the selected flight.
         if (!ft.selected || itinerary.id == ft.selected) {
           ft.addFlight(itinerary, itinerary);
         }
       }
+      // If there are no selections, process all itineraries. Otherwise,
+      // process only itineraries that don't conflict with the selection.
       else if (itinerary.route.every((v, i) =>
                !this.tables[i].selected || v.id == this.tables[i].selected)) {
         for (const [i, segment] of itinerary.route.entries()) {
@@ -341,6 +423,7 @@ class FlightTable {
         qsa(`.${column.value}`).forEach(e => e.style.display = "none");
       }
     }
+    M.Tooltip.init(qsa(".tooltipped"), {});
   }
 }
 

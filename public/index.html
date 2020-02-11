@@ -42,9 +42,12 @@ All Rights Reserved.
 </head>
 <body>
 <header><nav>
-  <div class="nav-wrapper container"><a href="/" class="brand-logo">
-    <i class="material-icons">flight</i>Five Peas Flight Search
-  </a><div class="right-align"><a href="signup.html" id="sign-up">Sign In</a></div></div>
+  <div class="nav-wrapper container">
+    <a href="/" class="brand-logo">
+      <i class="material-icons">flight</i>Five Peas Flight Search
+    </a>
+    <div class="right-align"><a href="signup.html">Sign In</a></div>
+  </div>
 </nav></header>
 
 <main class="container" onmousedown="stick()">
@@ -53,21 +56,36 @@ All Rights Reserved.
     <h5>Itinerary</h5>
     <p>
       You may enter multiple airport or airline codes by separating them with
-      commas.
+      commas. To bind the order of airport lists, use a pipe instead of a comma.
+      Selecting a flight that uses an airport from a pipe-separated list will
+      require that all other pipe-separated lists use the airport in the same
+      list position.
     </p>
     <!-- Filter selector -->
     <div class="row"><div class="col s12 input-field">
       <select id="filters" onchange="Itinerary.updateFilters()" multiple>
-        <option value="max_stopovers" selected>Stop count</option>
-        <option value="stopover_from">Stop duration</option>
-        <option value="select_stop_airport">Stop airport</option>
-        <option value="select_airlines" selected>Airline</option>
-        <option value="date_to">Latest date</option>
-        <option value="dtime_from">Departure time</option>
-        <option value="atime_from">Arrival time</option>
-        <option value="max_fly_duration">Duration</option>
-        <option value="adult_hold_bag">Bags</option>
-        <option value="selected_cabins">Cabin</option>
+        <optgroup label="Flight">
+          <option value="select_airlines" selected>Airline</option>
+          <option value="adult_hold_bag">Bags</option>
+          <option value="selected_cabins">Cabin</option>
+          <!--  Doesn't work
+          <option value="adults">Passengers</option>
+          -->
+          <option value="price_from">Price</option>
+        </optgroup>
+        <optgroup label="Stops">
+          <option value="select_stop_airport">Stop airport</option>
+          <option value="max_stopovers" selected>Stop count</option>
+          <option value="stopover_from">Stop duration</option>
+          <option value="conn_on_diff_airport">Inter-airport transfers</option>
+        </optgroup>
+        <optgroup label="Timing">
+          <option value="date_to">Latest date</option>
+          <option value="fly_days">Day of week</option>
+          <option value="dtime_from">Departure time</option>
+          <option value="atime_from">Arrival time</option>
+          <option value="max_fly_duration">Duration</option>
+        </optgroup>
       </select>
       <label>Filters</label>
     </div></div>
@@ -120,9 +138,12 @@ All Rights Reserved.
     <!-- Column selector -->
     <div class="row" style="margin: 30px 0 0 0"><div class="input-field col s12">
       <select id="columns" onchange="FlightTable.updateColumns()" multiple>
-        <option value="flight-time">Flight Time</option>
-        <option value="aircraft">Aircraft</option>
-        <option value="fare-class">Fare Class</option>
+        <option value="flight_time">Flight time</option>
+        <option value="equipment">Aircraft</option>
+        <option value="fare_basis">Fare class/basis</option>
+        <option value="hold_weight">Checked bag</option>
+        <option value="hand_weight">Carry-on bag</option>
+        <option value="pnr_count">Tickets</option>
       </select>
       <label>Additional columns</label>
     </div></div>
@@ -144,7 +165,7 @@ All Rights Reserved.
   <a target="_blank" href="about:blank">Derek Chu</a>,
   <a target="_blank" href="https://www.kevinhsieh.net">Kevin Hsieh</a>,
   <a target="_blank" href="about:blank">Leo Liu</a>,
-  <a target="_blank" href="https://www.quentintruong.com/">Quentin Truong</a>.
+  <a target="_blank" href="https://www.quentintruong.com">Quentin Truong</a>.
   All Rights Reserved.
 </div></footer>
 </body>
