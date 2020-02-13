@@ -123,23 +123,26 @@ async function createUser(email, password) {
 }
 
 function isUserAuthenticated(token) {
-  return (typeof authMap[token] !== undefined) && ((new Date()) < Date.parse(authMap[token]));
+  return (typeof authMap[token] !== 'undefined') && ((new Date()) < Date.parse(authMap[token]));
 }
 
 // returns auth token cookie if found
 // else returns undefined
-function findAuthToken(req) {
+function findAuthToken(req) {  
   let cookies = req.headers.cookie.split(';');
+  let authTokenString = 'AuthToken';
+  if (cookies.length > 1) {
+    authTokenString = ' ' + authTokenString;
+  }
   let find = cookies.find(cookie => {
-    return cookie.startsWith(' AuthToken');
+    return cookie.startsWith(authTokenString);
   });
 
   if (typeof find !== 'undefined') {
-    return find.substring(' AuthToken='.length); // cookie after AuthToken
+    return find.substring(authTokenString.length); // cookie after AuthToken
   }
-  else {
-    return;
-  }
+
+  return;
 }
 
 module.exports = app;
