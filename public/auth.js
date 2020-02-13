@@ -10,8 +10,8 @@ xhr.onload = () => {
       qs('#flights').style = "display: inline;";
 
       // if on index page, make the button clickable
-      if (qs('#save-flight') !== null) {
-        qs('#save-flight').classList.remove('disabled');
+      if (qs('#save-itinerary') !== null) {
+        qs('#save-itinerary').classList.remove('disabled');
       }
 
       // if on itineraries page, display if authenitcated
