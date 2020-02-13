@@ -128,7 +128,11 @@ function isUserAuthenticated(token) {
 
 // returns auth token cookie if found
 // else returns undefined
-function findAuthToken(req) {  
+function findAuthToken(req) {
+  if (typeof req.headers.cookie === 'undefined') {
+    return;
+  }
+
   let cookies = req.headers.cookie.split(';');
   let authTokenString = 'AuthToken';
   if (cookies.length > 1) {
@@ -139,10 +143,11 @@ function findAuthToken(req) {
   });
 
   if (typeof find !== 'undefined') {
-    return find.substring(authTokenString.length); // cookie after AuthToken
+    return find.substring((authTokenString + '=').length); // cookie after AuthToken
   }
-
-  return;
+  else {
+    return;
+  }
 }
 
 module.exports = app;
