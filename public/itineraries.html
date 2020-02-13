@@ -36,20 +36,9 @@ All Rights Reserved.
 
   <main class="container">
     <div class="row"><div class="col s12">
-      <h5>Sign in</h5>
-      <form action="/api/sign-in" method="POST">
-        <div class="row" style="margin-bottom: 0"><div class="input-field col s12">
-          <input type="text" name="email_address">
-          <label>Email address</label>
-        </div></div>
-        <div class="row"><div class="input-field col s12">
-          <input type="password" name="password">
-          <label>Password</label>
-        </div></div>
-        <button class="btn waves-effect waves-light" type="submit">Sign in
-          <i class="material-icons right">send</i>
-        </button>
-      </form>
+      <h5>Saved Itineraries</h5>
+      <p id="itineraries-unauthenticated">You must be logged in to view your saved itineraries.</p>
+      <div id="itineraries-authenticated" style="display: none;">itineraries</div>
     </div></div>
   </main>
 

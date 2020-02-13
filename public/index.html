@@ -21,9 +21,10 @@ All Rights Reserved.
 <script src="itinerary.js"></script>
 <script src="flight-search.js"></script>
 <script src="auth.js"></script>
+<script src="save-itinerary.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    M.FormSelect.init(document.querySelectorAll("select"), {});
+    M.FormSelect.init(qsa("select"), {});
   });
 </script>
 </head>
@@ -34,8 +35,9 @@ All Rights Reserved.
       <i class="material-icons">flight</i>Five Peas Flight Search
     </a>
     <div class="right-align">
-      <a href="signin.html" id="signin">Sign In</a>
-      <div id="signout" style="display: none;" onclick="signout()">Sign Out</div>
+      <a class="waves-effect waves-teal btn-flat white-text" href="signin.html" id="signin">Sign In</a>
+      <a class="waves-effect waves-light btn" href="itineraries.html" id="flights" style="display: none;">Itineraries</a>
+      <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="signout()">Sign Out</div>
     </div>
   </div>
 </nav></header>
@@ -99,6 +101,10 @@ All Rights Reserved.
       </button>
       <button class="btn-floating waves-effect waves-light disabled" id="book">
         <i class="material-icons left">done</i>
+      </button>
+      <button class="btn-floating waves-effect waves-light"
+        onclick="saveItinerary()" id="save-itinerary">
+        <i class="material-icons left">save</i>
       </button>
     </div>
     <!-- Status -->

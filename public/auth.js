@@ -5,11 +5,23 @@ xhr.send();
 xhr.onload = () => {
   if (xhr.readyState === xhr.DONE && xhr.status === 200) {
     if (xhr.responseText === 'true') {
-      document.getElementById('signin').style = "display: none;";
-      document.getElementById('signout').style = "display: inline; cursor: pointer";
+      qs('#signin').style = "display: none;";
+      qs('#signout').style = "display: inline; cursor: pointer";
+      qs('#flights').style = "display: inline;";
+
+      // if on index page, make the button clickable
+      if (qs('#save-flight') !== null) {
+        qs('#save-flight').classList.remove('disabled');
+      }
+
+      // if on itineraries page, display if authenitcated
+      if (qs('#itineraries-unauthenticated') !== null && qs('#itineraries-authenticated') !== null) {
+        qs('#itineraries-unauthenticated').style = 'display: none;';
+        qs('#itineraries-authenticated').style = 'display: block;';
+      }
     }
   }
-};
+}
 
 function signout() {
   let xhr = new XMLHttpRequest();

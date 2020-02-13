@@ -1,24 +1,26 @@
 'use strict';
 
-const firebase = require('firebase');
-const firebaseapp = firebase.initializeApp({
+const firebase = require('firebase').initializeApp({
   apiKey: "AIzaSyC26YKW4qgCCQhJSN_7ZzXsm_n5d_wx2j0",
-  authDomain: "five-peas-flight-search.firebaseapp.com",
+  authDomain: "five-peas-flight-search.firebase.com",
   databaseURL: "https://five-peas-flight-search.firebaseio.com",
   projectId: "five-peas-flight-search",
   storageBucket: "five-peas-flight-search.appspot.com",
   messagingSenderId: "773049605239",
   appId: "1:773049605239:web:7ebbf6c1727bf904983a72",
-  measurementId: "G-V2T9DGETMT"})
+  measurementId: "G-V2T9DGETMT"
+});
+require('firebase/firestore');
+let firestore = firebase.firestore();
 const express = require("express");
 const path = require("path");
 const app = express();
+const bodyParser = require("body-parser");
 
 const authMap = {};
 
-app.use(express.static("public"))
-
-app.use(express.urlencoded())
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true}));
 
 if (module === require.main) {
   // [START server]
@@ -27,6 +29,8 @@ if (module === require.main) {
     const port = server.address().port;
     console.log(`App listening on port ${port}`);
   });
+
+  app.use(bodyParser.json());
   
   app.post('/api/sign-in', (req, res) => {
     let response = res;
@@ -44,9 +48,8 @@ if (module === require.main) {
 
   app.post('/api/auth', (req, res) => {
     let response = res;
-
     let authenticated = isUserAuthenticated(findAuthToken(req));
-
+    
     if (!authenticated) {
       response = res.clearCookie('AuthToken');
     }
@@ -54,15 +57,15 @@ if (module === require.main) {
   });
 
   app.post('/api/sign-out', (req, res) => {
-    let user = firebaseapp.auth().currentUser;
-    let email = '';
+    let user = firebase.auth().currentUser;
+    let name = '';
     let token = findAuthToken(req);
     if (user !== null) {
-      email = firebaseapp.auth().currentUser.email;
+      name = (user.displayName !== null) ? user.displayName : user.email;
     }
     
-    firebaseapp.auth().signOut().then(() => {
-      console.log(email + ' signed out succesfully.')
+    firebase.auth().signOut().then(() => {
+      console.log(name + ' signed out succesfully.')
     }).catch(error => {
       console.error(error);
     });
@@ -74,11 +77,38 @@ if (module === require.main) {
     res.clearCookie('AuthToken').sendStatus(200);
   });
 
+  app.post('/api/save-itinerary', (req, res) => {
+    let authenticated = isUserAuthenticated(findAuthToken(req));
+
+    if (!authenticated) {
+      res.sendStatus(401);
+    }
+    else {
+      let user = firebase.auth().currentUser;
+      let currentDate = new Date();
+
+      firestore.collection('itineraries').add({
+        uid: user.uid,
+        created_at: currentDate,
+        price_history: [{
+          time: currentDate,
+          price: req.body.price,
+        }],
+        itinerary: req.body.itinerary
+      }).then(docRef => {
+        console.log("Document written with ID:", docRef.id);
+      }).catch(error => {
+        console.error("Error adding document:", error);
+      });
+      res.sendStatus(200);
+    }
+  });
+
   app.use(function(req, res) {
     res.status(404).sendFile(path.join(__dirname, "/public/404.html"))
   });
 
-  firebaseapp.auth().onAuthStateChanged(user => {
+  firebase.auth().onAuthStateChanged(user => {
     if (user) {
       user.getIdTokenResult().then(idTokenResult => {
         authMap[idTokenResult.token] = idTokenResult.expirationTime;
@@ -89,7 +119,7 @@ if (module === require.main) {
 }
 
 async function createUser(email, password) {
-  return firebaseapp.auth().createUserWithEmailAndPassword(email, password);
+  return firebase.auth().createUserWithEmailAndPassword(email, password);
 }
 
 function isUserAuthenticated(token) {

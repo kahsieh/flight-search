@@ -83,7 +83,6 @@ function prepareFetches() {
           flight[field] = Itinerary.get(i, field);
         }
       }
-      console.log(flight);
       body["requests"].push(flight);
     }
     console.log(`Request ${a}:`);

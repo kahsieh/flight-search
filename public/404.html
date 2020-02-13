@@ -15,6 +15,7 @@ All Rights Reserved.
 <link rel="stylesheet" href="materialize/materialize.css">
 <link rel="stylesheet" href="materialize/icon.css">
 <link rel="stylesheet" href="styles.css">
+<script src="utilities.js"></script>
 <script src="auth.js"></script>
 </head>
 <body>
@@ -24,8 +25,9 @@ All Rights Reserved.
       <i class="material-icons">flight</i>Five Peas Flight Search
     </a>
     <div class="right-align">
-      <a href="signin.html" id="signin">Sign In</a>
-      <div id="signout" style="display: none;" onclick="signout()">Sign Out</div>
+      <a href="signin.html" class="waves-effect waves-teal btn-flat white-text" id="signin">Sign In</a>
+      <a href="flights.html" class="waves-effect waves-light btn" id="flights" style="display: none;">Itineraries</a>
+      <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="signout()">Sign Out</div>
     </div>
   </div>
 </nav></header>
