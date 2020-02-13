@@ -15,6 +15,7 @@ All Rights Reserved.
 <link rel="stylesheet" href="materialize/materialize.css">
 <link rel="stylesheet" href="materialize/icon.css">
 <link rel="stylesheet" href="styles.css">
+<script src="auth.js"></script>
 </head>
 <body>
 <header><nav>
@@ -22,7 +23,10 @@ All Rights Reserved.
     <a href="/" class="brand-logo">
       <i class="material-icons">flight</i>Five Peas Flight Search
     </a>
-    <div class="right-align"><a href="signup.html">Sign In</a></div>
+    <div class="right-align">
+      <a href="signin.html" id="signin">Sign In</a>
+      <div id="signout" style="display: none;" onclick="signout()">Sign Out</div>
+    </div>
   </div>
 </nav></header>
 

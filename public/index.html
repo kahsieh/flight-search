@@ -20,24 +20,11 @@ All Rights Reserved.
 <script src="tables.js"></script>
 <script src="itinerary.js"></script>
 <script src="flight-search.js"></script>
+<script src="auth.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     M.FormSelect.init(document.querySelectorAll("select"), {});
   });
-
-  let xhr = new XMLHttpRequest();
-  xhr.open('POST', '/api/auth');
-  xhr.send();
-
-  xhr.onload = () => {
-    if (xhr.readyState === xhr.DONE) {
-        if (xhr.status === 200) {
-            if (xhr.responseText === true) {
-              document.getElementById('sign-up').innerHTML = "Sign Out";
-            }
-        }
-    }
-  };
 </script>
 </head>
 <body>
@@ -46,7 +33,10 @@ All Rights Reserved.
     <a href="/" class="brand-logo">
       <i class="material-icons">flight</i>Five Peas Flight Search
     </a>
-    <div class="right-align"><a href="signup.html">Sign In</a></div>
+    <div class="right-align">
+      <a href="signin.html" id="signin">Sign In</a>
+      <div id="signout" style="display: none;" onclick="signout()">Sign Out</div>
+    </div>
   </div>
 </nav></header>
 

@@ -28,23 +28,55 @@ if (module === require.main) {
     console.log(`App listening on port ${port}`);
   });
   
-  app.post('/api/sign-up', (req, res) => {
-    createUser(req.body.email, req.body.password).then(userCredential => {
+  app.post('/api/sign-in', (req, res) => {
+    let response = res;
+
+    createUser(req.body.email_address, req.body.password).then(userCredential => {
       return userCredential.user.getIdTokenResult();
     }).then(idTokenResult => {
-      res.cookie('access_token', 'Bearer ' + idTokenResult.token).redirect(303, "/")
+      response = res.cookie('AuthToken', idTokenResult.token);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
+    }).then(() => {
+      response.redirect(303, '/');
     });
   })
 
   app.post('/api/auth', (req, res) => {
-    res.send(isUserAuthenticated());
-  })
+    let response = res;
+
+    let authenticated = isUserAuthenticated(findAuthToken(req));
+
+    if (!authenticated) {
+      response = res.clearCookie('AuthToken');
+    }
+    response.send(authenticated);
+  });
+
+  app.post('/api/sign-out', (req, res) => {
+    let user = firebaseapp.auth().currentUser;
+    let email = '';
+    let token = findAuthToken(req);
+    if (user !== null) {
+      email = firebaseapp.auth().currentUser.email;
+    }
+    
+    firebaseapp.auth().signOut().then(() => {
+      console.log(email + ' signed out succesfully.')
+    }).catch(error => {
+      console.error(error);
+    });
+
+    if (typeof token !== undefined && typeof authMap[token] !== 'undefined') {
+        delete authMap[token];
+    }
+
+    res.clearCookie('AuthToken').sendStatus(200);
+  });
 
   app.use(function(req, res) {
     res.status(404).sendFile(path.join(__dirname, "/public/404.html"))
-  })
+  });
 
   firebaseapp.auth().onAuthStateChanged(user => {
     if (user) {
@@ -60,8 +92,24 @@ async function createUser(email, password) {
   return firebaseapp.auth().createUserWithEmailAndPassword(email, password);
 }
 
-function isUserAuthenticated() {
-  return firebase.auth().currentUser !== null;  
+function isUserAuthenticated(token) {
+  return (typeof authMap[token] !== undefined) && ((new Date()) < Date.parse(authMap[token]));
+}
+
+// returns auth token cookie if found
+// else returns undefined
+function findAuthToken(req) {
+  let cookies = req.headers.cookie.split(';');
+  let find = cookies.find(cookie => {
+    return cookie.startsWith(' AuthToken');
+  });
+
+  if (typeof find !== 'undefined') {
+    return find.substring(' AuthToken='.length); // cookie after AuthToken
+  }
+  else {
+    return;
+  }
 }
 
 module.exports = app;
