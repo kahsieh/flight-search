@@ -6,6 +6,39 @@ Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
 
+const required_fields = [
+  "fly_from",
+  "fly_to",
+  "date_from",
+  "date_to",
+];
+
+const optional_fields = [
+  "select_airlines",
+  "select_airlines_exclude",
+  "adult_hold_bag",
+  "adult_hand_bag",
+  "selected_cabins",
+  "mix_with_cabins",
+  "adults",
+  "price_from",
+  "price_to",
+  "select_stop_airport",
+  "select_stop_airport_exclude",
+  "max_stopovers",
+  "stopover_from",
+  "stopover_to",
+  "conn_on_diff_airport",
+  "fly_days",
+  "dtime_from",
+  "dtime_to",
+  "atime_from",
+  "atime_to",
+  "max_fly_duration",
+  "nights_in_dst_from",
+  "nights_in_dst_to",
+];
+
 class Itinerary {
   static get length() { return qs("#itinerary").childElementCount; }
 
@@ -216,6 +249,35 @@ class Itinerary {
       return cell.checked;
     }
     return cell.value;
+  }
+
+  /**
+   * Retrieves all values from the itinerary
+   * 
+   * @return {array} Array with all values in the itinerary
+   */
+  static getAll() {
+    let length = this.length;
+    let array = [];
+    for (let i = 0; i < length; i++) {
+      let obj = {};
+      let value;
+      for (let j = 0; j < required_fields.length; j++) {
+        value = this.get(i, required_fields[j]);
+        if (typeof value !== 'undefined') {
+          obj[required_fields[j]] = value;
+        }
+      }
+      for (let j = 0; j < optional_fields.length; j++) {
+        value = this.get(i, optional_fields[j]);
+        if (typeof value !== 'undefined') {
+          obj[optional_fields[j]] = value;
+        }
+      }
+      array.push(obj);
+    }
+
+    return array;
   }
 
   /**

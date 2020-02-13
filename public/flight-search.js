@@ -72,39 +72,18 @@ function prepareFetches() {
                    kiwiDate(Itinerary.get(i, "date_from")),
         "adults": 1,
       };
-      const optional_fields = [
-        "select_airlines",
-        "select_airlines_exclude",
-        "adult_hold_bag",
-        "adult_hand_bag",
-        "selected_cabins",
-        "mix_with_cabins",
-        "adults",
-        "price_from",
-        "price_to",
-        "select_stop_airport",
-        "select_stop_airport_exclude",
-        "max_stopovers",
-        "stopover_from",
-        "stopover_to",
-        "fly_days",
-        "dtime_from",
-        "dtime_to",
-        "atime_from",
-        "atime_to",
-        "max_fly_duration",
-        "nights_in_dst_from",
-        "nights_in_dst_to",
-      ];
       for (const field of optional_fields) {
         // "" won't be added, but be careful of 0 and false.
-        if (Itinerary.get(i, field)) {
+        if (field == "conn_on_diff_airport") {
+          if (!Itinerary.get(i, field)) {
+            flight[field] = 0;
+          }
+        }
+        else if (Itinerary.get(i, field)) {
           flight[field] = Itinerary.get(i, field);
         }
       }
-      if (!Itinerary.get(i, "conn_on_diff_airport")) {
-        flight["conn_on_different_airport"] = 0;
-      }
+      console.log(flight);
       body["requests"].push(flight);
     }
     console.log(`Request ${a}:`);
