@@ -1,4 +1,6 @@
 async function saveItinerary() {
+  qs('#save-itinerary').classList.add('disabled');
+
   let fetches = prepareFetches();
   let res = await Promise.all(fetches)
     .then(responses => Promise.all(responses.map(res => res.json())))
@@ -12,7 +14,7 @@ async function saveItinerary() {
   });
 
   // show that the itinerary was saved
-  M.toast({html: 'Itinerary saved!', displayLength: 1500});
+  M.toast({html: 'Itinerary saved!', displayLength: 1500, completeCallback: () => {qs('#save-itinerary').classList.remove('disabled');}});
 }
 
 function sendHttpRequest(jsonData) {
