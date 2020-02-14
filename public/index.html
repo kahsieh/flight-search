@@ -26,15 +26,6 @@ All Rights Reserved.
   document.addEventListener("DOMContentLoaded", () => {
     M.FormSelect.init(qsa("select"), {});
   });
-
-  let urlParams = {};
-  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (match, key, value) => {
-    urlParams[key] = decodeURIComponent(value);
-  });
-
-  if (Object.entries(urlParams).length !== 0) {
-    loadItinerary(urlParams['itinerary']);
-  }
 </script>
 </head>
 <body>
@@ -111,6 +102,7 @@ All Rights Reserved.
       <button class="btn-floating waves-effect waves-light"
         onclick="shareItinerary()" id="share-itinerary">
         <i class="material-icons left">share</i>
+        <input type="hidden" id="share-itinerary-link">
       </button>
       <button class="btn-floating waves-effect waves-light disabled" id="book">
         <i class="material-icons left">done</i>

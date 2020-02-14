@@ -109,30 +109,41 @@ function prepareFetches() {
  */
 addEventListener("load", () => {
   qs("#app-version").innerText = app.version;
-  Itinerary.addFlight({
-    "fly_from": "LAX",
-    "max_stopovers": 1,
-    "fly_to": "KHH",
-    "date_from": "2020-05-15",
+
+  let urlParams = {};
+  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (match, key, value) => {
+    urlParams[key] = decodeURIComponent(value);
   });
-  Itinerary.addFlight({
-    "fly_from": "KHH",
-    "max_stopovers": 0,
-    "fly_to": "NRT|KIX",
-    "date_from": "2020-05-22",
-  });
-  Itinerary.addFlight({
-    "fly_from": "KIX|NRT",
-    "max_stopovers": 0,
-    "fly_to": "KHH",
-    "date_from": "2020-05-29",
-  });
-  Itinerary.addFlight({
-    "fly_from": "KHH",
-    "max_stopovers": 1,
-    "fly_to": "LAX",
-    "date_from": "2020-06-05",
-  });
+
+  if (Object.entries(urlParams).length !== 0) {
+    loadItinerary(urlParams['itinerary']);
+  }
+  else { // load default itinerary if none specified, could change/delete this later
+    Itinerary.addFlight({
+      "fly_from": "LAX",
+      "max_stopovers": 1,
+      "fly_to": "KHH",
+      "date_from": "2020-05-15",
+    });
+    Itinerary.addFlight({
+      "fly_from": "KHH",
+      "max_stopovers": 0,
+      "fly_to": "NRT|KIX",
+      "date_from": "2020-05-22",
+    });
+    Itinerary.addFlight({
+      "fly_from": "KIX|NRT",
+      "max_stopovers": 0,
+      "fly_to": "KHH",
+      "date_from": "2020-05-29",
+    });
+    Itinerary.addFlight({
+      "fly_from": "KHH",
+      "max_stopovers": 1,
+      "fly_to": "LAX",
+      "date_from": "2020-06-05",
+    });
+  }
 });
 
 /**

@@ -14,7 +14,11 @@ async function saveItinerary() {
   });
 
   // show that the itinerary was saved
-  M.toast({html: 'Itinerary saved!', displayLength: 1500, completeCallback: () => {qs('#save-itinerary').classList.remove('disabled');}});
+  M.toast({
+    html: 'Itinerary saved!',
+    displayLength: 1500,
+    completeCallback: () => { qs('#save-itinerary').classList.remove('disabled'); }
+  });
 }
 
 function sendHttpRequest(jsonData) {
@@ -25,17 +29,32 @@ function sendHttpRequest(jsonData) {
 }
 
 function loadItinerary(encoded) {
-  let encodedObj = JSON.parse(atob((encoded)));
-
-  console.log(encodedObj);
-  // run decodeItinerary on this
-  // then have the flow so that the changes are pushed to flight-search.js
+  let itinerary = decodeItinerary(encoded);
+  
+  for (let i = 0; i < itinerary.length; i++) {
+    Itinerary.addFlight(itinerary[i]);
+  }
 }
 
 function shareItinerary() {
-  let itinerary = Itinerary.getAll();
+  qs('#share-itinerary').classList.add('disabled');
 
-  console.log(window.location.href + '?itinerary=' + encodeItinerary(itinerary));
+  let itinerary = Itinerary.getAll();
+  let url = window.location.href.split('?')[0] + '?itinerary=' + encodeItinerary(itinerary);
+  let hiddenInput = qs('#share-itinerary-link');
+  
+  hiddenInput.value = url;
+  hiddenInput.type = 'text';
+  hiddenInput.select();
+  document.execCommand('copy');
+  hiddenInput.type = 'hidden';
+
+  // show that the itinerary was copied to clipboard
+  M.toast({
+    html: 'Copied to clipboard!',
+    displayLength: 1500,
+    completeCallback: () => { qs('#share-itinerary').classList.remove('disabled'); }
+  });
 }
 
 /*
@@ -70,6 +89,10 @@ function createKeys(length) {
   return keys;
 }
 
+/*
+  converts itinerary from JSON to base64. We change all property names first to be associated with smaller keys.
+  These keys are based on the alphabet so that the base64 string is not as big.
+*/
 function encodeItinerary(itinerary) {
   let encoded = [];
   let keys = createKeys(required_fields.length + optional_fields.length);
@@ -86,7 +109,7 @@ function encodeItinerary(itinerary) {
     }
 
     for(; j < required_fields.length + optional_fields.length; j++) {
-      let field = optional_fields[j];
+      let field = optional_fields[j - required_fields.length];
       if (typeof flight[field] !== 'undefined') {
         flightObj[keys[j]] = flight[field];
       }
@@ -98,6 +121,34 @@ function encodeItinerary(itinerary) {
   return btoa(JSON.stringify(encoded));
 }
 
-function decodeItinerary() {
-  
+/*
+  decodes itinerary from base64 to JSON. We change all property names from our smaller keys, to the actual display names.
+*/
+function decodeItinerary(encoded) {
+  encoded = JSON.parse(atob((encoded)));
+  let decoded = [];
+  let keys = createKeys(required_fields.length + optional_fields.length);
+
+  for (let i = 0; i < encoded.length; i++) {
+    let flight = encoded[i];
+    let flightObj = {};
+    let j = 0;
+    for (; j < required_fields.length; j++) {
+      let key = keys[j];
+      if (typeof flight[key] !== 'undefined') {
+        flightObj[required_fields[j]] = flight[key];
+      }
+    }
+
+    for (; j < required_fields.length + optional_fields.length; j++) {
+      let key = keys[j];
+      if (typeof flight[key] !== 'undefined') {
+        flightObj[optional_fields[j - required_fields.length]] = flight[key];
+      }
+    }
+
+    decoded.push(flightObj);
+  }
+
+  return decoded;
 }
