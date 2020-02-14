@@ -1,3 +1,6 @@
+/**
+ * Save itinerary when button is pressed. Sends an http request to the backend to upload data to firebase.
+**/
 async function saveItinerary() {
   qs('#save-itinerary').classList.add('disabled');
 
@@ -21,6 +24,9 @@ async function saveItinerary() {
   });
 }
 
+/**
+ * Sends HTTP request to backend.
+**/
 function sendHttpRequest(jsonData) {
   let xhr = new XMLHttpRequest();
   xhr.open('POST', '/api/save-itinerary');
@@ -28,42 +34,66 @@ function sendHttpRequest(jsonData) {
   xhr.send(JSON.stringify(jsonData));
 }
 
+/**
+ * loads itinerary from encoded base64 string.
+ *
+ * @param {string} encoded JSON string encoded in base64.
+**/
 function loadItinerary(encoded) {
   let itinerary = decodeItinerary(encoded);
+  console.log(itinerary);
   
   for (let i = 0; i < itinerary.length; i++) {
     Itinerary.addFlight(itinerary[i]);
   }
 }
 
+/**
+ * shares itinerary by copying url to clipboard
+**/
 function shareItinerary() {
   qs('#share-itinerary').classList.add('disabled');
 
   let itinerary = Itinerary.getAll();
   let url = window.location.href.split('?')[0] + '?itinerary=' + encodeItinerary(itinerary);
-  let hiddenInput = qs('#share-itinerary-link');
-  
-  hiddenInput.value = url;
-  hiddenInput.type = 'text';
-  hiddenInput.select();
-  document.execCommand('copy');
-  hiddenInput.type = 'hidden';
+  let message;
+  let color = '';
+  if (url.length > 2048) {
+    console.error(url + ' is too long.');
+    message = 'Error: Itinerary is too long to be saved.';
+    color += 'red';
+  }
+  else {
+    let hiddenInput = qs('#share-itinerary-link');
+    
+    message = 'Copied to clipboard!';
+    hiddenInput.value = url;
+    hiddenInput.type = 'text';
+    hiddenInput.select();
+    document.execCommand('copy');
+    hiddenInput.type = 'hidden';
+  }
 
   // show that the itinerary was copied to clipboard
   M.toast({
-    html: 'Copied to clipboard!',
+    html: message,
     displayLength: 1500,
+    classes: color,
     completeCallback: () => { qs('#share-itinerary').classList.remove('disabled'); }
   });
 }
 
-/*
-  this is not an efficient way to encode a string, but it works for its purpose
-  right now, if the length > 52, the strings become like this: 'aa', 'bb', 'cc', ...
-  what we can do to change this would be to have it so it goes like: 'aa', 'ab', 'ac', ...
-  but this also means that the required_fields and optional_fields arrays would be > 104 in size,
-  which is not worth the extra effort.
-*/ 
+/**
+ * @param {number} length The size of the key array generated.
+ * 
+ * @return {Array} Array of alphabetical keys, formatted as such: ['a', 'b', ... 'A', 'B', ... 'aa', 'bb', ...]
+ * 
+ * note: This is not an efficient way to encode a string, but it works for its purpose
+ * right now, if the length > 52, the strings become like this: 'aa', 'bb', 'cc', ...
+ * what we can do to change this would be to have it so it goes like: 'aa', 'ab', 'ac', ...
+ * but this also means that the required_fields and optional_fields arrays would be > 104 in size,
+ * which is not worth the extra effort.
+**/
 function createKeys(length) {
   let keys = [];
   let key = 'a';
@@ -89,10 +119,14 @@ function createKeys(length) {
   return keys;
 }
 
-/*
-  converts itinerary from JSON to base64. We change all property names first to be associated with smaller keys.
-  These keys are based on the alphabet so that the base64 string is not as big.
-*/
+/**
+ * converts itinerary from JSON to base64. We change all property names first to be associated with smaller keys.
+ * These keys are based on the alphabet so that the base64 string is not as big.
+ * 
+ * @param {Object} itinerary JSON object that will be minified, converted to a string, and then encoded to base64
+ * 
+ * @return {string} base64 string that encoded the JSON object
+**/
 function encodeItinerary(itinerary) {
   let encoded = [];
   let keys = createKeys(required_fields.length + optional_fields.length);
@@ -121,9 +155,13 @@ function encodeItinerary(itinerary) {
   return btoa(JSON.stringify(encoded));
 }
 
-/*
-  decodes itinerary from base64 to JSON. We change all property names from our smaller keys, to the actual display names.
-*/
+/**
+ * decodes itinerary from base64 to JSON. We change all property names from our smaller keys, to the actual display names.
+ * 
+ * @param {string} encoded base64 string that will be decoded and unminified
+ * 
+ * @return {Object} object containing flight info
+**/
 function decodeItinerary(encoded) {
   encoded = JSON.parse(atob((encoded)));
   let decoded = [];

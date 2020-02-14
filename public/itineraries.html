@@ -18,6 +18,10 @@ All Rights Reserved.
   <script src="materialize/materialize.js"></script>
   <script src="utilities.js"></script>
   <script src="auth.js"></script>
+  <script src="itineraries.js"></script>
+  <script>
+
+  </script>
 </head>
 
 <body>
@@ -28,18 +32,24 @@ All Rights Reserved.
       </a>
       <div class="right-align">
         <a href="signin.html" class="waves-effect waves-teal btn-flat white-text" id="signin">Sign In</a>
-        <a href="flights.html" class="waves-effect waves-light btn" id="flights" style="display: none;">Itineraries</a>
+        <a href="itineraries.html" class="waves-effect waves-light btn" id="flights" style="display: none;">Itineraries</a>
         <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="signout()">Sign Out</div>  
       </div>
     </div>
   </nav></header>
 
   <main class="container">
-    <div class="row"><div class="col s12">
-      <h5>Saved Itineraries</h5>
-      <p id="itineraries-unauthenticated">You must be logged in to view your saved itineraries.</p>
-      <div id="itineraries-authenticated" style="display: none;">itineraries</div>
-    </div></div>
+    <div class="row">
+      <div class="col s12">
+        <h5>Saved Itineraries</h5>
+        <p id="itineraries-unauthenticated">You must be logged in to view your saved itineraries.</p>
+        <div id="itineraries-authenticated" style="display: none;">
+          <table class="responsive-table">
+            <tbody id="saved_itineraries"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="page-footer grey lighten-3 black-text"><div class="container">
