@@ -21,11 +21,20 @@ All Rights Reserved.
 <script src="itinerary.js"></script>
 <script src="flight-search.js"></script>
 <script src="auth.js"></script>
-<script src="save-itinerary.js"></script>
+<script src="itineraries.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     M.FormSelect.init(qsa("select"), {});
   });
+
+  let urlParams = {};
+  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (match, key, value) => {
+    urlParams[key] = decodeURIComponent(value);
+  });
+
+  if (Object.entries(urlParams).length !== 0) {
+    loadItinerary(urlParams['itinerary']);
+  }
 </script>
 </head>
 <body>
@@ -98,6 +107,10 @@ All Rights Reserved.
       <button class="btn-floating waves-effect waves-light"
         onclick="main()" id="search">
         <i class="material-icons left">search</i>
+      </button>
+      <button class="btn-floating waves-effect waves-light"
+        onclick="shareItinerary()" id="share-itinerary">
+        <i class="material-icons left">share</i>
       </button>
       <button class="btn-floating waves-effect waves-light disabled" id="book">
         <i class="material-icons left">done</i>
