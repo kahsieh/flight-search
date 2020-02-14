@@ -39,6 +39,17 @@ const optional_fields = [
   "nights_in_dst_to",
 ];
 
+const default_values = {
+  "select_airlines_exclude": false,
+  "adult_hold_bag": "0",
+  "adult_hand_bag": "0",
+  "selected_cabins": "M",
+  "select_stop_airport_exclude": false,
+  "max_stopovers": "2",
+  "conn_on_diff_airport": true,
+  "fly_days": "0,1,2,3,4,5,6",
+}
+
 class Itinerary {
   static get length() { return qs("#itinerary").childElementCount; }
 
@@ -252,9 +263,9 @@ class Itinerary {
   }
 
   /**
-   * Retrieves all values from the itinerary
+   * Retrieves all nonempty, nondefault values from the itinerary
    * 
-   * @return {array} Array with all values in the itinerary
+   * @return {array} Array with all nonempty, nondefault values in the itinerary
    */
   static getAll() {
     let length = this.length;
@@ -264,19 +275,20 @@ class Itinerary {
       let value;
       for (let j = 0; j < required_fields.length; j++) {
         value = this.get(i, required_fields[j]);
-        if (typeof value !== 'undefined') {
+        if (typeof value !== 'undefined' && (value !== '' && default_values[required_fields[j]] !== value)) {
           obj[required_fields[j]] = value;
         }
       }
       for (let j = 0; j < optional_fields.length; j++) {
         value = this.get(i, optional_fields[j]);
-        if (typeof value !== 'undefined') {
+        if (typeof value !== 'undefined' && (value !== '' && default_values[optional_fields[j]] !== value)) {
           obj[optional_fields[j]] = value;
         }
       }
       array.push(obj);
     }
 
+    console.log(array);
     return array;
   }
 
