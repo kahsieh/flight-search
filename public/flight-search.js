@@ -146,7 +146,7 @@ async function main() {
   let res = await Promise.all(fetches)
     .then(responses => Promise.all(responses.map(res => res.json())))
     .then(bodies => bodies.flat())
-    .catch(error => console.log(error));
+    .catch(error => console.error(error));
 
   // Reformat response for single-flight itineraries.
   let single = false;
