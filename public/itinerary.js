@@ -283,10 +283,14 @@ class Itinerary {
     if (typeof value === 'undefined') {
       value = '';
     }
+    // if select is multiple, create an array from the string.
+    // otherwise, we just encapsulate value into an array (in case the string has a comma and we want to keep it as one)
     value = (multiple ? value.split(',') : [value]);
+    // list of all possible values the string can be
     let possibleValues = [];
     options = options.map(option => {
       let obj = option;
+      // if the options specified is just a string, we create an object with value set to that string
       if (typeof option === 'string') {
         obj = {value: option};
       }
@@ -295,6 +299,7 @@ class Itinerary {
       return obj;
     });
 
+    // defaultValue specifies if we should use the default values or not, based on if the value is invalid or not
     let defaultValue = false;
     value.forEach(value => {
       if (!possibleValues.includes(value)) {
@@ -303,16 +308,19 @@ class Itinerary {
     });
 
     if (defaultValue) {
-      if (typeof default_values === 'undefined') {
+      // if there is no default value found in default_values, value = ''
+      if (typeof default_values[field] === 'undefined') {
         value = '';
       }
       else {
+        // otherwise, we do the same as before and split it up/put it in an array
         value = (multiple ? default_values[field].split(',') : [default_values[field]]);
       }
     }
 
     return options.map(option => {
       let selected = false;
+      // if value is the current option, we select it
       if (value.includes(option.value)) {
         selected = true;
       }
