@@ -3,6 +3,8 @@
  */
 async function saveItinerary() {
   qs('#save-itinerary').classList.add('disabled');
+  let name = qs('#itinerary-name').value;
+  name = (name !== '' ? name : 'Untitled Itinerary');
 
   let fetches = prepareFetches();
   let res = await Promise.all(fetches)
@@ -11,27 +13,22 @@ async function saveItinerary() {
     .catch(error => console.error(error));
   res.sort((a, b) => a.price - b.price);
 
-  sendHttpRequest({
-    price: res[0].price,
-    itinerary: Itinerary.getAll()
-  });
-
-  // show that the itinerary was saved
-  M.toast({
-    html: 'Itinerary saved!',
-    displayLength: 1500,
-    completeCallback: () => { qs('#save-itinerary').classList.remove('disabled'); }
-  });
-}
-
-/**
- * Sends HTTP request to backend.
- */
-function sendHttpRequest(jsonData) {
+  // Sends HTTP request to save-itinerary.
   let xhr = new XMLHttpRequest();
   xhr.open('POST', '/api/save-itinerary');
   xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.send(JSON.stringify(jsonData));
+  xhr.send(JSON.stringify({
+    name: name,
+    price: ((typeof res[0] !== 'undefined' && typeof res[0].price !== 'undefined') ? res[0].price : -1),
+    itinerary: Itinerary.getAll()
+  }));
+
+  // show that the itinerary was saved
+  M.toast({
+    html: '<i class="material-icons left">star</i><div>Itinerary saved!</div>',
+    displayLength: 1500,
+    completeCallback: () => { qs('#save-itinerary').classList.remove('disabled'); }
+  });
 }
 
 /**
@@ -39,9 +36,12 @@ function sendHttpRequest(jsonData) {
  *
  * @param {string} encoded JSON string encoded in base64.
  */
-function loadItinerary(encoded) {
+function loadItinerary(name, encoded) {
   let itinerary = decodeItinerary(encoded);
+  name = ((name !== '' && typeof name !== 'undefined') ? name : 'Untitled Itinerary');
+  name = decodeURIComponent(name);
   
+  qs('#itinerary-name').value = name;
   for (let i = 0; i < itinerary.length; i++) {
     Itinerary.addFlight(itinerary[i]);
   }
@@ -49,22 +49,31 @@ function loadItinerary(encoded) {
 
 /**
  * shares itinerary by copying url to clipboard
+ * 
+ * @param {string} name name of itinerary
+ * @param {Object} itinerary Itinerary to be shared
+ * @param {string} buttonId id of button, with prepended '#' before button id
+ * @param {string} hiddenInputId id of hidden input to be copied from, with prepended '#' before input
  */
-function shareItinerary() {
-  qs('#share-itinerary').classList.add('disabled');
+function shareItinerary(name = qs('#itinerary-name').value, itinerary = Itinerary.getAll(),
+  buttonId = '#share-itinerary', hiddenInputId = '#share-itinerary-link') {
+  qs(buttonId).classList.add('disabled');
 
-  let itinerary = Itinerary.getAll();
-  let url = window.location.href.split('?')[0] + '?itinerary=' + encodeItinerary(itinerary);
+  let url = getShareableLink(name, itinerary);
+  let icon;
   let message;
   let color = '';
+
   if (url.length > 2048) {
     console.error(url + ' is too long.');
+    icon = 'error';
     message = 'Error: Itinerary is too long to be saved.';
     color += 'red';
   }
   else {
-    let hiddenInput = qs('#share-itinerary-link');
+    let hiddenInput = qs(hiddenInputId);
     
+    icon = 'content_copy';
     message = 'Copied to clipboard!';
     hiddenInput.value = url;
     hiddenInput.type = 'text';
@@ -75,11 +84,23 @@ function shareItinerary() {
 
   // show that the itinerary was copied to clipboard
   M.toast({
-    html: message,
+    html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
     displayLength: 1500,
     classes: color,
-    completeCallback: () => { qs('#share-itinerary').classList.remove('disabled'); }
+    completeCallback: () => { qs(buttonId).classList.remove('disabled'); }
   });
+}
+
+/**
+ * gets shareable url
+ * 
+ * @param {string} name name of itinerary
+ * @param {Object} itinerary object with information about flights
+ */
+function getShareableLink(name, itinerary) {
+  name = ((name !== '' && typeof name !== 'undefined') ? name : 'Untitled Itinerary');
+
+  return `${window.location.origin.split('?')[0]}?n=${encodeURIComponent(name)}&i=${encodeItinerary(itinerary)}`;
 }
 
 /**

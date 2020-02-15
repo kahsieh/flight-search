@@ -116,7 +116,7 @@ addEventListener("load", () => {
   });
 
   if (Object.entries(urlParams).length !== 0) {
-    loadItinerary(urlParams['itinerary']);
+    loadItinerary(urlParams['n'], urlParams['i']);
   }
   else { // load default itinerary if none specified, could change/delete this later
     Itinerary.addFlight({
