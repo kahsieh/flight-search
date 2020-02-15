@@ -39,11 +39,14 @@ const optional_fields = [
   "nights_in_dst_to",
 ];
 
+// list of default values to be used for select/checkbox inputs.
+// you can also specify default values for text inputs as well
 const default_values = {
   "select_airlines_exclude": false,
   "adult_hold_bag": "0",
   "adult_hand_bag": "0",
   "selected_cabins": "M",
+  "mix_with_cabins": "", // this is a select option, not input
   "select_stop_airport_exclude": false,
   "max_stopovers": "2",
   "conn_on_diff_airport": true,
@@ -78,7 +81,7 @@ class Itinerary {
 
       <td class="select_airlines"><div class="row"><div class="input-field col s12">
         <div class="right-align" style="position: absolute; right: 15px"><p><label>
-          <input type="checkbox" name="select_airlines_exclude" class="filled-in">
+          <input type="checkbox" name="select_airlines_exclude" class="filled-in" ${cells["select_airlines_exclude"] === true ? "checked" : ""}>
           <span style="padding-left: 25px">Not</span>
         </label></p></div>
         <input type="text" name="select_airlines" placeholder="Any"
@@ -87,35 +90,58 @@ class Itinerary {
       </div></div></td>
       <td class="adult_hold_bag"><div class="row"><div class="col s12 input-field">
         <select name="adult_hold_bag">
-          <option value="0" selected>0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
+          ${this.generateSelectOptions(["0", "1", "2"], cells["adult_hold_bag"], "adult_hold_bag")}
         </select>
         <label>Checked&nbsp;bags</label>
       </div></div></td>
       <td class="adult_hold_bag"><div class="row"><div class="col s12 input-field">
         <select name="adult_hand_bag">
-          <option value="0" selected>0</option>
-          <option value="1">1</option>
+          ${this.generateSelectOptions(["0", "1"], cells["adult_hand_bag"], "adult_hand_bag")}
         </select>
         <label>Carry-on&nbsp;bags</label>
       </div></div></td>
       <td class="selected_cabins"><div class="row"><div class="col s12 input-field">
         <select name="selected_cabins">
-          <option value="M" selected>Economy</option>
-          <option value="W">Premium Economy</option>
-          <option value="C">Business</option>
-          <option value="F">First</option>
+          ${this.generateSelectOptions([{
+            name: "Economy",
+            value: "M",
+          },
+          {
+            name: "Premium Economy",
+            value: "W",
+          },
+          {
+            name: "Business",
+            value: "C",
+          },
+          {
+            name: "First",
+            value: "F",
+          }], cells["selected_cabins"], "selected_cabins")}
         </select>
         <label>Cabin</label>
       </div></div></td>
       <td class="selected_cabins"><div class="row"><div class="col s12 input-field">
         <select name="mix_with_cabins">
-          <option value="" selected disabled></option>
-          <option value="M">Economy</option>
-          <option value="W">Premium Economy</option>
-          <option value="C">Business</option>
-          <option value="F">First</option>
+          ${this.generateSelectOptions([{
+            value: "",
+          },
+          {
+            name: "Economy",
+            value: "M",
+          },
+          {
+            name: "Premium Economy",
+            value: "W",
+          },
+          {
+            name: "Business",
+            value: "C",
+          },
+          {
+            name: "First",
+            value: "F",
+          }], cells["mix_with_cabins"], "mix_with_cabins")}
         </select>
         <label>Mixed&nbsp;with</label>
       </div></div></td>
@@ -134,10 +160,9 @@ class Itinerary {
           value="${cells["price_to"] || ""}">
         <label class="active">Max&nbsp;price&nbsp;($)</label>
       </div></div></td>
-
       <td class="select_stop_airport"><div class="row"><div class="input-field col s12">
         <div class="right-align" style="position: absolute; right: 15px"><p><label>
-          <input type="checkbox" name="select_stop_airport_exclude" class="filled-in">
+          <input type="checkbox" name="select_stop_airport_exclude" class="filled-in" ${cells["select_stop_airport_exclude"] === true ? "checked" : ""}>
           <span style="padding-left: 25px">Not</span>
         </label></p></div>
         <input type="text" name="select_stop_airport" placeholder="Any"
@@ -161,12 +186,11 @@ class Itinerary {
       </div></div></td>
       <td class="conn_on_diff_airport"><div class="row"><div class="input-field col s12">
         <p><label>
-          <input type="checkbox" name="conn_on_diff_airport" class="filled-in" checked>
+          <input type="checkbox" name="conn_on_diff_airport" class="filled-in" ${cells["conn_on_diff_airport"] === true ? "checked" : ""}>
           <span style="padding-left: 25px">Allowed</span>
         </label></p>
         <label class="active">Inter&#8209;airport&nbsp;</label>
       </div></div></td>
-
       <td><div class="row"><div class="input-field col s12">
         <input type="date" name="date_from" placeholder=""
           value="${cells["date_from"] || ""}">
@@ -179,13 +203,34 @@ class Itinerary {
       </div></div></td>
       <td class="fly_days"><div class="row"><div class="col s12 input-field">
         <select name="fly_days" multiple>
-          <option value="0" selected>Sunday</option>
-          <option value="1" selected>Monday</option>
-          <option value="2" selected>Tuesday</option>
-          <option value="3" selected>Wednesday</option>
-          <option value="4" selected>Thursday</option>
-          <option value="5" selected>Friday</option>
-          <option value="6" selected>Saturday</option>
+          ${this.generateSelectOptions([{
+            name: "Sunday",
+            value: "0",
+          },
+          {
+            name: "Monday",
+            value: "1",
+          },
+          {
+            name: "Tuesday",
+            value: "2",
+          },
+          {
+            name: "Wednesday",
+            value: "3",
+          },
+          {
+            name: "Thursday",
+            value: "4",
+          },
+          {
+            name: "Friday",
+            value: "5",
+          },
+          {
+            name: "Saturday",
+            value: "6",
+          }], cells["fly_days"], "fly_days", true)}
         </select>
         <label>Day&nbsp;of&nbsp;week</label>
       </div></div></td>
@@ -218,6 +263,62 @@ class Itinerary {
     this.updateFilters();
     qs("#remove-flight").classList.remove("disabled");
     new FlightTable();
+  }
+
+  /**
+   * generate select options for the itinerary based on value given. If value is invalid, uses value found in default_values.
+   * 
+   * @param {Object} options array of possible options. the following formats are acceptable:
+   *    ['value1', 'value2', ...]                                         creates an option with value and name set to string
+   *    [{ value: 'value1'}, { value: 'value2'}, ...]                     creates an option with value set to value1, name set to value1
+   *    [{ name: name1, value: value1 }, { name: name2, value: value2 }]  creates an option with name set to name1, value set to value1
+   * @param {string} value string containing default values to fill the select with
+   *    can either be a string, or a comma separated string if select is multiple
+   * @param {string} field name of field being changed
+   * @param {boolean} multiple OPTIONAL boolean that checks if select is multiple. If it is, value becomes an array
+   * 
+   * @return {string} HTML string that contains all generated options with name and values
+   */
+  static generateSelectOptions(options, value, field, multiple = false) {
+    if (typeof value === 'undefined') {
+      value = '';
+    }
+    value = (multiple ? value.split(',') : [value]);
+    let possibleValues = [];
+    options = options.map(option => {
+      let obj = option;
+      if (typeof option === 'string') {
+        obj = {value: option};
+      }
+      
+      possibleValues.push(obj.value);
+      return obj;
+    });
+
+    let defaultValue = false;
+    value.forEach(value => {
+      if (!possibleValues.includes(value)) {
+        defaultValue = true;
+      }
+    });
+
+    if (defaultValue) {
+      if (typeof default_values === 'undefined') {
+        value = '';
+      }
+      else {
+        value = (multiple ? default_values[field].split(',') : [default_values[field]]);
+      }
+    }
+
+    return options.map(option => {
+      let selected = false;
+      if (value.includes(option.value)) {
+        selected = true;
+      }
+
+      return `<option value="${option.value}" ${selected ? "selected" : ""} ${option.value === "" ? "disabled" : ""}>${typeof option.name !== 'undefined' ? option.name : option.value}</option>`;
+    }).join('');
   }
 
   /**
