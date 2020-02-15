@@ -144,6 +144,8 @@ addEventListener("load", () => {
       "date_from": "2020-06-05",
     });
   }
+  
+  M.FormSelect.init(qsa("select"), {});
 });
 
 /**
