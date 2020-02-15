@@ -62,6 +62,8 @@ class Itinerary {
    * @param {object} cells Optional. Values to pre-populate the row with.
    */
   static addFlight(cells = {}) {
+    this.selectFilters(cells);
+
     let row = qs("#itinerary").insertRow();
     row.style.border = 0;
     row.innerHTML = `
@@ -397,8 +399,42 @@ class Itinerary {
       array.push(obj);
     }
 
-    console.log(array);
     return array;
+  }
+
+  /**
+   * Selects filter options if cells contains non-default options. 
+   * 
+   * @param {Object} cells Object that contains filterable properties
+   */
+  static selectFilters(cells) {
+    // some properties do not have entries in the table, but are related to another entry and may not be default
+    let filterMap = {
+      'fly_from': undefined,
+      'fly_to': undefined,
+      'date_from': undefined,
+      'select_airlines_exclude': 'select_airlines',
+      'adult_hand_bag': 'adult_hold_bag',
+      'mix_with_cabins': 'selected_cabins',
+      'price_to': 'price_from',
+      'select_stop_airport_exclude': 'select_stop_airport',
+      'stopover_to': 'stopover_from',
+      'dtime_to': 'dtime_from',
+      'atime_to': 'atime_from',
+    }
+
+    Object.entries(cells).forEach(([key, value]) => {
+      if (typeof value === 'undefined' || default_values[key] === value) {
+        console.log(key, value);
+      }
+      else {
+        let filterKey = ((typeof filterMap[key] !== 'undefined') ? filterMap[key] : key);
+        let filter = qs(`#filters option[value=${filterKey}]`);
+        if (filter !== null) {
+          filter.selected = true;
+        }
+      }
+    });
   }
 
   /**
