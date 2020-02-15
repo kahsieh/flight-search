@@ -38,7 +38,10 @@ if (module === require.main) {
     createUser(req.body.email_address, req.body.password).then(userCredential => {
       return userCredential.user.getIdTokenResult();
     }).then(idTokenResult => {
-      response = res.cookie('AuthToken', idTokenResult.token);
+      let expireTime = new Date();
+      expireTime.setTime(Date.parse(idTokenResult.expirationTime));
+
+      response = res.cookie('AuthToken', idTokenResult.token, { expires: expireTime });
     }).catch(error => {
       console.error(error);
     }).then(() => {
@@ -89,6 +92,7 @@ if (module === require.main) {
 
       firestore.collection('itineraries').add({
         uid: user.uid,
+        name: req.body.name,
         created_at: currentDate,
         price_history: [{
           time: currentDate,
@@ -101,6 +105,31 @@ if (module === require.main) {
         console.error("Error adding document:", error);
       });
       res.sendStatus(200);
+    }
+  });
+
+  app.post('/api/display-itineraries', (req, res) => {
+    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let response = res.type('application/json');
+
+    if (!authenticated) {
+      response.sendStatus(401);
+    }
+    else {
+      let user = firebase.auth().currentUser;
+      let data = [];
+      response = res.status(200);
+
+      firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created_at', 'asc').get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          data.push(doc.data());
+        });
+      }).catch(error => {
+        console.error(error);
+        response.status(500);
+      }).then(() => {
+        response.send(JSON.stringify(data));
+      });
     }
   });
 
@@ -119,7 +148,7 @@ if (module === require.main) {
 }
 
 async function createUser(email, password) {
-  return firebase.auth().createUserWithEmailAndPassword(email, password);
+  return firebase.auth().signInWithEmailAndPassword(email, password);
 }
 
 function isUserAuthenticated(token) {
