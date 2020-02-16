@@ -10,6 +10,9 @@ All Rights Reserved.
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-signin-client_id" content="773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com">
+  <meta name="google-signin-cookiepolicy" content="single_host_origin">
+  <meta name="google-signin-scope" content="profile email">
   <title>Sign in</title>
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="stylesheet" href="materialize/materialize.css">
@@ -17,7 +20,20 @@ All Rights Reserved.
   <link rel="stylesheet" href="styles.css">
   <script src="materialize/materialize.js"></script>
   <script src="utilities.js"></script>
-  <script src="auth.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script>
+  function onSignIn(googleUser) {
+    var id_token = googleUser.getAuthResponse().id_token;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/sign-up');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function(response) {
+      console.log(response);
+      window.location.replace("/");
+    };
+    xhr.send('idtoken=' + id_token);
+  }
+  </script>
 </head>
 
 <body>
@@ -26,17 +42,12 @@ All Rights Reserved.
       <a href="/" class="brand-logo">
         <i class="material-icons">flight</i>Five Peas Flight Search
       </a>
-      <div class="right-align">
-        <a href="signin.html" class="waves-effect waves-teal btn-flat white-text" id="signin">Sign In</a>
-        <a href="flights.html" class="waves-effect waves-light btn" id="flights" style="display: none;">Itineraries</a>
-        <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="signout()">Sign Out</div>  
-      </div>
     </div>
   </nav></header>
 
   <main class="container">
     <div class="row"><div class="col s12">
-      <h5>Sign in</h5>
+      <!-- <h5>Sign in</h5>
       <form action="/api/sign-in" method="POST">
         <div class="row" style="margin-bottom: 0"><div class="input-field col s12">
           <input type="text" name="email_address">
@@ -48,8 +59,9 @@ All Rights Reserved.
         </div></div>
         <button class="btn waves-effect waves-light" type="submit">Sign in
           <i class="material-icons right">send</i>
-        </button>
-      </form>
+        </button> 
+      </form> -->
+      <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
     </div></div>
   </main>
 

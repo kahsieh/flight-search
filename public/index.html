@@ -10,6 +10,7 @@ All Rights Reserved.
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-signin-client_id" content="773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com">
 <title>Five Peas Flight Search</title>
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="materialize/materialize.css">
@@ -22,6 +23,29 @@ All Rights Reserved.
 <script src="flight-search.js"></script>
 <script src="auth.js"></script>
 <script src="share-itineraries.js"></script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+<script>
+  function userSignOut() {
+    signout();
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+    var res = document.cookie;
+    var multiple = res.split(";");
+    for(var i = 0; i < multiple.length; i++) {
+        var key = multiple[i].split("=");
+        document.cookie = key[0]+" =; expires = Thu, 01 Jan 1970 00:00:00 UTC";
+    }
+    window.location.reload();
+  }
+
+  function onLoad() {
+    gapi.load('auth2', function() {
+      gapi.auth2.init();
+    });
+  }
+</script>
 </head>
 <body>
 <header><nav>
@@ -32,7 +56,7 @@ All Rights Reserved.
     <div class="right-align">
       <a class="waves-effect waves-teal btn-flat white-text" href="signin.html" id="signin">Sign In</a>
       <a class="waves-effect waves-light btn" href="itineraries.html" id="flights" style="display: none;">Itineraries</a>
-      <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="signout()">Sign Out</div>
+      <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="userSignOut()">Sign Out</div>
     </div>
   </div>
 </nav></header>

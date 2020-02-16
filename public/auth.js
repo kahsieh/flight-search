@@ -1,4 +1,6 @@
-auth();
+addEventListener("load", () => {
+  auth();
+});
 
 function auth() {
   let xhr = new XMLHttpRequest();
