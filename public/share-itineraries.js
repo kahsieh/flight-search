@@ -13,14 +13,31 @@ async function saveItinerary() {
     .catch(error => console.error(error));
   res.sort((a, b) => a.price - b.price);
 
+  let price = -1;
+  let dTime = 'NONE';
+  let aTime = 'NONE';
+  let flyFrom = 'NONE';
+  let flyTo = 'NONE';
+  if (typeof res[0] !== 'undefined') {
+    price = res[0].price;
+    dTime = localeString(res[0].route[0].dTime);
+    aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
+    flyFrom = res[0].route[0].flyFrom;
+    flyTo = res[0].route[res[0].route.length - 1].flyTo;
+  }
+
   // Sends HTTP request to save-itinerary.
   let xhr = new XMLHttpRequest();
   xhr.open('POST', '/api/save-itinerary');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({
     name: name,
-    price: ((typeof res[0] !== 'undefined' && typeof res[0].price !== 'undefined') ? res[0].price : -1),
-    itinerary: Itinerary.getAll()
+    itinerary: Itinerary.getAll(),
+    price: price,
+    dTime: dTime,
+    aTime: aTime,
+    flyFrom: flyFrom,
+    flyTo: flyTo,
   }));
 
   // show that the itinerary was saved

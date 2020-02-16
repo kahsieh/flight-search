@@ -424,10 +424,7 @@ class Itinerary {
     }
 
     Object.entries(cells).forEach(([key, value]) => {
-      if (typeof value === 'undefined' || default_values[key] === value) {
-        console.log(key, value);
-      }
-      else {
+      if (typeof value !== 'undefined' && default_values[key] !== value) {
         let filterKey = ((typeof filterMap[key] !== 'undefined') ? filterMap[key] : key);
         let filter = qs(`#filters option[value=${filterKey}]`);
         if (filter !== null) {

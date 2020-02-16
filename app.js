@@ -98,7 +98,11 @@ if (module === require.main) {
           time: currentDate,
           price: req.body.price,
         }],
-        itinerary: req.body.itinerary
+        itinerary: req.body.itinerary,
+        dTime: req.body.dTime,
+        aTime: req.body.aTime,
+        flyFrom: req.body.flyFrom,
+        flyTo: req.body.flyTo,
       }).then(docRef => {
         console.log("Document written with ID:", docRef.id);
       }).catch(error => {
@@ -133,6 +137,31 @@ if (module === require.main) {
     }
   });
 
+  app.post('/api/delete-itinerary', (req, res) => {
+    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let response = res.type('application/json');
+
+    if (!authenticated) {
+      response.sendStatus(401);
+    }
+    else {
+      let user = firebase.auth().currentUser;
+      let data = [];
+      response = res.status(200);
+
+      // firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created_at', 'asc').get().then(querySnapshot => {
+      //   querySnapshot.forEach(doc => {
+      //     data.push(doc.data());
+      //   });
+      // }).catch(error => {
+      //   console.error(error);
+      //   response.status(500);
+      // }).then(() => {
+      //   response.send(JSON.stringify(data));
+      // });
+    }
+  });
+
   app.use(function(req, res) {
     res.status(404).sendFile(path.join(__dirname, "/public/404.html"))
   });
@@ -152,7 +181,10 @@ async function createUser(email, password) {
 }
 
 function isUserAuthenticated(token) {
-  return (typeof authMap[token] !== 'undefined') && ((new Date()) < Date.parse(authMap[token]));
+  let expireTime = new Date();
+  expireTime.setTime(Date.parse(authMap[token]));
+
+  return (typeof authMap[token] !== 'undefined') && ((new Date()) < expireTime);
 }
 
 // returns auth token cookie if found

@@ -1,44 +1,33 @@
 function displayItineraries() {
-  // let xhr = new XMLHttpRequest();
-  // xhr.open('POST', '/api/display-itineraries');
-  // xhr.send();
+  let xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/display-itineraries');
+  xhr.send();
 
-  // xhr.onload = () => {
-  //   if (xhr.readyState === xhr.DONE) {
-  //     let response = JSON.parse(xhr.responseText);
+  xhr.onload = () => {
+    if (xhr.readyState === xhr.DONE) {
+      let response = JSON.parse(xhr.responseText);
 
-  //     if (xhr.status === 200 && response.length !== 0) {
-  //       new SavedItineraries(response);
-  //     }
-  //     else {
-  //       qs('#itineraries-authenticated').style = 'display: none;';
-  //       qs('#itineraries-none').style = 'display: block;';
-  //     }
-  //   }
-  // }
-
-  new SavedItineraries();
+      if (xhr.status === 200 && response.length !== 0) {
+        new SavedItineraries(response);
+      }
+      else {
+        qs('#itineraries-authenticated').style = 'display: none;';
+        qs('#itineraries-none').style = 'display: block;';
+      }
+    }
+  }
 }
 
 class SavedItineraries {
-  constructor(response) {
-    response = JSON.parse('[{"created_at":{"seconds":1581757495,"nanoseconds":962000000},"itinerary":[{"conn_on_diff_airport":false,"date_from":"2020-05-15","fly_from":"LAX","fly_to":"KHH","max_stopovers":"1"},{"conn_on_diff_airport":false,"date_from":"2020-05-22","fly_from":"KHH","fly_to":"NRT|KIX","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-05-29","fly_from":"KIX|NRT","fly_to":"KHH","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-06-05","fly_from":"KHH","fly_to":"LAX","max_stopovers":"1"}],"name":"Untitled Itinerary","price_history":[{"price":1232,"time":{"seconds":1581757495,"nanoseconds":962000000}}],"uid":"31hb8bpX3jZwQwlvJCilcQJGHnW2"},{"created_at":{"seconds":1581758326,"nanoseconds":625000000},"itinerary":[{"conn_on_diff_airport":false,"date_from":"2020-05-15","fly_from":"LAX","fly_to":"KHH","max_stopovers":"1"},{"conn_on_diff_airport":false,"date_from":"2020-05-22","fly_from":"KHH","fly_to":"NRT|KIX","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-05-29","fly_from":"KIX|NRT","fly_to":"KHH","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-06-05","fly_from":"KHH","fly_to":"LAX","max_stopovers":"1"}],"name":"Untitled Itinerary","price_history":[{"price":1232,"time":{"seconds":1581758326,"nanoseconds":625000000}}],"uid":"31hb8bpX3jZwQwlvJCilcQJGHnW2"},{"created_at":{"seconds":1581758409,"nanoseconds":32000000},"itinerary":[{"conn_on_diff_airport":false,"date_from":"2020-05-15","fly_from":"LAX","fly_to":"KHH","max_stopovers":"1"},{"conn_on_diff_airport":false,"date_from":"2020-05-22","fly_from":"KHH","fly_to":"NRT|KIX","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-05-29","fly_from":"KIX|NRT","fly_to":"KHH","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-06-05","fly_from":"KHH","fly_to":"LAX","max_stopovers":"1"}],"name":"Untitled Itinerary","price_history":[{"price":1232,"time":{"seconds":1581758409,"nanoseconds":32000000}}],"uid":"31hb8bpX3jZwQwlvJCilcQJGHnW2"},{"created_at":{"seconds":1581761277,"nanoseconds":893000000},"itinerary":[{"conn_on_diff_airport":false,"date_from":"2020-05-15","fly_from":"LAX","fly_to":"KHH","max_stopovers":"1"},{"conn_on_diff_airport":false,"date_from":"2020-05-22","fly_from":"KHH","fly_to":"NRT|KIX","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-05-29","fly_from":"KIX|NRT","fly_to":"KHH","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-06-05","fly_from":"KHH","fly_to":"LAX","max_stopovers":"1"}],"name":"Untitled Itinerary","price_history":[{"price":1232,"time":{"seconds":1581761277,"nanoseconds":893000000}}],"uid":"31hb8bpX3jZwQwlvJCilcQJGHnW2"},{"created_at":{"seconds":1581761440,"nanoseconds":851000000},"itinerary":[{"conn_on_diff_airport":false,"date_from":"2020-05-15","fly_from":"LAX","fly_to":"KHH","max_stopovers":"1"},{"conn_on_diff_airport":false,"date_from":"2020-05-22","fly_from":"KHH","fly_to":"NRT|KIX","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-05-29","fly_from":"KIX|NRT","fly_to":"KHH","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-06-05","fly_from":"KHH","fly_to":"LAX","max_stopovers":"1"}],"name":"Untitled Itinerary","price_history":[{"price":1232,"time":{"seconds":1581761440,"nanoseconds":851000000}}],"uid":"31hb8bpX3jZwQwlvJCilcQJGHnW2"},{"created_at":{"seconds":1581761580,"nanoseconds":522000000},"itinerary":[{"conn_on_diff_airport":false,"date_from":"2020-05-15","fly_from":"LAX","fly_to":"KHH","max_stopovers":"1"},{"conn_on_diff_airport":false,"date_from":"2020-05-22","fly_from":"KHH","fly_to":"NRT|KIX","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-05-29","fly_from":"KIX|NRT","fly_to":"KHH","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-06-05","fly_from":"KHH","fly_to":"LAX","max_stopovers":"1"}],"name":"Untitled Itinerary","price_history":[{"price":1232,"time":{"seconds":1581761580,"nanoseconds":522000000}}],"uid":"31hb8bpX3jZwQwlvJCilcQJGHnW2"},{"created_at":{"seconds":1581763318,"nanoseconds":837000000},"itinerary":[{"conn_on_diff_airport":false,"date_from":"2020-05-15","fly_from":"LAX","fly_to":"KHH","max_stopovers":"1"},{"conn_on_diff_airport":false,"date_from":"2020-05-22","fly_from":"KHH","fly_to":"NRT|KIX","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-05-29","fly_from":"KIX|NRT","fly_to":"KHH","max_stopovers":"0"},{"conn_on_diff_airport":false,"date_from":"2020-06-05","fly_from":"KHH","fly_to":"LAX","max_stopovers":"1"},{"conn_on_diff_airport":false,"fly_from":"asdfasdgadf"},{"conn_on_diff_airport":false,"date_from":"1232-03-23","fly_to":"gdagdfsdsfasdfdasf","max_stopovers":"4"},{"conn_on_diff_airport":false,"select_airlines_exclude":true}],"name":"Untitled Itinerary","price_history":[{"price":-1,"time":{"seconds":1581763318,"nanoseconds":837000000}}],"uid":"31hb8bpX3jZwQwlvJCilcQJGHnW2"}]');
-    this.response = response;
-    this.createItineraryTable(response);
+  constructor(firebaseData) {
+    this.firebaseData = firebaseData;
+    this.createItineraryTable();
   }
 
   get length() { return qs("#saved-itineraries").childElementCount; }
 
-  /**
-   * get longest flight path from responses
-   */
-  longestFlightPath() {
-    return Math.max.apply(Math, this.response.map(obj => { return obj.itinerary.length; }));
-  }
-
-  createItineraryTable(response) {
-
-    response.forEach(data => {
+  createItineraryTable() {
+    this.firebaseData.forEach(data => {
       this.createRow(data);
     });
 
@@ -46,47 +35,77 @@ class SavedItineraries {
   }
 
   loadLink(index) {
-    let data = this.response[index];
+    let data = this.firebaseData[index];
 
     window.location = getShareableLink(data.name, data.itinerary);
   }
 
   shareLink(index) {
-    let data = this.response[index];
+    let data = this.firebaseData[index];
 
     shareItinerary(data.name, data.itinerary, `#share${index}`, `#share-link${index}`);
   }
 
-  checkPrice(index) {
+  deleteRow(index) {
+    qs(`#delete${index}`).classList.add('disabled');
+    qs('#saved-itineraries').rows[index].hidden = true;
+    let confirm = true;
 
+    M.toast({
+      html: `<div>Itinerary deleted</div><button class="btn-flat toast-action undoButton${index}">Undo</button>`,
+      displayLength: 1500,
+      completeCallback: () => { (confirm) ? this.deleteItinerary(index) : this.undoDeleteItinerary(index) }
+    });
+
+    qs(`.undoButton${index}`).onclick = () => {
+      confirm = false;
+      M.Toast.getInstance(qs('.toast')).dismiss();
+    }
+  }
+
+  deleteItinerary(index) {
+    
+  }
+
+  undoDeleteItinerary(index) {
+    qs(`#delete${index}`).classList.remove('disabled');
+    qs('#saved-itineraries').rows[index].hidden = false;
   }
 
   createRow(row) {
     let itineraryRow = qs('#saved-itineraries').insertRow();
     let index = this.length - 1;
-    itineraryRow.style.border = 0;
+    itineraryRow.classList.add('clickable');
 
     itineraryRow.innerHTML = `
       <td style="padding-right: 20px">
         ${this.length}: ${row.name}
       </td>
-      <td style="padding-right: 20px">
+      <td>
         <button class="btn-floating waves-effect waves-light" id="load${index}">
           <i class="material-icons">restore</i>
         </button>
       </td>
-      <td style="padding-right: 20px">
+      <td>
         <button class="btn-floating waves-effect waves-light" id="share${index}">
           <i class="material-icons">share</i>
           <input type="hidden" id="share-link${index}">
         </button>
       </td>
-      <td style="padding-right: 20px">
-        <button class="btn-floating waves-effect waves-light" id="price${index}">
-          <i class="material-icons">attach_money</i>
+      <td>
+        <button class="btn-floating waves-effect waves-light" id="delete${index}">
+          <i class="material-icons red">delete</i>
         </button>
       </td>
-      ${this.flights(row.itinerary)}
+      <td>
+        ${row.dTime} (${row.flyFrom})
+      </td>
+      <td>
+        ${row.aTime} (${row.flyTo})
+      </td>
+      <td>
+        ${this.getFlightPath(index)}
+      </td>
     `;
 
     qs(`#load${index}`).onclick = () => {
@@ -95,37 +114,33 @@ class SavedItineraries {
     qs(`#share${index}`).onclick = () => {
       this.shareLink(index);
     }
-    qs(`#price${index}`).onclick = () => {
-      this.checkPrice(index);
+    qs(`#delete${index}`).onclick = () => {
+      this.deleteRow(index);
     }
   }
 
   createHeader() {
     let headerRow = qs('#saved-itineraries-table').createTHead().insertRow();
 
-    headerRow.insertCell(0).innerHTML = 'Itineraries';
-    headerRow.insertCell(1).innerHTML = 'Load';
-    headerRow.insertCell(2).innerHTML = 'Share';
-    headerRow.insertCell(3).innerHTML = 'Price';
-
-    for (let i = 0; i < this.longestFlightPath(); i++) {
-      headerRow.insertCell(i + 4).innerHTML = 'Flight ' + (i + 1);
-    }
+    headerRow.innerHTML = `
+      <th>Itineraries</th>
+      <th>Load</th>
+      <th>Share</th>
+      <th>Delete</th>
+      <th>Departure</th>
+      <th>Arrival</th>
+      <th>Flight Path</th>
+    `;
   }
 
-  flights(itinerary) {
-    let flights = '';
-    for (let i = 0; i < this.longestFlightPath(); i++) {
-      let content = '';
-      if (typeof itinerary[i] !== 'undefined') {
-        let src = (typeof itinerary[i].fly_from !== 'undefined') ? itinerary[i].fly_from : 'NONE';
-        let dest = (typeof itinerary[i].fly_to !== 'undefined') ? itinerary[i].fly_to : 'NONE';
+  getFlightPath(index) {
+    let itinerary = this.firebaseData[index].itinerary;
 
-        content = `${src}🡒${dest}`;
-      }
-      flights += `<td class='itineraries-flights'>${content}</td>`;
-    }
+    return itinerary.map(flight => {
+      let src = (typeof flight.fly_from !== 'undefined') ? flight.fly_from : 'NONE';
+      let dest = (typeof flight.fly_to !== 'undefined') ? flight.fly_to : 'NONE';
 
-    return flights;
+      return `${src}🡒${dest}`;
+    }).join(', ');
   }
 }
