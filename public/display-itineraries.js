@@ -64,7 +64,7 @@ class SavedItineraries {
   }
 
   deleteItinerary(index) {
-    
+
   }
 
   undoDeleteItinerary(index) {
@@ -79,7 +79,7 @@ class SavedItineraries {
 
     itineraryRow.innerHTML = `
       <td style="padding-right: 20px">
-        ${this.length}: ${row.name}
+        <b>${this.length} |</b> ${row.name}
       </td>
       <td>
         <button class="btn-floating waves-effect waves-light" id="load${index}">
