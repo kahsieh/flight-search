@@ -53,7 +53,7 @@ class SavedItineraries {
 
     M.toast({
       html: `<div>Itinerary deleted</div><button class="btn-flat toast-action undoButton${index}">Undo</button>`,
-      displayLength: 1500,
+      displayLength: 5000,
       completeCallback: () => { (confirm) ? this.deleteItinerary(index) : this.undoDeleteItinerary(index) }
     });
 
