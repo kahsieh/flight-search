@@ -17,7 +17,8 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const bodyParser = require("body-parser");
-const CLIENT_ID = "773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com";
+//For development purposes on localhost:8080, use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com
+const CLIENT_ID = "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com";
 
 const authMap = {};
 
