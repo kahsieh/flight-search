@@ -1,5 +1,6 @@
 'use strict';
 
+const fire = require('firebase');
 const firebase = require('firebase').initializeApp({
   apiKey: "AIzaSyC26YKW4qgCCQhJSN_7ZzXsm_n5d_wx2j0",
   authDomain: "five-peas-flight-search.firebase.com",
@@ -16,6 +17,8 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const bodyParser = require("body-parser");
+//For development purposes on localhost:8080, use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com
+const CLIENT_ID = "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com";
 
 const authMap = {};
 
@@ -31,6 +34,33 @@ if (module === require.main) {
   });
 
   app.use(bodyParser.json());
+  
+  app.post('/api/sign-up', (req, res) => {
+    let response = res;
+
+    const token = req.body.idtoken;
+    const {OAuth2Client} = require('google-auth-library');
+    const client = new OAuth2Client(CLIENT_ID);
+
+    verify(client, token)  
+      .then(() => {
+        // Build Firebase credential with the Google ID token.
+        //console.log(fire.auth.GoogleAuthProvider);
+        var credential = fire.auth.GoogleAuthProvider.credential(token);
+
+        // Sign in with credential from the Google user.
+        firebase.auth().signInWithCredential(credential)
+            .catch(function(error) { console.log(error) })
+            .then((userCredential) => { 
+              return userCredential.user.getIdTokenResult();
+            })
+            .then(idTokenResult => {
+              response = res.cookie('AuthToken', idTokenResult.token);
+              response.sendStatus("303");
+            });
+      })
+      .catch(error => console.error(error));
+  })
   
   app.post('/api/sign-in', (req, res) => {
     let response = res;
@@ -184,6 +214,8 @@ function isUserAuthenticated(token) {
   let expireTime = new Date();
   expireTime.setTime(Date.parse(authMap[token]));
 
+  console.log(expireTime);
+
   return (typeof authMap[token] !== 'undefined') && ((new Date()) < expireTime);
 }
 
@@ -209,6 +241,15 @@ function findAuthToken(req) {
   else {
     return;
   }
+}
+
+async function verify(client, token) {
+  await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+      // Or, if multiple clients access the backend:
+      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+  });
 }
 
 module.exports = app;
