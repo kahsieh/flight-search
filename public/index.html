@@ -12,6 +12,8 @@ All Rights Reserved.
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- For development purposes on localhost:8080, use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com -->
 <meta name="google-signin-client_id" content="773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com">
+<meta name="google-signin-cookiepolicy" content="single_host_origin">
+<meta name="google-signin-scope" content="profile email">
 <title>Five Peas Flight Search</title>
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="materialize/materialize.css">
@@ -54,7 +56,7 @@ All Rights Reserved.
       <i class="material-icons">flight</i>Five Peas Flight Search
     </a>
     <div class="right-align">
-      <a class="waves-effect waves-teal btn-flat white-text" href="signin.html" id="signin">Sign In</a>
+      <div id="signin" class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
       <a class="waves-effect waves-light btn" href="itineraries.html" id="itineraries" style="display: none;">Itineraries</a>
       <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="userSignOut()">Sign Out</div>
     </div>

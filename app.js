@@ -56,6 +56,7 @@ if (module === require.main) {
               return userCredential.user.getIdTokenResult();
             })
             .then(idTokenResult => {
+              authMap[idTokenResult.token] = idTokenResult.expirationTime;
               response = res.cookie('AuthToken', idTokenResult.token);
               response.sendStatus("303");
             });
@@ -213,17 +214,8 @@ if (module === require.main) {
   });
 
   app.use(function(req, res) {
-    res.status(404).sendFile(path.join(__dirname, "/public/404.html"))
+    res.sendStatus(404);
   });
-
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      user.getIdTokenResult().then(idTokenResult => {
-        authMap[idTokenResult.token] = idTokenResult.expirationTime;
-      })
-    }
-  });
-  // [END server]
 }
 
 function sanitizeText(text) {
