@@ -31,7 +31,7 @@ function auth() {
 
 function signout() {
   let xhr = new XMLHttpRequest();
-  xhr.open('POST', 'api/sign-out');
+  xhr.open('POST', '/api/sign-out');
   xhr.send();
   
   xhr.onload = () => {
