@@ -12,7 +12,7 @@ function auth() {
       if (xhr.responseText === 'true') {
         qs('#signin').style = "display: none;";
         qs('#signout').style = "display: inline; cursor: pointer";
-        qs('#flights').style = "display: inline;";
+        qs('#itineraries').style = "display: inline;";
 
         // if on index page, make the button clickable
         if (qs('#save-itinerary') !== null) {
