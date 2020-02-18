@@ -21,20 +21,8 @@ All Rights Reserved.
   <link rel="stylesheet" href="styles.css">
   <script src="materialize/materialize.js"></script>
   <script src="utilities.js"></script>
+  <script src="auth.js"></script>
   <script src="https://apis.google.com/js/platform.js" async defer></script>
-  <script>
-  function onSignIn(googleUser) {
-    var id_token = googleUser.getAuthResponse().id_token;
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/sign-up');
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.onload = function(response) {
-      console.log(response);
-      window.location.replace("/");
-    };
-    xhr.send('idtoken=' + id_token);
-  }
-  </script>
 </head>
 
 <body>
@@ -48,20 +36,6 @@ All Rights Reserved.
 
   <main class="container">
     <div class="row"><div class="col s12">
-      <!-- <h5>Sign in</h5>
-      <form action="/api/sign-in" method="POST">
-        <div class="row" style="margin-bottom: 0"><div class="input-field col s12">
-          <input type="text" name="email_address">
-          <label>Email address</label>
-        </div></div>
-        <div class="row"><div class="input-field col s12">
-          <input type="password" name="password">
-          <label>Password</label>
-        </div></div>
-        <button class="btn waves-effect waves-light" type="submit">Sign in
-          <i class="material-icons right">send</i>
-        </button> 
-      </form> -->
       <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
     </div></div>
   </main>

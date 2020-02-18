@@ -62,23 +62,6 @@ if (module === require.main) {
       })
       .catch(error => console.error(error));
   })
-  
-  app.post('/api/sign-in', (req, res) => {
-    let response = res;
-
-    createUser(req.body.email_address, req.body.password).then(userCredential => {
-      return userCredential.user.getIdTokenResult();
-    }).then(idTokenResult => {
-      let expireTime = new Date();
-      expireTime.setTime(Date.parse(idTokenResult.expirationTime));
-
-      response = res.cookie('AuthToken', idTokenResult.token, { expires: expireTime });
-    }).catch(error => {
-      console.error(error);
-    }).then(() => {
-      response.redirect(303, '/');
-    });
-  })
 
   app.post('/api/auth', (req, res) => {
     let response = res;
@@ -248,10 +231,6 @@ function sanitizeText(text) {
     allowedTags: [],
     allowedAttributes: {},
   });
-}
-
-async function createUser(email, password) {
-  return firebase.auth().signInWithEmailAndPassword(email, password);
 }
 
 function isUserAuthenticated(token) {
