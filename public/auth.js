@@ -7,11 +7,11 @@ function auth() {
     if (xhr.readyState === xhr.DONE && xhr.status === 200) {
       if (xhr.responseText === 'true') {
         // if on index page, make the button clickable
-        if (qs('#save-itinerary') !== null) {
-          qs('#signin').style = "display: none;";
-          qs('#signout').style = "display: inline; cursor: pointer";
-          qs('#itineraries').style = "display: inline;";
-          qs('#save-itinerary').classList.remove('disabled');
+        if (qs('#save') !== null) {
+          qs('#sign-in').style = "display: none;";
+          qs('#sign-out').classList.remove("hide");
+          qs('#saved-itineraries').classList.remove("hide");
+          qs('#save').classList.remove('disabled');
         }
 
         // if on itineraries page, display if authenitcated
@@ -45,5 +45,19 @@ function signout() {
     if (xhr.readyState === xhr.DONE && xhr.status === 200) {
       window.location = '/';
     }
+  }
+}
+
+function userSignOut() {
+  signout();
+  var auth2 = gapi.auth2.getAuthInstance();
+  auth2.signOut().then(function () {
+    console.log('User signed out.');
+  });
+  var res = document.cookie;
+  var multiple = res.split(";");
+  for(var i = 0; i < multiple.length; i++) {
+      var key = multiple[i].split("=");
+      document.cookie = key[0]+" =; expires = Thu, 01 Jan 1970 00:00:00 UTC";
   }
 }

@@ -2,7 +2,7 @@
  * Save itinerary when button is pressed. Sends an http request to the backend to upload data to firebase.
  */
 async function saveItinerary() {
-  qs('#save-itinerary').classList.add('disabled');
+  qs('#save').classList.add('disabled');
   let name = qs('#itinerary-name').value;
   name = (name !== '' ? name : 'Untitled Itinerary');
 
@@ -44,7 +44,7 @@ async function saveItinerary() {
   M.toast({
     html: '<i class="material-icons left">star</i><div>Itinerary saved!</div>',
     displayLength: 1500,
-    completeCallback: () => { qs('#save-itinerary').classList.remove('disabled'); }
+    completeCallback: () => { qs('#save').classList.remove('disabled'); }
   });
 }
 
@@ -73,7 +73,7 @@ function loadItinerary(name, encoded) {
  * @param {string} hiddenInputId id of hidden input to be copied from, with prepended '#' before input
  */
 function shareItinerary(name = qs('#itinerary-name').value, itinerary = Itinerary.getAll(),
-  buttonId = '#share-itinerary', hiddenInputId = '#share-itinerary-link') {
+  buttonId = '#share', hiddenInputId = '#share-link') {
   qs(buttonId).classList.add('disabled');
 
   let url = getShareableLink(name, itinerary);

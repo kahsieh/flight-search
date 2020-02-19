@@ -1,3 +1,8 @@
+addEventListener('load', () => {
+  auth();
+  displayItineraries();
+})
+
 function displayItineraries() {
   let xhr = new XMLHttpRequest();
   xhr.open('POST', '/api/display-itineraries');

@@ -104,6 +104,23 @@ function prepareFetches() {
 // APPLICATION
 // -----------------------------------------------------------------------------
 
+function gapi_init() {
+  const client_id_dev = "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi";
+  const client_id_prod = "773049605239-i20d5b73br9717fipmm8896s5cqpa4s0";
+  gapi.load("auth2", () => {
+    gapi.auth2.init({
+      client_id: window.location == "localhost"
+               ? `${client_id_dev}.apps.googleusercontent.com`
+               : `${client_id_prod}.apps.googleusercontent.com`,
+      scope: "profile email"
+    });
+    gapi.signin2.render("sign-in", {
+      "theme": "dark",
+      "onsuccess": onSignIn
+    });
+  });
+}
+
 /**
  * Function to run when application loads.
  */
@@ -151,7 +168,7 @@ addEventListener("load", () => {
 /**
  * Function to run when search button is pressed.
  */
-async function main() {
+async function search() {
   startWorking();
 
   // Execute fetches.
