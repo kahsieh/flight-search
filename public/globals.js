@@ -1,10 +1,21 @@
 /*
 Five Peas Flight Search
-utilities.js
+globals.js
 
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
+
+const app = {
+  version: "v0.1.0",
+};
+
+/**
+ * Function to run when any application page loads.
+ */
+addEventListener("load", () => {
+  qs("#app-version").innerText = app.version;
+});
 
 /**
  * Alias of document.querySelector(...).
@@ -92,12 +103,12 @@ function kgToLb(kg) {
 }
 
 /**
- * Prevents main block from shrinking to improve usability.
+ * Prevents the triggering block from shrinking.
  */
 function stick() {
-  const min_height = parseInt(qs("main").style.minHeight);
-  const height = qs("main").getBoundingClientRect().height;
+  const min_height = parseInt(event.currentTarget.style.minHeight);
+  const height = event.currentTarget.getBoundingClientRect().height;
   if (!min_height || min_height < height) {
-    qs("main").style.minHeight = parseInt(height) + "px";
+    event.currentTarget.style.minHeight = parseInt(height) + "px";
   }
 }

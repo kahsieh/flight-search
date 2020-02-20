@@ -10,68 +10,43 @@ All Rights Reserved.
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- For development purposes on localhost:8080, use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com -->
-<meta name="google-signin-client_id" content="773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com">
-<meta name="google-signin-cookiepolicy" content="single_host_origin">
-<meta name="google-signin-scope" content="profile email">
 <title>Five Peas Flight Search</title>
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="materialize/materialize.css">
 <link rel="stylesheet" href="materialize/icon.css">
 <link rel="stylesheet" href="styles.css">
 <script src="materialize/materialize.js"></script>
-<script src="utilities.js"></script>
-<script src="tables.js"></script>
-<script src="itinerary.js"></script>
-<script src="flight-search.js"></script>
+<script src="globals.js"></script>
 <script src="auth.js"></script>
-<script src="share-itineraries.js"></script>
-<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
-<script>
-  function userSignOut() {
-    signout();
-    var auth2 = gapi.auth2.getAuthInstance();
-    auth2.signOut().then(function () {
-      console.log('User signed out.');
-    });
-    var res = document.cookie;
-    var multiple = res.split(";");
-    for(var i = 0; i < multiple.length; i++) {
-        var key = multiple[i].split("=");
-        document.cookie = key[0]+" =; expires = Thu, 01 Jan 1970 00:00:00 UTC";
-    }
-  }
-
-  function onLoad() {
-    gapi.load('auth2', function() {
-      gapi.auth2.init();
-    });
-  }
-</script>
+<script src="itinerary.js"></script>
+<script src="sharing.js"></script>
+<script src="tables.js"></script>
+<script src="flight-search.js"></script>
+<script src="https://apis.google.com/js/platform.js?onload=gapi_init" async defer></script>
 </head>
 <body>
 <header><nav>
-  <div class="nav-wrapper container">
-    <a href="/" class="brand-logo">
-      <i class="material-icons">flight</i>Five Peas Flight Search
-    </a>
-    <div class="right-align">
-      <div id="signin" class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
-      <a class="waves-effect waves-light btn" href="itineraries.html" id="itineraries" style="display: none;">Itineraries</a>
-      <div class="waves-effect waves-teal btn-flat white-text" id="signout" style="display: none;" onclick="userSignOut()">Sign Out</div>
-    </div>
-  </div>
+  <div class="nav-wrapper container"><a href="" class="brand-logo">
+    <i class="material-icons">flight</i>Five Peas Flight Search
+  </a></div>
 </nav></header>
 
 <main class="container" onmousedown="stick()">
   <!-- Input -->
   <div class="row"><div class="col s12">
-    <h5>
-      Itinerary: 
-      <div class="input-field inline">
-        <input type="text" placeholder="Name" id="itinerary-name" value="Untitled Itinerary" onclick="this.select();">
+    <!-- Authentication -->
+    <div class="row">
+      <div class="col s12 m6"><h5>Itinerary</h5></div>
+      <div class="col s12 m6 right-align" style="margin-top: 10px">
+        <div id="sign-in"></div>
+        <a id="saved-itineraries"
+           class="waves-effect waves-light btn hide"
+           href="saved-itineraries.html">Saved Itineraries</a>
+        <a id="sign-out"
+           class="waves-effect btn-flat hide"
+           onclick="signout()">Sign Out</a>
       </div>
-    </h5>
+    </div>
     <p>
       You may enter multiple airport or airline codes by separating them with
       commas. To bind the order of airport lists, use a pipe instead of a comma.
@@ -79,34 +54,40 @@ All Rights Reserved.
       require that all other pipe-separated lists use the airport in the same
       list position.
     </p>
-    <!-- Filter selector -->
-    <div class="row"><div class="col s12 input-field">
-      <select id="filters" onchange="Itinerary.updateFilters()" multiple>
-        <optgroup label="Flight">
-          <option value="select_airlines" selected>Airline</option>
-          <option value="adult_hold_bag">Bags</option>
-          <option value="selected_cabins">Cabin</option>
-          <!--  Doesn't work
-          <option value="adults">Passengers</option>
-          -->
-          <option value="price_from">Price</option>
-        </optgroup>
-        <optgroup label="Stops">
-          <option value="select_stop_airport">Stop airport</option>
-          <option value="max_stopovers" selected>Stop count</option>
-          <option value="stopover_from">Stop duration</option>
-          <option value="conn_on_diff_airport">Inter-airport transfers</option>
-        </optgroup>
-        <optgroup label="Timing">
-          <option value="date_to">Latest date</option>
-          <option value="fly_days">Day of week</option>
-          <option value="dtime_from">Departure time</option>
-          <option value="atime_from">Arrival time</option>
-          <option value="max_fly_duration">Duration</option>
-        </optgroup>
-      </select>
-      <label>Filters</label>
-    </div></div>
+    <!-- Itinerary name & Filters -->
+    <div class="row">
+      <div class="col s12 m6 input-field">
+        <input id="itinerary-name" type="text" placeholder="Untitled">
+        <label class="active">Itinerary name</label>
+      </div>
+      <div class="col s12 m6 input-field">
+        <select id="filters" onchange="Itinerary.updateFilters()" multiple>
+          <optgroup label="Flight">
+            <option value="select_airlines" selected>Airline</option>
+            <option value="adult_hold_bag">Bags</option>
+            <option value="selected_cabins">Cabin</option>
+            <!--  Doesn't work
+            <option value="adults">Passengers</option>
+            -->
+            <option value="price_from">Price</option>
+          </optgroup>
+          <optgroup label="Stops">
+            <option value="select_stop_airport">Stop airport</option>
+            <option value="max_stopovers" selected>Stop count</option>
+            <option value="stopover_from">Stop duration</option>
+            <option value="conn_on_diff_airport">Inter-airport transfers</option>
+          </optgroup>
+          <optgroup label="Timing">
+            <option value="date_to">Latest date</option>
+            <option value="fly_days">Day of week</option>
+            <option value="dtime_from">Departure time</option>
+            <option value="atime_from">Arrival time</option>
+            <option value="max_fly_duration">Duration</option>
+          </optgroup>
+        </select>
+        <label>Filters</label>
+      </div>
+    </div>
     <!-- Itinerary -->
     <table class="responsive-table">
       <tbody id="itinerary"></tbody>
@@ -114,27 +95,32 @@ All Rights Reserved.
     <!-- Buttons -->
     <div class="section center-align">
       <button class="btn-floating waves-effect waves-light"
-        onclick="Itinerary.addFlight()">
+              onclick="Itinerary.addFlight()">
         <i class="material-icons left">add</i>
       </button>
-      <button class="btn-floating waves-effect waves-light"
-        onclick="Itinerary.removeFlight()" id="remove-flight">
+      <button id="remove-flight"
+              class="btn-floating waves-effect waves-light"
+              onclick="Itinerary.removeFlight()">
         <i class="material-icons left">remove</i>
       </button>
-      <button class="btn-floating waves-effect waves-light"
-        onclick="main()" id="search">
+      &emsp;
+      <button id="search"
+              class="btn-floating waves-effect waves-light"
+              onclick="search()">
         <i class="material-icons left">search</i>
       </button>
-      <button class="btn-floating waves-effect waves-light"
-        onclick="shareItinerary()" id="share-itinerary">
-        <i class="material-icons left">share</i>
-        <input type="hidden" id="share-itinerary-link">
-      </button>
-      <button class="btn-floating waves-effect waves-light disabled" id="book">
+      <button id="book"
+              class="btn-floating waves-effect waves-light disabled">
         <i class="material-icons left">done</i>
       </button>
-      <button class="btn-floating waves-effect waves-light disabled"
-        onclick="saveItinerary()" id="save-itinerary">
+      &emsp;
+      <button id="share" class="btn-floating waves-effect waves-light"
+        onclick="shareItinerary()">
+        <i class="material-icons left">share</i>
+        <input type="hidden" id="share-link">
+      </button>
+      <button id="save" class="btn-floating waves-effect waves-light disabled"
+        onclick="saveItinerary()" >
         <i class="material-icons left">save</i>
       </button>
     </div>
@@ -163,17 +149,19 @@ All Rights Reserved.
     <!-- Tabs -->
     <ul class="tabs" id="tabs"></ul>
     <!-- Column selector -->
-    <div class="row" style="margin: 30px 0 0 0"><div class="input-field col s12">
-      <select id="columns" onchange="FlightTable.updateColumns()" multiple>
-        <option value="flight_time">Flight time</option>
-        <option value="equipment">Aircraft</option>
-        <option value="fare_basis">Fare class/basis</option>
-        <option value="hold_weight">Checked bag</option>
-        <option value="hand_weight">Carry-on bag</option>
-        <option value="pnr_count">Tickets</option>
-      </select>
-      <label>Additional columns</label>
-    </div></div>
+    <div class="row" style="margin: 30px 0 0 0">
+      <div class="input-field col s12">
+        <select id="columns" onchange="FlightTable.updateColumns()" multiple>
+          <option value="flight_time">Flight time</option>
+          <option value="equipment">Aircraft</option>
+          <option value="fare_basis">Fare class/basis</option>
+          <option value="hold_weight">Checked bag</option>
+          <option value="hand_weight">Carry-on bag</option>
+          <option value="pnr_count">Tickets</option>
+        </select>
+        <label>Additional columns</label>
+      </div>
+    </div>
     <!-- Flight tables -->
     <div id="tables" style="line-height: 36px"></div>
     <p class="hide results-message">

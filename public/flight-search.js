@@ -1,38 +1,97 @@
 /*
 Five Peas Flight Search
-flightsearch.js
+flight-search.js
 
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
 
-// -----------------------------------------------------------------------------
-// GLOBALS
-// -----------------------------------------------------------------------------
+/**
+ * Function to run when main page loads.
+ */
+addEventListener("load", () => {
+  // Decode URL parameters.
+  let url_params = {};
+  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (_, key, value) => {
+    url_params[key] = decodeURIComponent(value);
+  });
 
-const app = {
-  version: "v0.1.0",
-};
+  // Load the itinerary if one is specified via URL parameters, otherwise load
+  // a default itinerary.
+  if ("n" in url_params && "i" in url_params) {
+    loadItinerary(url_params["n"], url_params["i"]);
+  }
+  else {
+    Itinerary.addFlight({
+      "fly_from": "LAX",
+      "max_stopovers": 1,
+      "fly_to": "KHH",
+      "date_from": "2020-05-15",
+    });
+    Itinerary.addFlight({
+      "fly_from": "KHH",
+      "max_stopovers": 0,
+      "fly_to": "NRT|KIX",
+      "date_from": "2020-05-22",
+    });
+    Itinerary.addFlight({
+      "fly_from": "KIX|NRT",
+      "max_stopovers": 0,
+      "fly_to": "KHH",
+      "date_from": "2020-05-29",
+    });
+    Itinerary.addFlight({
+      "fly_from": "KHH",
+      "max_stopovers": 1,
+      "fly_to": "LAX",
+      "date_from": "2020-06-05",
+    });
+  }
 
-// -----------------------------------------------------------------------------
-// HELPERS
-// -----------------------------------------------------------------------------
+  // Initialize Materialize elements.
+  M.FormSelect.init(qsa("select"), {});
+});
 
 /**
- * Disables the search button, shows the spinner, and hides any messages.
+ * Function to run when search button is pressed.
  */
-function startWorking() {
-  qs("#search").disabled = true;
+async function search() {
+  // Update UI.
+  qs("#search").classList.add("disabled");
   qs("#spinner").classList.remove("hide");
   qsa(".results-message").forEach(el => el.classList.add("hide"));
   qsa(".no-results-message").forEach(el => el.classList.add("hide"));
-}
 
-/**
- * Enables the search button and hides the spinner.
- */
-function stopWorking() {
-  qs("#search").disabled = false;
+  // Execute fetches.
+  let res = await Promise.all(prepareFetches())
+    .then(responses => Promise.all(responses.map(res => res.json())))
+    .then(bodies => bodies.flat())
+    .catch(error => console.error(error));
+
+  // Reformat response for single-flight itineraries.
+  let single = false;
+  if (res.length == 1 && Array.isArray(res[0])) {
+    res = res[0];
+    single = true;
+  }
+
+  // Display message.
+  if (res.length > 0) {
+    qsa(".results-message").forEach(el => el.classList.remove("hide"));
+  }
+  else {
+    qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
+  }
+
+  // Display results.
+  res.sort((a, b) => a.price - b.price);
+  console.log("Response:");
+  console.log(res);
+  FlightTable.tables.forEach(ft => ft.clearSelection());
+  FlightTable.displayResults(res, single);
+
+  // Update UI.
+  qs("#search").classList.remove("disabled");
   qs("#spinner").classList.add("hide");
 }
 
@@ -73,13 +132,13 @@ function prepareFetches() {
         "adults": 1,
       };
       for (const field of optional_fields) {
-        // "" won't be added, but be careful of 0 and false.
         if (field == "conn_on_diff_airport") {
           if (!Itinerary.get(i, field)) {
             flight[field] = 0;
           }
         }
         else if (Itinerary.get(i, field)) {
+          // This won't automatically add falsy values to the request.
           flight[field] = Itinerary.get(i, field);
         }
       }
@@ -89,98 +148,13 @@ function prepareFetches() {
     console.log(body);
 
     promises.push(fetch("https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky", {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(body)
     }));
   }
 
   return promises;
-}
-
-// -----------------------------------------------------------------------------
-// APPLICATION
-// -----------------------------------------------------------------------------
-
-/**
- * Function to run when application loads.
- */
-addEventListener("load", () => {
-  qs("#app-version").innerText = app.version;
-
-  let urlParams = {};
-  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (match, key, value) => {
-    urlParams[key] = decodeURIComponent(value);
-  });
-
-  if (Object.entries(urlParams).length !== 0) {
-    loadItinerary(urlParams['n'], urlParams['i']);
-  }
-  else { // load default itinerary if none specified, could change/delete this later
-    Itinerary.addFlight({
-      "fly_from": "LAX",
-      "max_stopovers": 1,
-      "fly_to": "KHH",
-      "date_from": "2020-05-15",
-    });
-    Itinerary.addFlight({
-      "fly_from": "KHH",
-      "max_stopovers": 0,
-      "fly_to": "NRT|KIX",
-      "date_from": "2020-05-22",
-    });
-    Itinerary.addFlight({
-      "fly_from": "KIX|NRT",
-      "max_stopovers": 0,
-      "fly_to": "KHH",
-      "date_from": "2020-05-29",
-    });
-    Itinerary.addFlight({
-      "fly_from": "KHH",
-      "max_stopovers": 1,
-      "fly_to": "LAX",
-      "date_from": "2020-06-05",
-    });
-  }
-  
-  M.FormSelect.init(qsa("select"), {});
-});
-
-/**
- * Function to run when search button is pressed.
- */
-async function main() {
-  startWorking();
-
-  // Execute fetches.
-  let fetches = prepareFetches();
-  let res = await Promise.all(fetches)
-    .then(responses => Promise.all(responses.map(res => res.json())))
-    .then(bodies => bodies.flat())
-    .catch(error => console.error(error));
-
-  // Reformat response for single-flight itineraries.
-  let single = false;
-  if (res.length == 1 && Array.isArray(res[0])) {
-    res = res[0];
-    single = true;
-  }
-
-  // Display message.
-  if (res.length > 0) {
-    qsa(".results-message").forEach(el => el.classList.remove("hide"));
-  }
-  else {
-    qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
-  }
-
-  // Display results.
-  res.sort((a, b) => a.price - b.price);
-  console.log("Response:");
-  console.log(res);
-  FlightTable.tables.forEach(ft => ft.clearSelection());
-  FlightTable.displayResults(res, single);
-  stopWorking();
 }

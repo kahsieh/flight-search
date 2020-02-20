@@ -1,25 +1,51 @@
-addEventListener('load', () => {
-  
-});
+/*
+Five Peas Flight Search
+saved-itineraries.js
+
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
+All Rights Reserved.
+*/
+
+/**
+ * Function to run when the saved itineraries page loads.
+ */
+addEventListener("load", () => {
+  auth();
+})
+
+/**
+ * Checks if the user is authenticated and updates the UI accordingly.
+ */
+function auth() {
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/auth");
+  xhr.onload = () => {
+    if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
+        xhr.responseText === "true") {
+      qs("#itineraries-unauthenticated").classList.add("hide");
+      qs("#itineraries-authenticated").classList.remove("hide");
+    }
+    displayItineraries();
+  }
+  xhr.send();
+}
 
 function displayItineraries() {
   let xhr = new XMLHttpRequest();
-  xhr.open('POST', '/api/display-itineraries');
-  xhr.send();
-
+  xhr.open("POST", "/api/display-itineraries");
   xhr.onload = () => {
     if (xhr.readyState === xhr.DONE) {
       let response = JSON.parse(xhr.responseText);
-
       if (xhr.status === 200 && response.length !== 0) {
         new SavedItineraries(response);
       }
       else {
-        qs('#itineraries-authenticated').style = 'display: none;';
-        qs('#itineraries-none').style = 'display: block;';
+        qs("#itineraries-authenticated").classList.add("hide");
+        qs("#itineraries-none").classList.remove("hide");
       }
     }
   }
+  xhr.send();
 }
 
 class SavedItineraries {
@@ -51,8 +77,8 @@ class SavedItineraries {
   }
 
   deleteRow(index) {
-    qs(`#delete${index}`).classList.add('disabled');
-    qs('#saved-itineraries').rows[index].hidden = true;
+    qs(`#delete${index}`).classList.add("disabled");
+    qs("#saved-itineraries").rows[index].hidden = true;
     let confirm = true;
 
     M.toast({
@@ -63,7 +89,7 @@ class SavedItineraries {
 
     qs(`.undoButton${index}`).onclick = () => {
       confirm = false;
-      M.Toast.getInstance(qs('.toast')).dismiss();
+      M.Toast.getInstance(qs(".toast")).dismiss();
     }
   }
 
@@ -72,14 +98,14 @@ class SavedItineraries {
   }
 
   undoDeleteItinerary(index) {
-    qs(`#delete${index}`).classList.remove('disabled');
-    qs('#saved-itineraries').rows[index].hidden = false;
+    qs(`#delete${index}`).classList.remove("disabled");
+    qs("#saved-itineraries").rows[index].hidden = false;
   }
 
   createRow(row) {
-    let itineraryRow = qs('#saved-itineraries').insertRow();
+    let itineraryRow = qs("#saved-itineraries").insertRow();
     let index = this.length - 1;
-    itineraryRow.classList.add('clickable');
+    itineraryRow.classList.add("clickable");
 
     itineraryRow.innerHTML = `
       <td style="padding-right: 20px">
@@ -142,7 +168,7 @@ class SavedItineraries {
   }
 
   createHeader() {
-    let headerRow = qs('#saved-itineraries-table').createTHead().insertRow();
+    let headerRow = qs("#saved-itineraries-table").createTHead().insertRow();
 
     headerRow.innerHTML = `
       <th>Itineraries</th>
@@ -160,10 +186,10 @@ class SavedItineraries {
     let itinerary = this.firebaseData[index].itinerary;
 
     return itinerary.map(flight => {
-      let src = (typeof flight.fly_from !== 'undefined') ? flight.fly_from : 'NONE';
-      let dest = (typeof flight.fly_to !== 'undefined') ? flight.fly_to : 'NONE';
+      let src = (typeof flight.fly_from !== "undefined") ? flight.fly_from : "NONE";
+      let dest = (typeof flight.fly_to !== "undefined") ? flight.fly_to : "NONE";
 
       return `${src}🡒${dest}`;
-    }).join(', ');
+    }).join(", ");
   }
 }
