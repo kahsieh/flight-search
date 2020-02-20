@@ -19,7 +19,7 @@ addEventListener("load", () => {
   // Load the itinerary if one is specified via URL parameters, otherwise load
   // a default itinerary.
   if ("n" in url_params && "i" in url_params) {
-    loadItinerary(urlParams["n"], urlParams["i"]);
+    loadItinerary(url_params["n"], url_params["i"]);
   }
   else {
     Itinerary.addFlight({

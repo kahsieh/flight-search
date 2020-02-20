@@ -18,8 +18,8 @@ All Rights Reserved.
 <script src="materialize/materialize.js"></script>
 <script src="globals.js"></script>
 <script src="auth.js"></script>
-<script src="input-itineraries.js"></script>
-<script src="share-itineraries.js"></script>
+<script src="itinerary.js"></script>
+<script src="sharing.js"></script>
 <script src="tables.js"></script>
 <script src="flight-search.js"></script>
 <script src="https://apis.google.com/js/platform.js?onload=gapi_init" async defer></script>
@@ -149,17 +149,19 @@ All Rights Reserved.
     <!-- Tabs -->
     <ul class="tabs" id="tabs"></ul>
     <!-- Column selector -->
-    <div class="row" style="margin: 30px 0 0 0"><div class="input-field col s12">
-      <select id="columns" onchange="FlightTable.updateColumns()" multiple>
-        <option value="flight_time">Flight time</option>
-        <option value="equipment">Aircraft</option>
-        <option value="fare_basis">Fare class/basis</option>
-        <option value="hold_weight">Checked bag</option>
-        <option value="hand_weight">Carry-on bag</option>
-        <option value="pnr_count">Tickets</option>
-      </select>
-      <label>Additional columns</label>
-    </div></div>
+    <div class="row" style="margin: 30px 0 0 0">
+      <div class="input-field col s12">
+        <select id="columns" onchange="FlightTable.updateColumns()" multiple>
+          <option value="flight_time">Flight time</option>
+          <option value="equipment">Aircraft</option>
+          <option value="fare_basis">Fare class/basis</option>
+          <option value="hold_weight">Checked bag</option>
+          <option value="hand_weight">Carry-on bag</option>
+          <option value="pnr_count">Tickets</option>
+        </select>
+        <label>Additional columns</label>
+      </div>
+    </div>
     <!-- Flight tables -->
     <div id="tables" style="line-height: 36px"></div>
     <p class="hide results-message">
