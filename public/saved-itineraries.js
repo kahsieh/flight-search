@@ -227,7 +227,7 @@ class SavedItineraries {
       let dest = (typeof flight.fly_to !== "undefined") ?
         flight.fly_to : "NONE";
 
-      return `${src}🡒${dest}`;
+      return `${src}→${dest}`;
     }).join(", ");
   }
 }
