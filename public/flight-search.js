@@ -56,6 +56,8 @@ addEventListener("load", () => {
  */
 async function search() {
   // Update UI.
+  qs("#add-flight").classList.add("disabled");
+  qs("#remove-flight").classList.add("disabled");
   qs("#search").classList.add("disabled");
   qs("#spinner").classList.remove("hide");
   qsa(".results-message").forEach(el => el.classList.add("hide"));
@@ -90,6 +92,8 @@ async function search() {
   FlightTable.displayResults(res, single);
 
   // Update UI.
+  qs("#add-flight").classList.remove("disabled");
+  qs("#remove-flight").classList.remove("disabled");
   qs("#search").classList.remove("disabled");
   qs("#spinner").classList.add("hide");
 }

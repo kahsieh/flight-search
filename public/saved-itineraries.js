@@ -231,7 +231,7 @@ class SavedItineraries {
       let dest = (typeof flight.fly_to !== "undefined") ?
         flight.fly_to : "NONE";
 
-      div.textContent = `${src}🡒${dest}`;
+      div.textContent = `${src}→${dest}`;
 
       qs(`#flight-path${index}`).appendChild(div);
     });
