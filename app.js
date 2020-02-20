@@ -197,15 +197,23 @@ if (module === require.main) {
       let deleted = true;
       response = res.status(200);
 
-      firestore.collection("itineraries")
-        .doc(req.body.doc)
-        .delete()
-        .then(() => console.log(req.body.doc + 'successfully deleted.'))
-        .catch(error => {
-          console.error(error);
-          response.status(500);
-          deleted = false;
-      }).then(() => {
+      if (req.body.doc === number) {
+        req.body.doc = [req.body.doc];
+      }
+
+      let promiseArray = [];
+      req.body.doc.forEach(id => {
+        firestore.collection("itineraries")
+          .doc(id)
+          .delete()
+          .then(() => console.log(id + 'successfully deleted.'))
+          .catch(error => {
+            console.error(error);
+            response.status(400);
+            deleted = false;
+        }).then(() => {}); // to resolve if there is an error, so Promise.all still fires
+      });
+      Promise.all(promiseArray).then(() => {
         response.send(deleted);
       });
     }

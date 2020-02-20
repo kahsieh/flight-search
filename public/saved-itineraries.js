@@ -23,8 +23,10 @@ function auth() {
     let body = JSON.parse(xhr.responseText)[0];
     if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
         body.authenticated) {
-      qs("#itineraries-unauthenticated").classList.add("hide");
       qs("#itineraries-authenticated").classList.remove("hide");
+    }
+    else {
+      qs("itineraries-unauthenticated").classList.remove("hide");
     }
     displayItineraries();
   }
@@ -84,7 +86,7 @@ class SavedItineraries {
   }
 
   deleteRow(index) {
-    qsa(`.delete-itinerary`).forEach(node => node.classList.add("disabled"));
+    qs(`#delete${index}`).classList.add("disabled");
     qs("#saved-itineraries").rows[index].hidden = true;
     let confirm = true;
     this.updateRowNumbers();
@@ -104,7 +106,7 @@ class SavedItineraries {
   }
 
   deleteItinerary(index) {
-    qsa(`.delete-itinerary`).forEach(node => node.classList.remove("disabled"));
+    qs(`#delete${index}`).classList.remove("disabled");
 
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/delete-itinerary");
@@ -115,7 +117,7 @@ class SavedItineraries {
   }
 
   undoDeleteItinerary(index) {
-    qsa(`.delete-itinerary`).forEach(node => node.classList.remove("disabled"));
+    qs(`#delete${index}`).classList.remove("disabled");
     qs("#saved-itineraries").rows[index].hidden = false;
     this.updateRowNumbers();
   }
@@ -143,10 +145,17 @@ class SavedItineraries {
         <br>
         <span class="note" id="created${index}"></span>
       </td>
+      <td>
+      <div id="price${index}"></div>
+      <span class="note" id="retrieved${index}"></span>
+      </td>
+      <td id="departure${index}"></td>
+      <td id="arrival${index}"></td>
+      <td id="flight-path${index}"></td>
       <td class="center-align">
         <button class="btn-floating waves-effect waves-light"
           id="update${index}">
-          <i class="material-icons">attach_money</i>
+          <i class="material-icons">refresh</i>
         </button>
       </td>
       <td class="center-align">
@@ -157,18 +166,11 @@ class SavedItineraries {
         </button>
       </td>
       <td class="center-align">
-        <button class="btn-floating waves-effect waves-light delete-itinerary"
+        <button class="btn-floating waves-effect waves-light"
           id="delete${index}">
           <i class="material-icons red">delete</i>
         </button>
       </td>
-      <td>
-        <div id="price${index}"></div>
-        <span class="note" id="retrieved${index}"></span>
-      </td>
-      <td id="departure${index}"></td>
-      <td id="arrival${index}"></td>
-      <td id="flight-path${index}"></td>
     `;
 
     qs(`#name${index}`).textContent = row.name;
@@ -180,7 +182,7 @@ class SavedItineraries {
     qs(`#retrieved${index}`).textContent = this.printDate(row.history[row.history.length - 1].time.seconds);
     qs(`#departure${index}`).textContent = `${row.dTime} (${row.flyFrom})`;
     qs(`#arrival${index}`).textContent = `${row.aTime} (${row.flyTo})`;
-    qs(`#flight-path${index}`).textContent = this.getFlightPath(index);
+    this.getFlightPath(index);
 
     qs(`#update${index}`).onclick = () => {
       this.updatePrice(index);
@@ -208,26 +210,30 @@ class SavedItineraries {
 
     headerRow.innerHTML = `
       <th>Itineraries</th>
-      <th class="center-align">Update</th>
-      <th class="center-align">Share</th>
-      <th class="center-align">Delete</th>
       <th>Latest Price</th>
       <th>Departure</th>
       <th>Arrival</th>
       <th>Flight Path</th>
+      <th></th>
+      <th></th>
+      <th></th>
     `;
   }
 
   getFlightPath(index) {
     let itinerary = this.firebaseData[index].itinerary;
 
-    return itinerary.map(flight => {
+    itinerary.forEach(flight => {
+      let div = document.createElement("div");
+
       let src = (typeof flight.fly_from !== "undefined") ?
         flight.fly_from : "NONE";
       let dest = (typeof flight.fly_to !== "undefined") ?
         flight.fly_to : "NONE";
 
-      return `${src}🡒${dest}`;
-    }).join(", ");
+      div.textContent = `${src}🡒${dest}`;
+
+      qs(`#flight-path${index}`).appendChild(div);
+    });
   }
 }

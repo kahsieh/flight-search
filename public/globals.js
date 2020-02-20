@@ -125,6 +125,8 @@ function escape(str) {
       return str.replace(/./g, c => `&#${c.charCodeAt(0)};`);
     case "number":
       return str;
+    case "boolean":
+      return str;
     default:
       return "";
   }

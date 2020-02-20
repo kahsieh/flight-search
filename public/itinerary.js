@@ -64,14 +64,16 @@ class Itinerary {
   static addFlight(cells = {}) {
     this.selectFilters(cells);
 
+    // populate default values
+    Object.entries(default_values).forEach(([key, value]) => {
+      if (typeof cells[key] === 'undefined') {
+        cells[key] = value;
+      }
+    });
+
     // sanitize input
     Object.entries(cells).forEach(([key, value]) => {
-      if (typeof value === 'string') {
-        cells[key] = escape(value);
-      }
-      else {
-        cells[key];
-      }
+      cells[key] = escape(value);
     });
 
     let row = qs("#itinerary").insertRow();
