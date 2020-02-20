@@ -10,13 +10,9 @@ All Rights Reserved.
  * Function to run when Google Sign-in library loads.
  */
 function gapi_init() {
-  const client_id_dev = "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi";
-  const client_id_prod = "773049605239-i20d5b73br9717fipmm8896s5cqpa4s0";
   gapi.load("auth2", () => {
     gapi.auth2.init({
-      client_id: window.location == "localhost"
-               ? `${client_id_dev}.apps.googleusercontent.com`
-               : `${client_id_prod}.apps.googleusercontent.com`,
+      client_id: "773049605239-i20d5b73br9717fipmm8896s5cqpa4s0",
       scope: "profile email"
     });
     gapi.signin2.render("sign-in", {
