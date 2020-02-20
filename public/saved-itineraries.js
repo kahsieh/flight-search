@@ -26,7 +26,7 @@ function auth() {
       qs("#itineraries-authenticated").classList.remove("hide");
     }
     else {
-      qs("itineraries-unauthenticated").classList.remove("hide");
+      qs("#itineraries-unauthenticated").classList.remove("hide");
     }
     displayItineraries();
   }
