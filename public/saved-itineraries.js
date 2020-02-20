@@ -3,6 +3,32 @@ addEventListener('load', () => {
   displayItineraries();
 })
 
+function auth() {
+  let xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/auth');
+  xhr.send();
+
+  xhr.onload = () => {
+    if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+      if (xhr.responseText === 'true') {
+        // if on index page, make the button clickable
+        if (qs('#save') !== null) {
+          qs('#sign-in').style = "display: none;";
+          qs('#sign-out').classList.remove("hide");
+          qs('#saved-itineraries').classList.remove("hide");
+          qs('#save').classList.remove('disabled');
+        }
+
+        // if on itineraries page, display if authenitcated
+        if (qs('#itineraries-unauthenticated') !== null && qs('#itineraries-authenticated') !== null) {
+          qs('#itineraries-unauthenticated').style = 'display: none;';
+          qs('#itineraries-authenticated').style = 'display: block;';
+        }
+      }
+    }
+  }
+}
+
 function displayItineraries() {
   let xhr = new XMLHttpRequest();
   xhr.open('POST', '/api/display-itineraries');

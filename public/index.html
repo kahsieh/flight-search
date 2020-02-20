@@ -16,7 +16,7 @@ All Rights Reserved.
 <link rel="stylesheet" href="materialize/icon.css">
 <link rel="stylesheet" href="styles.css">
 <script src="materialize/materialize.js"></script>
-<script src="utilities.js"></script>
+<script src="globals.js"></script>
 <script src="auth.js"></script>
 <script src="input-itineraries.js"></script>
 <script src="share-itineraries.js"></script>
@@ -34,6 +34,7 @@ All Rights Reserved.
 <main class="container" onmousedown="stick()">
   <!-- Input -->
   <div class="row"><div class="col s12">
+    <!-- Authentication -->
     <div class="row">
       <div class="col s12 m6"><h5>Itinerary</h5></div>
       <div class="col s12 m6 right-align" style="margin-top: 10px">
@@ -43,7 +44,7 @@ All Rights Reserved.
            href="saved-itineraries.html">Saved Itineraries</a>
         <a id="sign-out"
            class="waves-effect btn-flat hide"
-           onclick="userSignOut()">Sign Out</a>
+           onclick="signout()">Sign Out</a>
       </div>
     </div>
     <p>
