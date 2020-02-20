@@ -17,8 +17,6 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const bodyParser = require("body-parser");
-/* For development purposes on localhost:8080, 
-use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com */
 const CLIENT_ID = 
   "773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com";
 
