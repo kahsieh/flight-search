@@ -120,5 +120,9 @@ function stick() {
  * @return {string} A string suitable for use as HTML attribute content.
  */
 function escape(str) {
+  if (typeof str === 'undefined') {
+    return str;
+  }
+
   return str.replace(/./g, c => `&#${c.charCodeAt(0)};`);
 }
