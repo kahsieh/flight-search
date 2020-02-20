@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-const fire = require('firebase');
-const firebase = require('firebase').initializeApp({
+const fire = require("firebase");
+const firebase = require("firebase").initializeApp({
   apiKey: "AIzaSyC26YKW4qgCCQhJSN_7ZzXsm_n5d_wx2j0",
   authDomain: "five-peas-flight-search.firebase.com",
   databaseURL: "https://five-peas-flight-search.firebaseio.com",
@@ -11,7 +11,7 @@ const firebase = require('firebase').initializeApp({
   appId: "1:773049605239:web:7ebbf6c1727bf904983a72",
   measurementId: "G-V2T9DGETMT"
 });
-require('firebase/firestore');
+require("firebase/firestore");
 let firestore = firebase.firestore();
 const express = require("express");
 const path = require("path");
@@ -40,11 +40,11 @@ if (module === require.main) {
   /**
    * Listener that signs user up after using Google Sign-in
    */
-  app.post('/api/sign-up', (req, res) => {
+  app.post("/api/sign-up", (req, res) => {
     let response = res;
 
     const token = req.body.idtoken;
-    const {OAuth2Client} = require('google-auth-library');
+    const {OAuth2Client} = require("google-auth-library");
     const client = new OAuth2Client(CLIENT_ID);
 
     verify(client, token)  
@@ -58,7 +58,7 @@ if (module === require.main) {
             })
             .then(idTokenResult => {
               authMap[idTokenResult.token] = idTokenResult.expirationTime;
-              response = res.cookie('AuthToken', idTokenResult.token);
+              response = res.cookie("AuthToken", idTokenResult.token);
               response.sendStatus("303");
             });
       })
@@ -69,13 +69,13 @@ if (module === require.main) {
    * Listener that checks if user is authenticated and returns user's 
    * displayName or email
    */
-  app.post('/api/auth', (req, res) => {
+  app.post("/api/auth", (req, res) => {
     let response = res;
     let authenticated = isUserAuthenticated(findAuthToken(req));
-    response.contentType = res.type('application/json');
+    response.contentType = res.type("application/json");
     
     if (!authenticated) {
-      response = res.clearCookie('AuthToken');
+      response = res.clearCookie("AuthToken");
     }
 
     let user = firebase.auth().currentUser;
@@ -92,31 +92,31 @@ if (module === require.main) {
   /**
    * Listener that signs user out of Firebase
    */
-  app.post('/api/sign-out', (req, res) => {
+  app.post("/api/sign-out", (req, res) => {
     let user = firebase.auth().currentUser;
-    let name = '';
+    let name = "";
     let token = findAuthToken(req);
     if (user !== null) {
       name = (user.displayName !== null) ? user.displayName : user.email;
     }
     
     firebase.auth().signOut().then(() => {
-      console.log(name + ' signed out succesfully.')
+      console.log(name + " signed out succesfully.")
     }).catch(error => {
       console.error(error);
     });
 
-    if (typeof token !== undefined && typeof authMap[token] !== 'undefined') {
+    if (typeof token !== undefined && typeof authMap[token] !== "undefined") {
         delete authMap[token];
     }
 
-    res.clearCookie('AuthToken').sendStatus(200);
+    res.clearCookie("AuthToken").sendStatus(200);
   });
 
   /**
    * Listener that saves user's itinerary
    */
-  app.post('/api/save-itinerary', (req, res) => {
+  app.post("/api/save-itinerary", (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));
 
     if (!authenticated) {
@@ -126,7 +126,7 @@ if (module === require.main) {
       let user = firebase.auth().currentUser;
       let currentDate = new Date();
 
-      firestore.collection('itineraries').add({
+      firestore.collection("itineraries").add({
         uid: user.uid,
         name: req.body.name,
         created: currentDate,
@@ -152,9 +152,9 @@ if (module === require.main) {
   /**
    * Listener that displays user's itineraries
    */
-  app.post('/api/display-itineraries', (req, res) => {
+  app.post("/api/display-itineraries", (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));
-    let response = res.type('application/json');
+    let response = res.type("application/json");
 
     if (!authenticated) {
       console.log("what");
@@ -166,8 +166,8 @@ if (module === require.main) {
       response = res.status(200);
 
       firestore.collection("itineraries")
-        .where('uid', '==', user.uid)
-        .orderBy('created', 'asc')
+        .where("uid", "==", user.uid)
+        .orderBy("created", "asc")
         .get()
         .then(querySnapshot => {
         querySnapshot.forEach(doc => {
@@ -185,9 +185,9 @@ if (module === require.main) {
   /**
    * Listener that deletes itinerary for user
    */
-  app.post('/api/delete-itinerary', (req, res) => {
+  app.post("/api/delete-itinerary", (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));
-    let response = res.type('application/json');
+    let response = res.type("application/json");
 
     if (!authenticated) {
       response.sendStatus(401);
@@ -216,28 +216,28 @@ function isUserAuthenticated(token) {
   let expireTime = new Date();
   expireTime.setTime(Date.parse(authMap[token]));
 
-  return (typeof authMap[token] !== 'undefined') && ((new Date()) < expireTime);
+  return (typeof authMap[token] !== "undefined") && ((new Date()) < expireTime);
 }
 
 /**
  * Returns Auth token if there is one, otherwise returns nothing
  */
 function findAuthToken(req) {
-  if (typeof req.headers.cookie === 'undefined') {
+  if (typeof req.headers.cookie === "undefined") {
     return;
   }
 
-  let cookies = req.headers.cookie.split(';');
-  let authTokenString = 'AuthToken';
+  let cookies = req.headers.cookie.split(";");
+  let authTokenString = "AuthToken";
   if (cookies.length > 1) {
-    authTokenString = ' ' + authTokenString;
+    authTokenString = " " + authTokenString;
   }
   let find = cookies.find(cookie => {
     return cookie.startsWith(authTokenString);
   });
 
-  if (typeof find !== 'undefined') {
-    return find.substring((authTokenString + '=').length);
+  if (typeof find !== "undefined") {
+    return find.substring((authTokenString + "=").length);
   }
   else {
     return;
