@@ -62,34 +62,48 @@ async function search() {
   qs("#spinner").classList.remove("hide");
   qsa(".results-message").forEach(el => el.classList.add("hide"));
   qsa(".no-results-message").forEach(el => el.classList.add("hide"));
+  FlightTable.tables.forEach(ft => ft.clearSelection());
 
   // Execute fetches.
   let res = await Promise.all(prepareFetches())
-    .then(responses => Promise.all(responses.map(res => res.json())))
+    .then((responses) => {
+      return Promise.all(responses.map((res) => {
+        if (!res){
+          throw new Error("Error with fetches");
+        }
+        return res.json();
+      }))
+    })
     .then(bodies => bodies.flat())
-    .catch(error => console.error(error));
+    .catch((error) => {
+      console.log(error);
+    });
 
-  // Reformat response for single-flight itineraries.
-  let single = false;
-  if (res.length == 1 && Array.isArray(res[0])) {
-    res = res[0];
-    single = true;
-  }
+  if (res){
+    // Reformat response for single-flight itineraries.
+    let single = false;
+    if (res.length == 1 && Array.isArray(res[0])) {
+      res = res[0];
+      single = true;
+    }
 
-  // Display message.
-  if (res.length > 0) {
-    qsa(".results-message").forEach(el => el.classList.remove("hide"));
+    // Display message.
+    if (res.length > 0) {
+      qsa(".results-message").forEach(el => el.classList.remove("hide"));
+    }
+    else {
+      qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
+    }
+
+    // Display results.
+    res.sort((a, b) => a.price - b.price);
+    console.log("Response:");
+    console.log(res);
+    FlightTable.displayResults(res, single);
   }
-  else {
+  else{
     qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
   }
-
-  // Display results.
-  res.sort((a, b) => a.price - b.price);
-  console.log("Response:");
-  console.log(res);
-  FlightTable.tables.forEach(ft => ft.clearSelection());
-  FlightTable.displayResults(res, single);
 
   // Update UI.
   qs("#add-flight").classList.remove("disabled");
@@ -156,6 +170,10 @@ function prepareFetches() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(body)
+    })
+    .catch((error) => {
+      console.log(error);
+      
     }));
   }
   return promises;
