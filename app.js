@@ -104,7 +104,7 @@ if (module === require.main) {
       console.error(error);
     });
 
-    if (typeof token !== undefined && typeof authMap[token] !== "undefined") {
+    if (typeof token !== "undefined" && typeof authMap[token] !== "undefined") {
         delete authMap[token];
     }
 
