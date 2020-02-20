@@ -87,21 +87,23 @@ async function search() {
       single = true;
     }
 
-    // Display message.
-    if (res.length > 0) {
-      qsa(".results-message").forEach(el => el.classList.remove("hide"));
+    if (res.length > 0 && res[0]['route'].length == Itinerary.length) {
+      // Display message.
+      qsa(".results-message").forEach(el => el.classList.remove("hide"));  
+
+      // Display results.
+      res.sort((a, b) => a.price - b.price);
+      console.log("Response:");
+      console.log(res);
+      FlightTable.displayResults(res, single);
     }
     else {
+      FlightTable.displayResults([], true);
       qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
     }
-
-    // Display results.
-    res.sort((a, b) => a.price - b.price);
-    console.log("Response:");
-    console.log(res);
-    FlightTable.displayResults(res, single);
   }
   else{
+    FlightTable.displayResults([], true);
     qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
   }
 
@@ -173,7 +175,6 @@ function prepareFetches() {
     })
     .catch((error) => {
       console.log(error);
-      
     }));
   }
   return promises;
