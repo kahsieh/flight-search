@@ -66,11 +66,20 @@ if (module === require.main) {
   app.post('/api/auth', (req, res) => {
     let response = res;
     let authenticated = isUserAuthenticated(findAuthToken(req));
+    response.contentType = res.type('application/json');
     
     if (!authenticated) {
       response = res.clearCookie('AuthToken');
     }
-    response.send(authenticated);
+
+    let user = firebase.auth().currentUser;
+    let name =  (user.displayName !== null) ? user.displayName : user.email;
+
+    var body = [
+      {authenticated: authenticated, name: name}
+    ]
+    var jsonbody = JSON.stringify(body);
+    response.send(jsonbody);
   });
 
   app.post('/api/sign-out', (req, res) => {
@@ -93,10 +102,6 @@ if (module === require.main) {
 
     res.clearCookie('AuthToken').sendStatus(200);
   });
-
-  app.post('/api/user', (req, res) => {
-    res.send(firebase.auth().currentUser.displayName);
-  }) 
 
   app.post('/api/save-itinerary', (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));

@@ -46,19 +46,15 @@ function auth() {
   let xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/auth");
   xhr.onload = _ => {
+    let body = JSON.parse(xhr.responseText)[0];
     if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
-        xhr.responseText === "true") {
+        body.authenticated) {
       qs("#sign-in").classList.add("hide");
       qs("#saved-itineraries").classList.remove("hide");
       qs("#sign-out").classList.remove("hide");
       qs("#save").classList.remove("disabled");
-      let uxhr = new XMLHttpRequest();
-      uxhr.open("POST", "/api/user");
-      uxhr.onload = _ => {
-        qs("#greeting").classList.remove("hide");
-        qs("#greeting").innerHTML = uxhr.responseText; 
-      }
-      uxhr.send();
+      qs("#greeting").classList.remove("hide");
+      qs("#greeting").innerHTML = body.name;
     }
   }
   xhr.send();
