@@ -52,6 +52,13 @@ function auth() {
       qs("#saved-itineraries").classList.remove("hide");
       qs("#sign-out").classList.remove("hide");
       qs("#save").classList.remove("disabled");
+      let uxhr = new XMLHttpRequest();
+      uxhr.open("POST", "/api/user");
+      uxhr.onload = _ => {
+        qs("#greeting").classList.remove("hide");
+        qs("#greeting").innerHTML = uxhr.responseText; 
+      }
+      uxhr.send();
     }
   }
   xhr.send();

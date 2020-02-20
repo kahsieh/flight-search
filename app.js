@@ -94,6 +94,10 @@ if (module === require.main) {
     res.clearCookie('AuthToken').sendStatus(200);
   });
 
+  app.post('/api/user', (req, res) => {
+    res.send(firebase.auth().currentUser.displayName);
+  }) 
+
   app.post('/api/save-itinerary', (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));
 
