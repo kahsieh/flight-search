@@ -11,7 +11,7 @@ All Rights Reserved.
  * Firebase.
  */
 async function saveItinerary() {
-  qs('#save').classList.add('disabled');
+  qs("#save").classList.add("disabled");
 
   // Prepare details, including price.
   let res = await Promise.all(prepareFetches())
@@ -35,10 +35,10 @@ async function saveItinerary() {
   // Send HTTP request to save-itinerary.
   let xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/save-itinerary");
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.onload = _ => qs('#save').classList.remove('disabled');
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = _ => qs("#save").classList.remove("disabled");
   xhr.send(JSON.stringify({
-    name: qs('#itinerary-name').value || "Untitled",
+    name: qs("#itinerary-name").value || "Untitled",
     itinerary: Itinerary.getAll(),
     price: price,
     dTime: dTime,
@@ -59,20 +59,20 @@ async function saveItinerary() {
  * 
  * @param {string} name Name of itinerary.
  * @param {Object} itinerary Itinerary to be shared.
- * @param {string} button_id id of share button with prepended '#'.
+ * @param {string} button_id id of share button with prepended "#".
  * @param {string} hidden_input_id id of hidden input to use with clipboard
- *   actions, with prepended '#'.
+ *   actions, with prepended "#".
  */
 function shareItinerary(name = qs("#itinerary-name").value,
                         itinerary = Itinerary.getAll(),
                         button_id = "#share",
                         hidden_input_id = "#share-link") {
-  qs(button_id).classList.add('disabled');
+  qs(button_id).classList.add("disabled");
 
   // Construct URL.
   const n = encodeURIComponent(name);
   const i = encodeItinerary(itinerary);
-  let url = `${window.location.origin.split('?')[0]}?n=${n}&i=${i}`;
+  let url = `${window.location.origin.split("?")[0]}?n=${n}&i=${i}`;
 
   // Copy URL to clipboard if possible and set the message.
   let icon, message, color;
@@ -83,7 +83,7 @@ function shareItinerary(name = qs("#itinerary-name").value,
   }
   else {
     icon = "content_copy";
-    message = "Copied to clipboard!";
+    message = "Link copied!";
     color = "";
 
     let hidden_input = qs(hidden_input_id);
@@ -98,9 +98,9 @@ function shareItinerary(name = qs("#itinerary-name").value,
   M.toast({
     html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
     displayLength: 1500,
-    classes: color,
-    completeCallback: () => qs(button_id).classList.remove('disabled')
+    classes: color
   });
+  qs(button_id).classList.remove("disabled")
 }
 
 /**
@@ -109,7 +109,7 @@ function shareItinerary(name = qs("#itinerary-name").value,
  * @param {string} encoded JSON string encoded in base64.
  */
 function loadItinerary(name, encoded) {
-  qs('#itinerary-name').value = name;
+  qs("#itinerary-name").value = name;
   for (let flight of decodeItinerary(encoded)) {
     Itinerary.addFlight(flight);
   }
