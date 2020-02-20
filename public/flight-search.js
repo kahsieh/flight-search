@@ -12,9 +12,8 @@ All Rights Reserved.
 addEventListener("load", () => {
   // Decode URL parameters.
   let url_params = {};
-  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (_, key, value) => {
-    url_params[key] = decodeURIComponent(value);
-  });
+  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+    (_, key, value) => url_params[key] = decodeURIComponent(value));
 
   // Load the itinerary if one is specified via URL parameters, otherwise load
   // a default itinerary.
@@ -155,6 +154,5 @@ function prepareFetches() {
       body: JSON.stringify(body)
     }));
   }
-
   return promises;
 }
