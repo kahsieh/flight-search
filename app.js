@@ -17,7 +17,6 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const bodyParser = require("body-parser");
-const sanitizeHtml = require("sanitize-html");
 //For development purposes on localhost:8080, use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com
 const CLIENT_ID = "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com";
 
@@ -105,61 +104,25 @@ if (module === require.main) {
       let user = firebase.auth().currentUser;
       let currentDate = new Date();
 
-      // sanitize all input before we store it in firebase
-      let sanitizedObj = {};
-      let sanitized = true;
-      
-      for (const [key, value] of Object.entries(req.body)) {
-        if (key === 'itinerary') {
-          sanitizedObj.itinerary = [];
-          for (const flight of req.body.itinerary) {
-            let itineraryObj = {};
-            for (const [flightKey, flightValue] of Object.entries(flight)) {
-              if (typeof flightValue !== 'string') {
-                sanitized = false;
-                break;
-              }
-              itineraryObj[flightKey] = sanitizeText(flightValue);
-            }
-            if (!sanitized) {
-              break;
-            }
-            sanitizedObj.itinerary.push(itineraryObj);
-          }
-        }
-        else {
-          if (typeof value !== 'string' || !sanitized) {
-            sanitized = false;
-            break;
-          }
-          sanitizedObj[key] = sanitizeText(value);
-        }
-      }
-
-      if (sanitized) {
-        firestore.collection('itineraries').add({
-          uid: user.uid,
-          name: sanitizedObj.name,
-          created_at: currentDate,
-          price_history: [{
-            time: currentDate,
-            price: sanitizedObj.price,
-          }],
-          itinerary: sanitizedObj.itinerary,
-          dTime: sanitizedObj.dTime,
-          aTime: sanitizedObj.aTime,
-          flyFrom: sanitizedObj.flyFrom,
-          flyTo: sanitizedObj.flyTo,
-        }).then(docRef => {
-          console.log(`Document written by ${(user.displayName !== null) ? user.displayName : user.email}, ${user.uid} with ID: ${docRef.id}`);
-        }).catch(error => {
-          console.error("Error adding document:", error);
-        });
-        res.sendStatus(200);
-      }
-      else {
-        res.sendStatus(401);
-      }
+      firestore.collection('itineraries').add({
+        uid: user.uid,
+        name: req.body.name,
+        created: currentDate,
+        history: [{
+          time: currentDate,
+          price: req.body.price,
+        }],
+        itinerary: req.body.itinerary,
+        dTime: req.body.dTime,
+        aTime: req.body.aTime,
+        flyFrom: req.body.flyFrom,
+        flyTo: req.body.flyTo,
+      }).then(docRef => {
+        console.log(`Document written by ${(user.displayName !== null) ? user.displayName : user.email}, ${user.uid} with ID: ${docRef.id}`);
+      }).catch(error => {
+        console.error("Error adding document:", error);
+      });
+      res.sendStatus(200);
     }
   });
 
@@ -175,7 +138,7 @@ if (module === require.main) {
       let data = [];
       response = res.status(200);
 
-      firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created_at', 'asc').get().then(querySnapshot => {
+      firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created', 'asc').get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
           data.push(doc.data());
         });
@@ -200,7 +163,7 @@ if (module === require.main) {
       let data = [];
       response = res.status(200);
 
-      // firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created_at', 'asc').get().then(querySnapshot => {
+      // firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created', 'asc').get().then(querySnapshot => {
       //   querySnapshot.forEach(doc => {
       //     data.push(doc.data());
       //   });
@@ -215,13 +178,6 @@ if (module === require.main) {
 
   app.use(function(req, res) {
     res.sendStatus(404);
-  });
-}
-
-function sanitizeText(text) {
-  return sanitizeHtml(text, {
-    allowedTags: [],
-    allowedAttributes: {},
   });
 }
 

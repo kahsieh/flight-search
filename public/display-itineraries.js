@@ -1,3 +1,7 @@
+addEventListener('load', () => {
+  
+});
+
 function displayItineraries() {
   let xhr = new XMLHttpRequest();
   xhr.open('POST', '/api/display-itineraries');
@@ -79,7 +83,9 @@ class SavedItineraries {
 
     itineraryRow.innerHTML = `
       <td style="padding-right: 20px">
-        <b>${this.length} |</b> ${row.name}
+        <b>${this.length}&nbsp;|&nbsp;</b><div style="display: inline;" id="name${index}"></div>
+        <br>
+        <span class="note" id="created${index}"></span>
       </td>
       <td>
         <button class="btn-floating waves-effect waves-light" id="load${index}">
@@ -98,15 +104,21 @@ class SavedItineraries {
         </button>
       </td>
       <td>
-        ${row.dTime} (${row.flyFrom})
+        <div id="price${index}"></div>
+        <span class="note" id="retrieved${index}"></span>
       </td>
-      <td>
-        ${row.aTime} (${row.flyTo})
-      </td>
-      <td>
-        ${this.getFlightPath(index)}
-      </td>
+      <td id="departure${index}"></td>
+      <td id="arrival${index}"></td>
+      <td id="flight-path${index}"></td>
     `;
+
+    qs(`#name${index}`).textContent = row.name;
+    qs(`#created${index}`).textContent = `Created: ${this.printDate(row.created.seconds)}`;
+    qs(`#price${index}`).textContent = '$' + row.history[row.history.length - 1].price;
+    qs(`#retrieved${index}`).textContent = `Retrieved: ${this.printDate(row.history[row.history.length - 1].time.seconds)}`;
+    qs(`#departure${index}`).textContent = `${row.dTime} (${row.flyFrom})`;
+    qs(`#arrival${index}`).textContent = `${row.aTime} (${row.flyTo})`;
+    qs(`#flight-path${index}`).textContent = this.getFlightPath(index);
 
     qs(`#load${index}`).onclick = () => {
       this.loadLink(index);
@@ -119,6 +131,16 @@ class SavedItineraries {
     }
   }
 
+  printDate(seconds) {
+    return new Date(seconds * 1000).toLocaleString([], {
+      weekday: "short",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
   createHeader() {
     let headerRow = qs('#saved-itineraries-table').createTHead().insertRow();
 
@@ -127,6 +149,7 @@ class SavedItineraries {
       <th>Load</th>
       <th>Share</th>
       <th>Delete</th>
+      <th>Latest Price</th>
       <th>Departure</th>
       <th>Arrival</th>
       <th>Flight Path</th>
