@@ -120,5 +120,12 @@ function stick() {
  * @return {string} A string suitable for use as HTML attribute content.
  */
 function escape(str) {
-  return str.replace(/./g, c => `&#${c.charCodeAt(0)};`);
+  switch (typeof str) {
+    case "string":
+      return str.replace(/./g, c => `&#${c.charCodeAt(0)};`);
+    case "number":
+      return str;
+    default:
+      return "";
+  }
 }
