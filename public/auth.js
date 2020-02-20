@@ -48,10 +48,10 @@ function auth() {
   xhr.onload = _ => {
     if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
         xhr.responseText === "true") {
-      qs('#sign-in').classList.add("hide");
-      qs('#saved-itineraries').classList.remove("hide");
-      qs('#sign-out').classList.remove("hide");
-      qs('#save').classList.remove('disabled');
+      qs("#sign-in").classList.add("hide");
+      qs("#saved-itineraries").classList.remove("hide");
+      qs("#sign-out").classList.remove("hide");
+      qs("#save").classList.remove("disabled");
     }
   }
   xhr.send();

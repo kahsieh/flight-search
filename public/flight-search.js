@@ -91,7 +91,7 @@ async function search() {
   FlightTable.displayResults(res, single);
 
   // Update UI.
-  qs("#search").disabled = false;
+  qs("#search").classList.remove("disabled");
   qs("#spinner").classList.add("hide");
 }
 
