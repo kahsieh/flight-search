@@ -17,8 +17,10 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const bodyParser = require("body-parser");
-//For development purposes on localhost:8080, use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com
-const CLIENT_ID = "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com";
+/* For development purposes on localhost:8080, 
+use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com */
+const CLIENT_ID = 
+  "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com";
 
 const authMap = {};
 
@@ -35,6 +37,9 @@ if (module === require.main) {
 
   app.use(bodyParser.json());
   
+  /**
+   * Listener that signs user up after using Google Sign-in
+   */
   app.post('/api/sign-up', (req, res) => {
     let response = res;
 
@@ -44,11 +49,8 @@ if (module === require.main) {
 
     verify(client, token)  
       .then(() => {
-        // Build Firebase credential with the Google ID token.
-        //console.log(fire.auth.GoogleAuthProvider);
         var credential = fire.auth.GoogleAuthProvider.credential(token);
 
-        // Sign in with credential from the Google user.
         firebase.auth().signInWithCredential(credential)
             .catch(function(error) { console.log(error) })
             .then((userCredential) => { 
@@ -63,6 +65,10 @@ if (module === require.main) {
       .catch(error => console.error(error));
   })
 
+  /**
+   * Listener that checks if user is authenticated and returns user's 
+   * displayName or email
+   */
   app.post('/api/auth', (req, res) => {
     let response = res;
     let authenticated = isUserAuthenticated(findAuthToken(req));
@@ -73,7 +79,8 @@ if (module === require.main) {
     }
 
     let user = firebase.auth().currentUser;
-    let name =  (user.displayName !== null) ? user.displayName : user.email;
+    let name =  (user === null) ? null :
+                  ((user.displayName !== null) ? user.displayName : user.email);
 
     var body = [
       {authenticated: authenticated, name: name}
@@ -82,6 +89,9 @@ if (module === require.main) {
     response.send(jsonbody);
   });
 
+  /**
+   * Listener that signs user out of Firebase
+   */
   app.post('/api/sign-out', (req, res) => {
     let user = firebase.auth().currentUser;
     let name = '';
@@ -103,6 +113,9 @@ if (module === require.main) {
     res.clearCookie('AuthToken').sendStatus(200);
   });
 
+  /**
+   * Listener that saves user's itinerary
+   */
   app.post('/api/save-itinerary', (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));
 
@@ -127,7 +140,8 @@ if (module === require.main) {
         flyFrom: req.body.flyFrom,
         flyTo: req.body.flyTo,
       }).then(docRef => {
-        console.log(`Document written by ${(user.displayName !== null) ? user.displayName : user.email}, ${user.uid} with ID: ${docRef.id}`);
+        console.log(`Document written by ${(user.displayName !== null) 
+          ? user.displayName : user.email}, ${user.uid} with ID: ${docRef.id}`);
       }).catch(error => {
         console.error("Error adding document:", error);
       });
@@ -135,11 +149,15 @@ if (module === require.main) {
     }
   });
 
+  /**
+   * Listener that displays user's itineraries
+   */
   app.post('/api/display-itineraries', (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));
     let response = res.type('application/json');
 
     if (!authenticated) {
+      console.log("what");
       response.sendStatus(401);
     }
     else {
@@ -147,7 +165,11 @@ if (module === require.main) {
       let data = [];
       response = res.status(200);
 
-      firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created', 'asc').get().then(querySnapshot => {
+      firestore.collection("itineraries")
+        .where('uid', '==', user.uid)
+        .orderBy('created', 'asc')
+        .get()
+        .then(querySnapshot => {
         querySnapshot.forEach(doc => {
           data.push(doc.data());
         });
@@ -160,6 +182,9 @@ if (module === require.main) {
     }
   });
 
+  /**
+   * Listener that deletes itinerary for user
+   */
   app.post('/api/delete-itinerary', (req, res) => {
     let authenticated = isUserAuthenticated(findAuthToken(req));
     let response = res.type('application/json');
@@ -171,25 +196,22 @@ if (module === require.main) {
       let user = firebase.auth().currentUser;
       let data = [];
       response = res.status(200);
-
-      // firestore.collection("itineraries").where('uid', '==', user.uid).orderBy('created', 'asc').get().then(querySnapshot => {
-      //   querySnapshot.forEach(doc => {
-      //     data.push(doc.data());
-      //   });
-      // }).catch(error => {
-      //   console.error(error);
-      //   response.status(500);
-      // }).then(() => {
-      //   response.send(JSON.stringify(data));
-      // });
     }
   });
 
+  /**
+   * Listener that redirects user to 404 page when trying to access
+   * an unknown page
+   */
   app.use(function(req, res) {
     res.sendStatus(404);
   });
 }
 
+/**
+ * Checks that user's token is registered in our authMap and also checks to
+ * see if token has expired
+ */
 function isUserAuthenticated(token) {
   let expireTime = new Date();
   expireTime.setTime(Date.parse(authMap[token]));
@@ -197,8 +219,9 @@ function isUserAuthenticated(token) {
   return (typeof authMap[token] !== 'undefined') && ((new Date()) < expireTime);
 }
 
-// returns auth token cookie if found
-// else returns undefined
+/**
+ * Returns Auth token if there is one, otherwise returns nothing
+ */
 function findAuthToken(req) {
   if (typeof req.headers.cookie === 'undefined') {
     return;
@@ -214,19 +237,20 @@ function findAuthToken(req) {
   });
 
   if (typeof find !== 'undefined') {
-    return find.substring((authTokenString + '=').length); // cookie after AuthToken
+    return find.substring((authTokenString + '=').length);
   }
   else {
     return;
   }
 }
 
+/**
+ * Verifies the idtoken provided by the client to make sure it is valid
+ */
 async function verify(client, token) {
   await client.verifyIdToken({
       idToken: token,
-      audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      // Or, if multiple clients access the backend:
-      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+      audience: CLIENT_ID,
   });
 }
 

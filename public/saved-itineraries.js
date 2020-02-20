@@ -20,8 +20,9 @@ function auth() {
   let xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/auth");
   xhr.onload = () => {
+    let body = JSON.parse(xhr.responseText)[0];
     if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
-        xhr.responseText === "true") {
+        body.authenticated) {
       qs("#itineraries-unauthenticated").classList.add("hide");
       qs("#itineraries-authenticated").classList.remove("hide");
     }
