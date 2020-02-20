@@ -69,12 +69,8 @@ function shareItinerary(name = qs("#itinerary-name").value,
                         hidden_input_id = "#share-link") {
   qs(button_id).classList.add("disabled");
 
-  // Construct URL.
-  const n = encodeURIComponent(name);
-  const i = encodeItinerary(itinerary);
-  let url = `${window.location.origin.split("?")[0]}?n=${n}&i=${i}`;
-
   // Copy URL to clipboard if possible and set the message.
+  let url = getShareableLink(name, itinerary);
   let icon, message, color;
   if (url.length > 2048) {
     icon = "error";
@@ -114,6 +110,19 @@ function loadItinerary(name, encoded) {
     Itinerary.addFlight(flight);
   }
 }
+
+/**
+ * Gets shareable URL.
+ * 
+ * @param {string} name Name of itinerary.
+ * @param {Object} itinerary Object with information about flights.
+ */
+function getShareableLink(name, itinerary) {
+  const n = encodeURIComponent(name);
+  const i = encodeItinerary(itinerary);
+  return `${window.location.origin.split("?")[0]}?n=${n}&i=${i}`;
+}
+
 
 /**
  * Generates an array of small keys.
