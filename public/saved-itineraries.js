@@ -52,6 +52,7 @@ function displayItineraries() {
 class SavedItineraries {
   constructor(firebaseData) {
     this.firebaseData = firebaseData;
+    this.docIds = [];
     this.createItineraryTable();
   }
 
@@ -65,27 +66,35 @@ class SavedItineraries {
     this.createHeader();
   }
 
-  loadLink(index) {
-    let data = this.firebaseData[index];
+  // loadLink(index) {
+  //   let data = this.firebaseData[index];
 
-    window.location = getShareableLink(data.name, data.itinerary);
+  //   window.location = getShareableLink(data.name, data.itinerary);
+  // }
+
+  updatePrice(index) {
+
   }
 
   shareLink(index) {
     let data = this.firebaseData[index];
 
-    shareItinerary(data.name, data.itinerary, `#share${index}`, `#share-link${index}`);
+    shareItinerary(data.name, data.itinerary,
+      `#share${index}`,`#share-link${index}`);
   }
 
   deleteRow(index) {
-    qs(`#delete${index}`).classList.add("disabled");
+    qsa(`.delete-itinerary`).forEach(node => node.classList.add("disabled"));
     qs("#saved-itineraries").rows[index].hidden = true;
     let confirm = true;
+    this.updateRowNumbers();
 
     M.toast({
-      html: `<div>Itinerary deleted</div><button class="btn-flat toast-action undoButton${index}">Undo</button>`,
+      html: `<div>Itinerary deleted</div><button class="btn-flat toast-action
+        undoButton${index}">Undo</button>`,
       displayLength: 5000,
-      completeCallback: () => { (confirm) ? this.deleteItinerary(index) : this.undoDeleteItinerary(index) }
+      completeCallback: () => { (confirm) ?
+        this.deleteItinerary(index) : this.undoDeleteItinerary(index) }
     });
 
     qs(`.undoButton${index}`).onclick = () => {
@@ -95,38 +104,61 @@ class SavedItineraries {
   }
 
   deleteItinerary(index) {
+    qsa(`.delete-itinerary`).forEach(node => node.classList.remove("disabled"));
 
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/delete-itinerary");
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify({
+      doc: this.docIds[index],
+    }));
   }
 
   undoDeleteItinerary(index) {
-    qs(`#delete${index}`).classList.remove("disabled");
+    qsa(`.delete-itinerary`).forEach(node => node.classList.remove("disabled"));
     qs("#saved-itineraries").rows[index].hidden = false;
+    this.updateRowNumbers();
+  }
+
+  updateRowNumbers() {
+    const nbsp = "\u00a0";
+
+    qsa('tr:not([hidden]).clickable .row-number').forEach((node, index) => {
+      node.textContent = `${index + 1}${nbsp}|${nbsp}`;
+    });
   }
 
   createRow(row) {
+    // keep track of what row belongs to what id, used for deletion
+    this.docIds.push(row.id);
+
     let itineraryRow = qs("#saved-itineraries").insertRow();
     let index = this.length - 1;
     itineraryRow.classList.add("clickable");
 
     itineraryRow.innerHTML = `
       <td style="padding-right: 20px">
-        <b>${this.length}&nbsp;|&nbsp;</b><div style="display: inline;" id="name${index}"></div>
+        <b class="row-number">${this.length}&nbsp;|&nbsp;</b><div style="display: inline;"
+          class="truncate" id="name${index}"></div>
         <br>
         <span class="note" id="created${index}"></span>
       </td>
-      <td>
-        <button class="btn-floating waves-effect waves-light" id="load${index}">
-          <i class="material-icons">restore</i>
+      <td class="center-align">
+        <button class="btn-floating waves-effect waves-light"
+          id="update${index}">
+          <i class="material-icons">attach_money</i>
         </button>
       </td>
-      <td>
-        <button class="btn-floating waves-effect waves-light" id="share${index}">
+      <td class="center-align">
+        <button class="btn-floating waves-effect waves-light"
+          id="share${index}">
           <i class="material-icons">share</i>
           <input type="hidden" id="share-link${index}">
         </button>
       </td>
-      <td>
-        <button class="btn-floating waves-effect waves-light" id="delete${index}">
+      <td class="center-align">
+        <button class="btn-floating waves-effect waves-light delete-itinerary"
+          id="delete${index}">
           <i class="material-icons red">delete</i>
         </button>
       </td>
@@ -140,15 +172,18 @@ class SavedItineraries {
     `;
 
     qs(`#name${index}`).textContent = row.name;
-    qs(`#created${index}`).textContent = `Created: ${this.printDate(row.created.seconds)}`;
-    qs(`#price${index}`).textContent = '$' + row.history[row.history.length - 1].price;
-    qs(`#retrieved${index}`).textContent = `Retrieved: ${this.printDate(row.history[row.history.length - 1].time.seconds)}`;
+    qs(`#created${index}`).textContent = 
+      `Created: ${this.printDate(row.created.seconds)}`;
+    qs(`#price${index}`).textContent =
+      row.history[row.history.length - 1].price !== -1 ?
+      ("$" + row.history[row.history.length - 1].price) : "NONE";
+    qs(`#retrieved${index}`).textContent = this.printDate(row.history[row.history.length - 1].time.seconds);
     qs(`#departure${index}`).textContent = `${row.dTime} (${row.flyFrom})`;
     qs(`#arrival${index}`).textContent = `${row.aTime} (${row.flyTo})`;
     qs(`#flight-path${index}`).textContent = this.getFlightPath(index);
 
-    qs(`#load${index}`).onclick = () => {
-      this.loadLink(index);
+    qs(`#update${index}`).onclick = () => {
+      this.updatePrice(index);
     }
     qs(`#share${index}`).onclick = () => {
       this.shareLink(index);
@@ -173,9 +208,9 @@ class SavedItineraries {
 
     headerRow.innerHTML = `
       <th>Itineraries</th>
-      <th>Load</th>
-      <th>Share</th>
-      <th>Delete</th>
+      <th class="center-align">Update</th>
+      <th class="center-align">Share</th>
+      <th class="center-align">Delete</th>
       <th>Latest Price</th>
       <th>Departure</th>
       <th>Arrival</th>
@@ -187,8 +222,10 @@ class SavedItineraries {
     let itinerary = this.firebaseData[index].itinerary;
 
     return itinerary.map(flight => {
-      let src = (typeof flight.fly_from !== "undefined") ? flight.fly_from : "NONE";
-      let dest = (typeof flight.fly_to !== "undefined") ? flight.fly_to : "NONE";
+      let src = (typeof flight.fly_from !== "undefined") ?
+        flight.fly_from : "NONE";
+      let dest = (typeof flight.fly_to !== "undefined") ?
+        flight.fly_to : "NONE";
 
       return `${src}🡒${dest}`;
     }).join(", ");

@@ -20,7 +20,7 @@ const bodyParser = require("body-parser");
 /* For development purposes on localhost:8080, 
 use 773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com */
 const CLIENT_ID = 
-  "773049605239-66ll1k7igb4fre0n1ounatv5ruj7bvfi.apps.googleusercontent.com";
+  "773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com";
 
 const authMap = {};
 
@@ -52,7 +52,7 @@ if (module === require.main) {
         var credential = fire.auth.GoogleAuthProvider.credential(token);
 
         firebase.auth().signInWithCredential(credential)
-            .catch(function(error) { console.log(error) })
+            .catch(function(error) { console.error(error) })
             .then((userCredential) => { 
               return userCredential.user.getIdTokenResult();
             })
@@ -157,7 +157,6 @@ if (module === require.main) {
     let response = res.type("application/json");
 
     if (!authenticated) {
-      console.log("what");
       response.sendStatus(401);
     }
     else {
@@ -171,7 +170,10 @@ if (module === require.main) {
         .get()
         .then(querySnapshot => {
         querySnapshot.forEach(doc => {
-          data.push(doc.data());
+          data.push({
+            id: doc.id,
+            ...doc.data()
+          });
         });
       }).catch(error => {
         console.error(error);
@@ -194,8 +196,20 @@ if (module === require.main) {
     }
     else {
       let user = firebase.auth().currentUser;
-      let data = [];
+      let deleted = true;
       response = res.status(200);
+
+      firestore.collection("itineraries")
+        .doc(req.body.doc)
+        .delete()
+        .then(() => console.log(req.body.doc + 'successfully deleted.'))
+        .catch(error => {
+          console.error(error);
+          response.status(500);
+          deleted = false;
+      }).then(() => {
+        response.send(deleted);
+      });
     }
   });
 
