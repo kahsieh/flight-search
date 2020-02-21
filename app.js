@@ -50,15 +50,15 @@ if (module === require.main) {
         var credential = fire.auth.GoogleAuthProvider.credential(token);
 
         firebase.auth().signInWithCredential(credential)
-            .catch(function(error) { console.error(error) })
-            .then((userCredential) => { 
-              return userCredential.user.getIdTokenResult();
-            })
-            .then(idTokenResult => {
-              authMap[idTokenResult.token] = idTokenResult.expirationTime;
-              response = res.cookie("AuthToken", idTokenResult.token);
-              response.sendStatus("303");
-            });
+          .then((userCredential) => { 
+            return userCredential.user.getIdTokenResult();
+          })
+          .then(idTokenResult => {
+            authMap[idTokenResult.token] = idTokenResult.expirationTime;
+            response = res.cookie("AuthToken", idTokenResult.token);
+            response.sendStatus("303");
+          })
+          .catch(function(error) { console.error(error) });
       })
       .catch(error => console.error(error));
   })
