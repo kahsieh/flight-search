@@ -51,6 +51,7 @@ async function saveItinerary() {
   }));
 
   // Show that the itinerary was saved.
+  dismissToast();
   M.toast({
     html: '<i class="material-icons left">star</i><div>Itinerary saved!</div>',
     displayLength: 1500
@@ -93,7 +94,8 @@ function shareItinerary(name = qs("#itinerary-name").value,
     hidden_input.type = "hidden";
   }
 
-  // Display message.
+  // Display message and dismiss previous toast.
+  dismissToast();
   M.toast({
     html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
     displayLength: 1500,

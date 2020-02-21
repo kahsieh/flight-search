@@ -14,7 +14,7 @@ addEventListener("load", () => {
 });
 
 addEventListener("unload", () => {
-  navigator.sendBeacon('/api/delete-itinerary', DeletedProcessing);
+  navigator.sendBeacon('/api/delete-itinerary', JSON.stringify(DeletedProcessing));
 })
 
 // stores the saved itineraries
@@ -54,7 +54,7 @@ function displayItineraries() {
     if (xhr.readyState === xhr.DONE) {
       let response = JSON.parse(xhr.responseText);
       if (xhr.status === 200 && response.length !== 0) {
-        Itineraries = new SavedItineraries(response);
+        new SavedItineraries(response);
       }
       else {
         qs("#itineraries-authenticated").classList.add("hide");
@@ -82,13 +82,7 @@ class SavedItineraries {
     this.createHeader();
   }
 
-  // loadLink(index) {
-  //   let data = this.firebaseData[index];
-
-  //   window.location = getShareableLink(data.name, data.itinerary);
-  // }
-
-  async updatePrice(index) {
+  async refreshPrice(index) {
     qs(`#refresh${index}`).classList.add("disabled");
     let itinerary = this.firebaseData[index].itinerary;
 
@@ -123,6 +117,13 @@ class SavedItineraries {
       if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
         body.updated) {
         console.log(`${this.firebaseData[index].name} was succesfully updated`);
+
+        // Show that the price was refreshed.
+        dismissToast();
+        M.toast({
+          html: '<i class="material-icons left">attach_money</i><div>Price refreshed!</div>',
+          displayLength: 1500
+        });
       }
       else {
         console.error(`${this.firebaseData[index].name} could not be updated`);
@@ -155,13 +156,10 @@ class SavedItineraries {
     qs("#saved-itineraries").rows[index].hidden = true;
     let confirm = true;
     this.updateRowNumbers();
-    DeletedProcessing.push(index);
+    DeletedProcessing.push(this.docIds[index]);
 
-    let toastElement = qs(".toast");
-    if (toastElement !== null) {
-      M.Toast.getInstance(toastElement).dismiss();
-    }
-
+    // Toast with undo button for deletion
+    dismissToast();
     M.toast({
       html: `<div>Itinerary deleted</div><button class="btn-flat toast-action
         undoButton${index}">Undo</button>`,
@@ -172,7 +170,7 @@ class SavedItineraries {
 
     qs(`.undoButton${index}`).onclick = () => {
       confirm = false;
-      M.Toast.getInstance(qs(".toast")).dismiss();
+      dismissToast();
     }
   }
 
@@ -188,7 +186,7 @@ class SavedItineraries {
         body.deleted) {
         console.log(`${this.firebaseData[index].name} was succesfully deleted`);
         
-        DeletedProcessing.splice(DeletedProcessing.indexOf(index), 1);
+        DeletedProcessing.splice(DeletedProcessing.indexOf(this.docIds[index]), 1);
       }
       else {
         console.error(`${this.firebaseData[index].name} could not be deleted`);
@@ -200,7 +198,7 @@ class SavedItineraries {
   }
 
   undoDeleteItinerary(index) {
-    DeletedProcessing.splice(DeletedProcessing.indexOf(index), 1);
+    DeletedProcessing.splice(DeletedProcessing.indexOf(this.docIds[index]), 1);
     qs(`#delete${index}`).classList.remove("disabled");
     qs("#saved-itineraries").rows[index].hidden = false;
     this.updateRowNumbers();
@@ -265,7 +263,7 @@ class SavedItineraries {
     this.getFlightPath(index);
 
     qs(`#refresh${index}`).onclick = () => {
-      this.updatePrice(index);
+      this.refreshPrice(index);
     }
     qs(`#share${index}`).onclick = () => {
       this.shareLink(index);

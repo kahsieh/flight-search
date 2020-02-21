@@ -24,6 +24,8 @@ const authMap = {};
 
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true}));
+app.use(bodyParser.json());
+app.use(bodyParser.text());
 
 if (module === require.main) {
   // [START server]
@@ -33,8 +35,6 @@ if (module === require.main) {
     console.log(`App listening on port ${port}`);
   });
 
-  app.use(bodyParser.json());
-  
   /**
    * Listener that signs user up after using Google Sign-in
    */
@@ -194,8 +194,11 @@ if (module === require.main) {
       let status = true;
       response = res.status(200);
 
-      let docIds = req.body.docId;
-      if (typeof req.body.docId === "string") {
+      let docIds;
+      if (typeof req.body === "string") {
+        docIds = JSON.parse(req.body);
+      }
+      else if (typeof req.body.docId === "string") {
         docIds = [req.body.docId];
       }
 

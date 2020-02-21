@@ -53,3 +53,10 @@ td, th {
 .abcRioButton {
   float: right;
 }
+
+#toast-container {
+  top: auto !important;
+  right: auto !important;
+  bottom: 15%;
+  left: 5%;  
+}
