@@ -123,8 +123,8 @@ class SavedItineraries {
     // HTML template to be rendered for each row
     itineraryRow.innerHTML = `
       <td>
-        <b class="row-number">${this.length}&nbsp;|&nbsp;</b>
-        <div style="display: inline;" class="truncate" id="name${index}"></div>
+        <b class="row-number">${this.length}&nbsp;|&nbsp;</b><div
+          style="display: inline;" class="truncate" id="name${index}"></div>
         <br>
         <span class="note" id="created${index}"></span>
       </td>
