@@ -10,6 +10,54 @@ const app = {
   version: "v0.1.0",
 };
 
+const required_fields = [
+  "fly_from",
+  "fly_to",
+  "date_from",
+  "date_to",
+];
+
+const optional_fields = [
+  "select_airlines",
+  "select_airlines_exclude",
+  "adult_hold_bag",
+  "adult_hand_bag",
+  "selected_cabins",
+  "mix_with_cabins",
+  "adults",
+  "price_from",
+  "price_to",
+  "select_stop_airport",
+  "select_stop_airport_exclude",
+  "max_stopovers",
+  "stopover_from",
+  "stopover_to",
+  "conn_on_diff_airport",
+  "fly_days",
+  "dtime_from",
+  "dtime_to",
+  "atime_from",
+  "atime_to",
+  "max_fly_duration",
+  "nights_in_dst_from",
+  "nights_in_dst_to",
+];
+
+// list of default values (that are not empty strings)
+// to be used for select/checkbox inputs.
+// you can also specify default values for text inputs as well
+const default_values = {
+  "select_airlines_exclude": false,
+  "adult_hold_bag": "0",
+  "adult_hand_bag": "0",
+  "selected_cabins": "M",
+  "mix_with_cabins": "", // this is a select option, not input
+  "select_stop_airport_exclude": false,
+  "max_stopovers": "2",
+  "conn_on_diff_airport": true,
+  "fly_days": "0,1,2,3,4,5,6",
+}
+
 /**
  * Function to run when any application page loads.
  */

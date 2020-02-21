@@ -24,6 +24,7 @@ async function saveItinerary() {
   let aTime = "NONE";
   let flyFrom = "NONE";
   let flyTo = "NONE";
+  let currentDate = new Date().getTime();
   if (res[0] !== undefined) {
     price = res[0].price;
     dTime = localeString(res[0].route[0].dTime);
@@ -40,6 +41,8 @@ async function saveItinerary() {
   xhr.send(JSON.stringify({
     name: qs("#itinerary-name").value || "Untitled",
     itinerary: Itinerary.getAll(),
+    created: currentDate,
+    updated: currentDate,
     price: price,
     dTime: dTime,
     aTime: aTime,

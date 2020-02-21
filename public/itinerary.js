@@ -6,53 +6,6 @@ Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
 
-const required_fields = [
-  "fly_from",
-  "fly_to",
-  "date_from",
-  "date_to",
-];
-
-const optional_fields = [
-  "select_airlines",
-  "select_airlines_exclude",
-  "adult_hold_bag",
-  "adult_hand_bag",
-  "selected_cabins",
-  "mix_with_cabins",
-  "adults",
-  "price_from",
-  "price_to",
-  "select_stop_airport",
-  "select_stop_airport_exclude",
-  "max_stopovers",
-  "stopover_from",
-  "stopover_to",
-  "conn_on_diff_airport",
-  "fly_days",
-  "dtime_from",
-  "dtime_to",
-  "atime_from",
-  "atime_to",
-  "max_fly_duration",
-  "nights_in_dst_from",
-  "nights_in_dst_to",
-];
-
-// list of default values to be used for select/checkbox inputs.
-// you can also specify default values for text inputs as well
-const default_values = {
-  "select_airlines_exclude": false,
-  "adult_hold_bag": "0",
-  "adult_hand_bag": "0",
-  "selected_cabins": "M",
-  "mix_with_cabins": "", // this is a select option, not input
-  "select_stop_airport_exclude": false,
-  "max_stopovers": "2",
-  "conn_on_diff_airport": true,
-  "fly_days": "0,1,2,3,4,5,6",
-}
-
 class Itinerary {
   static get length() { return qs("#itinerary").childElementCount; }
 
@@ -388,9 +341,10 @@ class Itinerary {
   /**
    * Retrieves all nonempty, nondefault values from the itinerary
    * 
+   * @param {boolean} includeDefaults specify whether or not to include default values in the itinerary
    * @return {array} Array with all nonempty, nondefault values in the itinerary
    */
-  static getAll() {
+  static getAll(includeDefaults = false) {
     let length = this.length;
     let array = [];
     for (let i = 0; i < length; i++) {
@@ -398,14 +352,18 @@ class Itinerary {
       let value;
       for (let j = 0; j < required_fields.length; j++) {
         value = this.get(i, required_fields[j]);
-        if (typeof value !== 'undefined' && (value !== '' && default_values[required_fields[j]] !== value)) {
-          obj[required_fields[j]] = value;
+        if (typeof value !== 'undefined') {
+          if (includeDefaults || (value !== '' && default_values[required_fields[j]] !== value)) {
+            obj[required_fields[j]] = value;
+          }
         }
       }
       for (let j = 0; j < optional_fields.length; j++) {
         value = this.get(i, optional_fields[j]);
-        if (typeof value !== 'undefined' && (value !== '' && default_values[optional_fields[j]] !== value)) {
-          obj[optional_fields[j]] = value;
+        if (typeof value !== 'undefined') {
+          if (includeDefaults || (value !== '' && default_values[optional_fields[j]] !== value)) {
+            obj[optional_fields[j]] = value;
+          }
         }
       }
       array.push(obj);

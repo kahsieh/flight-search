@@ -10,6 +10,11 @@ All Rights Reserved.
  * Function to run when main page loads.
  */
 addEventListener("load", () => {
+  // If we're not on the main page, immediately break out of the function.
+  if (window.location.pathname !== "/") {
+    return;
+  }
+
   // Decode URL parameters.
   let url_params = {};
   window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,
@@ -103,17 +108,17 @@ async function search() {
  *
  * @return {Array} Array of Promises.
  */
-function prepareFetches() {
+function prepareFetches(itineraries = Itinerary.getAll(true)) {
   // num_airports is dynamically updated when we discover a pipe-separated
   // airport list.
   let num_airports = 1;
   let promises = [];
   for (let a = 0; a < num_airports; a++) {
     let body = {"requests": []};
-    for (let i = 0; i < Itinerary.length; i++) {
+    for (let i = 0; i < itineraries.length; i++) {
       let curr_num_airports = Math.max(
-        Itinerary.get(i, "fly_from").split("|").length,
-        Itinerary.get(i, "fly_to").split("|").length
+        itineraries[i]["fly_from"].split("|").length,
+        itineraries[i]["fly_to"].split("|").length
       );
       if (num_airports > 1 && curr_num_airports > 1 &&
           num_airports != curr_num_airports) {
@@ -124,25 +129,25 @@ function prepareFetches() {
         num_airports = Math.max(num_airports, curr_num_airports);
       }
 
-      let fly_from = Itinerary.get(i, "fly_from").split("|");
-      let fly_to = Itinerary.get(i, "fly_to").split("|");
+      let fly_from = itineraries[i]["fly_from"].split("|");
+      let fly_to = itineraries[i]["fly_to"].split("|");
       let flight = {
         "fly_from": "airport:" + fly_from[Math.min(fly_from.length - 1, a)],
         "fly_to": "airport:" + fly_to[Math.min(fly_to.length - 1, a)],
-        "date_from": kiwiDate(Itinerary.get(i, "date_from")),
-        "date_to": kiwiDate(Itinerary.get(i, "date_to")) ||
-                   kiwiDate(Itinerary.get(i, "date_from")),
+        "date_from": kiwiDate(itineraries[i]["date_from"]),
+        "date_to": kiwiDate(itineraries[i]["date_to"]) ||
+                   kiwiDate(itineraries[i]["date_from"]),
         "adults": 1,
       };
       for (const field of optional_fields) {
         if (field == "conn_on_diff_airport") {
-          if (!Itinerary.get(i, field)) {
+          if (!itineraries[i][field]) {
             flight[field] = 0;
           }
         }
-        else if (Itinerary.get(i, field)) {
+        else if (itineraries[i][field]) {
           // This won't automatically add falsy values to the request.
-          flight[field] = Itinerary.get(i, field);
+          flight[field] = itineraries[i][field];
         }
       }
       body["requests"].push(flight);

@@ -122,16 +122,13 @@ if (module === require.main) {
     }
     else {
       let user = firebase.auth().currentUser;
-      let currentDate = new Date();
 
       firestore.collection("itineraries").add({
         uid: user.uid,
         name: req.body.name,
-        created: currentDate,
-        history: [{
-          time: currentDate,
-          price: req.body.price,
-        }],
+        created: new Date(req.body.created),
+        updated: new Date(req.body.updated),
+        price: req.body.price,
         itinerary: req.body.itinerary,
         dTime: req.body.dTime,
         aTime: req.body.aTime,
@@ -194,28 +191,76 @@ if (module === require.main) {
     }
     else {
       let user = firebase.auth().currentUser;
-      let deleted = true;
+      let status = true;
       response = res.status(200);
 
-      if (req.body.doc === number) {
-        req.body.doc = [req.body.doc];
+      let docIds = req.body.docId;
+      if (typeof req.body.docId === "string") {
+        docIds = [req.body.docId];
       }
 
-      let promiseArray = [];
-      req.body.doc.forEach(id => {
-        firestore.collection("itineraries")
-          .doc(id)
-          .delete()
-          .then(() => console.log(id + 'successfully deleted.'))
+      if (typeof docIds === "undefined") {
+        response.status(400);
+        status = false;
+        response.send({deleted: status});
+      }
+      else {
+        let promiseArray = [];
+        docIds.forEach(id => {
+          promiseArray.push(firestore.collection("itineraries")
+            .doc(id)
+            .delete()
+            .then(() => console.log(`${id} was successfully deleted.`))
+            .catch(error => {
+              console.error(error);
+              response.status(400);
+              status = false;
+          }).then(() => {})); // resolves if error, so Promise.all still fires
+        });
+        Promise.all(promiseArray).then(() => {
+          response.send({deleted: status});
+        });
+      }
+    }
+  });
+
+  /**
+   * Listener that updates itinerary for user
+   */
+  app.post("/api/update-itinerary", (req, res) => {
+    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let response = res.type("application/json");
+
+    if (!authenticated) {
+      response.sendStatus(401);
+    }
+    else {
+      let user = firebase.auth().currentUser;
+      let status = true;
+      response = res.status(200);
+
+      if (typeof req.body.docId === "undefined") {
+        response.status(400);
+        status = false;
+        response.send({updated: status});
+      }
+      else {
+        let updateObj = req.body.update;
+
+        firestore.collection("itineraries").doc(req.body.docId)
+          .update({
+            price: updateObj.price,
+            updated: new Date(updateObj.updated),
+          })
+          .then(() => console.log(`${req.body.docId} successfully updated.`))
           .catch(error => {
             console.error(error);
             response.status(400);
-            deleted = false;
-        }).then(() => {}); // to resolve if there is an error, so Promise.all still fires
-      });
-      Promise.all(promiseArray).then(() => {
-        response.send(deleted);
-      });
+            updated = false;
+          }).then(() => {
+            response.send({updated: status});
+          });
+      }
     }
   });
 
