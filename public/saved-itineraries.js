@@ -155,17 +155,27 @@ class SavedItineraries {
     `;
 
     // sets text content for each element to be rendered
-    qs(`#name${index}`).textContent = row.name;
+    qs(`#name${index}`).textContent =
+      (typeof row.name !== "undefined") ? row.name : "NONE";
     qs(`#created${index}`).textContent = 
-    `Created: ${this.printDate(row.created.seconds)}`;
+      `Created: ${(typeof row.created !== "undefined" &&
+      typeof row.created.seconds === "number") ?
+      this.printDate(row.created.seconds) : "NONE"}`;
     qs(`#price${index}`).textContent =
-    row.price !== -1 ? this.printPrice(row.price) : "NONE";
+      (typeof row.price === "number" && row.price !== -1) ?
+      this.printPrice(row.price) : "NONE";
     qs(`#updated${index}`).textContent =
-    this.printDate(row.updated.seconds);
+      (typeof row.updated !== "undefined" &&
+      typeof row.updated.seconds === "number") ?
+      this.printDate(row.updated.seconds) : "NONE";
     qs(`#departure${index}`).textContent =
-      `${row.dTime}${nbsp}(${row.flyFrom})`;
+      `${(typeof row.dTime !== "undefined") ?
+      row.dTime : "NONE"}${nbsp}(${(typeof row.flyFrom !== "undefined") ?
+      row.flyFrom : "NONE"})`;
     qs(`#arrival${index}`).textContent =
-      `${row.aTime}${nbsp}(${row.flyTo})`;
+      `${(typeof row.aTime !== "undefined") ?
+      row.aTime : "NONE"}${nbsp}(${(typeof row.flyTo !== "undefined") ?
+      row.flyTo : "NONE"})`;
     this.getFlightPath(index);
 
     // add onclick functions for each button
@@ -232,6 +242,13 @@ class SavedItineraries {
    */
   getFlightPath(index) {
     let itinerary = this.firebaseData[index].itinerary;
+    // display NONE if itinerary is not an object
+    if (typeof itinerary !== "object") {
+      let div = document.createElement("div");
+      div.textContent = "NONE";
+      qs(`#flight-path${index}`).appendChild(div);
+      return;
+    }
 
     itinerary.forEach(flight => {
       let div = document.createElement("div");
@@ -255,6 +272,11 @@ class SavedItineraries {
   async refreshPrice(index) {
     qs(`#refresh${index}`).classList.add("disabled");
     let itinerary = this.firebaseData[index].itinerary;
+    if (typeof itinerary !== "object") {
+      qs(`#refresh${index}`).classList.remove("disabled");
+      console.error("No itinerary object was found.");
+      return;
+    }
     
     // Add default values to the flight.
     itinerary.forEach(flight => {
@@ -337,6 +359,14 @@ class SavedItineraries {
    */
   shareLink(index) {
     let data = this.firebaseData[index];
+    if (typeof data.name === "undefined") {
+      data.name = "NONE";
+    }
+
+    if (typeof data.itinerary !== "object") {
+      console.error("No itinerary object was found.");
+      return;
+    }
 
     shareItinerary(data.name, data.itinerary,
       `#share${index}`,`#share-link${index}`);
