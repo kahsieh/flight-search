@@ -79,7 +79,7 @@ async function search() {
       console.log(error);
     });
 
-  if (res){
+  if (res) {
     // Reformat response for single-flight itineraries.
     let single = false;
     if (res.length == 1 && Array.isArray(res[0])) {
@@ -87,7 +87,8 @@ async function search() {
       single = true;
     }
 
-    if (res.length > 0 && res[0]['route'].length == Itinerary.length) {
+    if (single ||
+        res.length > 0 && res[0]["route"].length == Itinerary.length) {
       // Display message.
       qsa(".results-message").forEach(el => el.classList.remove("hide"));  
 
@@ -102,7 +103,7 @@ async function search() {
       qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
     }
   }
-  else{
+  else {
     FlightTable.displayResults([], true);
     qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
   }
