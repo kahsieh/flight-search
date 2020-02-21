@@ -179,13 +179,3 @@ function escape(str) {
       return "";
   }
 }
-
-/**
- * Dismisses previous toast, if there is one.
- */
-function dismissToast() {
-  let toastElement = qs(".toast");
-  if (toastElement !== null) {
-    M.Toast.getInstance(toastElement).dismiss();
-  }
-}
