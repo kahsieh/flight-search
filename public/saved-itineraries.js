@@ -34,6 +34,10 @@ function auth() {
     if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
         body.authenticated) {
       qs("#itineraries-authenticated").classList.remove("hide");
+      qs("#greeting").classList.remove("hide");
+      qs("#greeting").innerHTML = body.name;
+
+      // load itinerary table
       displayItineraries();
     }
     else {
