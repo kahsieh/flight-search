@@ -141,6 +141,10 @@ class SavedItineraries {
           <i class="material-icons">refresh</i>
         </button>
         <button class="btn-floating waves-effect waves-light"
+          id="load${index}">
+          <i class="material-icons">visibility</i>
+        </button>
+        <button class="btn-floating waves-effect waves-light"
           id="share${index}">
           <i class="material-icons">share</i>
           <input type="hidden" id="share-link${index}">
@@ -179,6 +183,9 @@ class SavedItineraries {
     // add onclick functions for each button
     qs(`#refresh${index}`).onclick = () => {
       this.refreshPrice(index);
+    }
+    qs(`#load${index}`).onclick = () => {
+      this.loadLink(index);
     }
     qs(`#share${index}`).onclick = () => {
       this.shareLink(index);
@@ -345,6 +352,17 @@ class SavedItineraries {
         updated: currentDate.getTime(),
       }
     }));
+  }
+
+  /**
+   * Loads itinerary by redirecting to the main page.
+   * 
+   * @param {number} index index of row
+   */
+  loadLink(index) {
+    let data = this.firebaseData[index];
+
+    window.location = getShareableLink(data.name, data.itinerary);
   }
 
   /**
