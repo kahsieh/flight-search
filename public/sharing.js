@@ -25,6 +25,12 @@ async function saveItinerary() {
   let flyFrom = "NONE";
   let flyTo = "NONE";
   let currentDate = new Date().getTime();
+
+  // Reformat response for single-flight itineraries.
+  if (res.length == 1 && Array.isArray(res[0])) {
+    res = res[0];
+  }
+
   if (res[0] !== undefined) {
     price = res[0].price;
     dTime = localeString(res[0].route[0].dTime);
