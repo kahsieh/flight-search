@@ -104,17 +104,11 @@ All Rights Reserved.
               onclick="Itinerary.removeFlight()">
         <i class="material-icons left">remove</i>
       </button>
-      &emsp;
       <button id="search"
               class="btn-floating waves-effect waves-light"
               onclick="search()">
         <i class="material-icons left">search</i>
       </button>
-      <button id="book"
-              class="btn-floating waves-effect waves-light disabled">
-        <i class="material-icons left">done</i>
-      </button>
-      &emsp;
       <button id="share"
               class="btn-floating waves-effect waves-light"
               onclick="shareItinerary()">
@@ -136,13 +130,6 @@ All Rights Reserved.
           <div class="circle-clipper right"><div class="circle"></div></div>
         </div>
       </div>
-      <p class="hide results-message">
-        Click on a result to select it. After making selections for all flights,
-        click ✓ to book with Kiwi.
-      </p>
-      <p class="hide no-results-message">
-        No results! Did you enter everything correctly?
-      </p>
     </div>
   </div></div>
 
@@ -167,8 +154,17 @@ All Rights Reserved.
     </div>
     <!-- Flight tables -->
     <div id="tables" style="line-height: 36px"></div>
-    <p class="hide results-message">
-      More specific filters may reveal additional flight options.
+    <p class="center-align results-message hide">
+      To book, make a selection for each flight. More specific filters may
+      reveal additional flight options.
+    </p>
+    <p class="center-align no-results-message hide">
+      No results! Did you enter everything correctly?
+    </p>
+    <p class="center-align">
+      <button id="book" class="btn waves-effect waves-light disabled">
+        <i class="material-icons left">send</i>Book
+      </button>
     </p>
   </div></div>
 </main>
