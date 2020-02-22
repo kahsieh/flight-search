@@ -42,7 +42,7 @@ function auth() {
   let xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/auth");
   xhr.onload = _ => {
-    let body = JSON.parse(xhr.responseText)[0];
+    let body = JSON.parse(xhr.responseText);
     if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
         body.authenticated) {
       qs("#sign-in").classList.add("hide");

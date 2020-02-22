@@ -105,3 +105,6 @@ dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# Google service account file
+service-account-file.json

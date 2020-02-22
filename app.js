@@ -13,6 +13,11 @@ const firebase = require("firebase").initializeApp({
 });
 require("firebase/firestore");
 let firestore = firebase.firestore();
+const admin = require("firebase-admin");
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  databaseURL: "https://five-peas-flight-search.firebaseio.com"
+});
 const express = require("express");
 const path = require("path");
 const app = express();
@@ -45,13 +50,20 @@ if (module === require.main) {
     const {OAuth2Client} = require("google-auth-library");
     const client = new OAuth2Client(CLIENT_ID);
 
-    verify(client, token)  
+    verify(client, token)
       .then(() => {
         var credential = fire.auth.GoogleAuthProvider.credential(token);
 
         firebase.auth().signInWithCredential(credential)
-          .then((userCredential) => { 
-            return userCredential.user.getIdTokenResult();
+          .then(userCredential => {
+            return userCredential.user;
+          })
+          .then(async user => {
+            await firestore.collection("users").doc(user.uid).set({
+              name: user.displayName,
+              email: user.email,
+            });
+            return user.getIdTokenResult();
           })
           .then(idTokenResult => {
             authMap[idTokenResult.token] = idTokenResult.expirationTime;
@@ -65,82 +77,95 @@ if (module === require.main) {
 
   /**
    * Listener that checks if user is authenticated and returns user's 
-   * displayName or email
+   * name or email
    */
   app.post("/api/auth", (req, res) => {
     let response = res;
-    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let token = getAuthToken(req);
+    let authenticated = isUserAuthenticated(token);
     response.contentType = res.type("application/json");
     
     if (!authenticated) {
       response = res.clearCookie("AuthToken");
     }
 
-    let user = firebase.auth().currentUser;
-    let name =  (user === null) ? null :
-                  ((user.displayName !== null) ? user.displayName : user.email);
+    getUid(token).then(async uid => {
+      if (uid) {
+        const doc = await firestore.collection("users").doc(uid).get();
+        return doc.data();
+      }
+    }).then(user => {
+      const name = (user.name !== null) ? user.name : user.email;
+      response.status(200);
 
-    var body = [
-      {authenticated: authenticated, name: name}
-    ]
-    var jsonbody = JSON.stringify(body);
-    response.send(jsonbody);
+      return {
+        authenticated: authenticated,
+        name: name,
+      }
+    }).catch(error => {
+      console.log(error);
+      response.status(400);
+      return {
+        authenticated: false,
+      };
+    }).then(jsonObj => {
+      response.send(JSON.stringify(jsonObj));
+    });
   });
 
   /**
    * Listener that signs user out of Firebase
    */
   app.post("/api/sign-out", (req, res) => {
-    let user = firebase.auth().currentUser;
-    let name = "";
-    let token = findAuthToken(req);
-    if (user !== null) {
-      name = (user.displayName !== null) ? user.displayName : user.email;
-    }
+    let token = getAuthToken(req);
     
-    firebase.auth().signOut().then(() => {
-      console.log(name + " signed out succesfully.")
+    getUid(token).then(uid => {
+      firebase.auth().signOut().then(() => {
+        console.log(uid + " signed out succesfully.")
+      }).catch(error => {
+        return Promise.reject(error);
+      });
+  
+      if (typeof token !== "undefined" && typeof authMap[token] !== "undefined") {
+          delete authMap[token];
+      }
+  
+      res.clearCookie("AuthToken").sendStatus(200);
     }).catch(error => {
-      console.error(error);
+      console.log(error);
     });
-
-    if (typeof token !== "undefined" && typeof authMap[token] !== "undefined") {
-        delete authMap[token];
-    }
-
-    res.clearCookie("AuthToken").sendStatus(200);
   });
 
   /**
    * Listener that saves user's itinerary
    */
   app.post("/api/save-itinerary", (req, res) => {
-    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let token = getAuthToken(req);
+    let authenticated = isUserAuthenticated(token);
 
     if (!authenticated) {
       res.sendStatus(401);
     }
     else {
-      let user = firebase.auth().currentUser;
-
-      firestore.collection("itineraries").add({
-        uid: user.uid,
-        name: req.body.name,
-        created: new Date(req.body.created),
-        updated: new Date(req.body.updated),
-        price: req.body.price,
-        itinerary: req.body.itinerary,
-        dTime: req.body.dTime,
-        aTime: req.body.aTime,
-        flyFrom: req.body.flyFrom,
-        flyTo: req.body.flyTo,
-      }).then(docRef => {
-        console.log(`Document written by ${(user.displayName !== null) 
-          ? user.displayName : user.email}, ${user.uid} with ID: ${docRef.id}`);
-      }).catch(error => {
-        console.error("Error adding document:", error);
+      getUid(token).then(uid => {
+        firestore.collection("itineraries").add({
+          uid: uid,
+          name: req.body.name,
+          created: new Date(req.body.created),
+          updated: new Date(req.body.updated),
+          price: req.body.price,
+          itinerary: req.body.itinerary,
+          dTime: req.body.dTime,
+          aTime: req.body.aTime,
+          flyFrom: req.body.flyFrom,
+          flyTo: req.body.flyTo,
+        }).then(docRef => {
+          console.log(`Document written by ${uid} with ID: ${docRef.id}`);
+        }).catch(error => {
+          console.error("Error adding document:", error);
+        });
+        res.sendStatus(200);
       });
-      res.sendStatus(200);
     }
   });
 
@@ -148,33 +173,35 @@ if (module === require.main) {
    * Listener that displays user's itineraries
    */
   app.post("/api/display-itineraries", (req, res) => {
-    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let token = getAuthToken(req);
+    let authenticated = isUserAuthenticated(token);
     let response = res.type("application/json");
 
     if (!authenticated) {
       response.sendStatus(401);
     }
     else {
-      let user = firebase.auth().currentUser;
-      let data = [];
-      response = res.status(200);
-
-      firestore.collection("itineraries")
-        .where("uid", "==", user.uid)
-        .orderBy("created", "asc")
-        .get()
-        .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          data.push({
-            id: doc.id,
-            ...doc.data()
+      getUid(token).then(uid => {
+        let data = [];
+        response = res.status(200);
+  
+        firestore.collection("itineraries")
+          .where("uid", "==", uid)
+          .orderBy("created", "asc")
+          .get()
+          .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            data.push({
+              id: doc.id,
+              ...doc.data()
+            });
           });
+        }).catch(error => {
+          console.error(error);
+          response.status(500);
+        }).then(() => {
+          response.send(JSON.stringify(data));
         });
-      }).catch(error => {
-        console.error(error);
-        response.status(500);
-      }).then(() => {
-        response.send(JSON.stringify(data));
       });
     }
   });
@@ -183,14 +210,14 @@ if (module === require.main) {
    * Listener that deletes itinerary for user
    */
   app.post("/api/delete-itinerary", (req, res) => {
-    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let token = getAuthToken(req);
+    let authenticated = isUserAuthenticated(token);
     let response = res.type("application/json");
 
     if (!authenticated) {
       response.sendStatus(401);
     }
     else {
-      let user = firebase.auth().currentUser;
       let status = true;
       response = res.status(200);
 
@@ -231,14 +258,13 @@ if (module === require.main) {
    * Listener that updates itinerary for user
    */
   app.post("/api/update-itinerary", (req, res) => {
-    let authenticated = isUserAuthenticated(findAuthToken(req));
+    let authenticated = isUserAuthenticated(getAuthToken(req));
     let response = res.type("application/json");
 
     if (!authenticated) {
       response.sendStatus(401);
     }
     else {
-      let user = firebase.auth().currentUser;
       let status = true;
       response = res.status(200);
 
@@ -259,7 +285,7 @@ if (module === require.main) {
           .catch(error => {
             console.error(error);
             response.status(400);
-            updated = false;
+            status = false;
           }).then(() => {
             response.send({updated: status});
           });
@@ -290,7 +316,7 @@ function isUserAuthenticated(token) {
 /**
  * Returns Auth token if there is one, otherwise returns nothing
  */
-function findAuthToken(req) {
+function getAuthToken(req) {
   if (typeof req.headers.cookie === "undefined") {
     return;
   }
@@ -310,6 +336,16 @@ function findAuthToken(req) {
   else {
     return;
   }
+}
+
+/**
+ * Gets the uid from the auth token specified
+ * 
+ * @param {string} idToken Auth token for user
+ */
+async function getUid(idToken) {
+  const decodedToken = await admin.auth().verifyIdToken(idToken);
+  return decodedToken.uid;
 }
 
 /**
