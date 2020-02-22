@@ -126,8 +126,9 @@ if (module === require.main) {
         return Promise.reject(error);
       });
   
-      if (typeof token !== "undefined" && typeof authMap[token] !== "undefined") {
-          delete authMap[token];
+      if (typeof token !== "undefined" &&
+        typeof authMap[token] !== "undefined") {
+        delete authMap[token];
       }
   
       res.clearCookie("AuthToken").sendStatus(200);
