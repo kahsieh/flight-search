@@ -312,6 +312,7 @@ class Itinerary {
         // fallthrough
       default:
         qsa("#itinerary tr")[row].remove();
+        FlightTable.tables[row].remove();
         for (const [i, el] of qsa("#itinerary .flight-index").entries()) {
           el.textContent = i + 1;
         }
