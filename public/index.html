@@ -92,37 +92,40 @@ All Rights Reserved.
     <table class="responsive-table">
       <tbody id="itinerary"></tbody>
     </table>
+  </div></div>
+
+  <!-- Controls -->
+  <div class="row"><div class="col s12 center-align">
     <!-- Buttons -->
-    <div class="section center-align">
-      <button id="add-flight"
-              class="btn-floating waves-effect waves-light"
-              onclick="Itinerary.addFlight()">
-        <i class="material-icons left">add</i>
-      </button>
-      <button id="remove-flight"
-              class="btn-floating waves-effect waves-light"
-              onclick="Itinerary.removeFlight()">
-        <i class="material-icons left">remove</i>
-      </button>
-      <button id="search"
-              class="btn-floating waves-effect waves-light"
-              onclick="search()">
-        <i class="material-icons left">search</i>
-      </button>
-      <button id="share"
-              class="btn-floating waves-effect waves-light"
-              onclick="shareItinerary()">
-        <i class="material-icons left">share</i>
-        <input type="hidden" id="share-link">
-      </button>
-      <button id="save"
-              class="btn-floating waves-effect waves-light disabled"
-              onclick="saveItinerary()" >
-        <i class="material-icons left">save</i>
-      </button>
-    </div>
+    <button id="add-flight"
+            class="btn-floating waves-effect waves-light"
+            onclick="Itinerary.addFlight()">
+      <i class="material-icons left">add</i>
+    </button>
+    <button id="remove-flight"
+            class="btn-floating waves-effect waves-light"
+            onclick="Itinerary.removeFlight()">
+      <i class="material-icons left">remove</i>
+    </button>
+    <button id="search"
+            class="btn-floating waves-effect waves-light"
+            onclick="search()">
+      <i class="material-icons left">search</i>
+    </button>
+    <button id="share"
+            class="btn-floating waves-effect waves-light"
+            onclick="shareItinerary()">
+      <i class="material-icons left">share</i>
+      <input type="hidden" id="share-link">
+    </button>
+    <button id="save"
+            class="btn-floating waves-effect waves-light disabled"
+            onclick="saveItinerary()" >
+      <i class="material-icons left">save</i>
+    </button>
     <!-- Spinner -->
-    <div class="center-align" style="height: 0; padding-top: 10px;">
+    <div class="center-align" style="height: 0">
+      <br>
       <div class="preloader-wrapper small active hide" id="spinner">
         <div class="spinner-layer spinner-red-only">
           <div class="circle-clipper left"><div class="circle"></div></div>
@@ -154,6 +157,7 @@ All Rights Reserved.
     </div>
     <!-- Flight tables -->
     <div id="tables" style="line-height: 36px"></div>
+    <!-- Book button -->
     <p class="center-align results-message hide">
       To book, make a selection for each flight. More specific filters may
       reveal additional flight options.
