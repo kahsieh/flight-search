@@ -33,8 +33,7 @@ class Itinerary {
     row.style.border = 0;
     row.innerHTML = `
       <td style="padding-right: 20px; white-space: nowrap;">
-        <a class="red-text"
-           onclick="Itinerary.removeFlight(${this.length - 1})">×</a>
+        <a class="red-text" onclick="Itinerary.removeFlight()">×</a>
         Flight <span class="flight-index">${this.length}</span>
       </td>
       <td><div class="row"><div class="input-field col s12">
@@ -300,10 +299,12 @@ class Itinerary {
 
   /**
    * Removes a flight from the itinerary.
-   * 
-   * @param {number} row Row number.
    */
-  static removeFlight(row = qs("#itinerary").childElementCount - 1) {
+  static removeFlight() {
+    let row = event.currentTarget.nodeName == "BUTTON"
+            ? qs("#itinerary").childElementCount - 1
+            : [...qs("#itinerary").children]
+                .indexOf(event.target.parentNode.parentNode)
     switch (qs("#itinerary").childElementCount) {
       case 1:
         return;
