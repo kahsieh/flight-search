@@ -303,7 +303,7 @@ class Itinerary {
    * 
    * @param {number} row Row number.
    */
-  static removeFlight(row) {
+  static removeFlight(row = qs("#itinerary").childElementCount - 1) {
     switch (qs("#itinerary").childElementCount) {
       case 1:
         return;
