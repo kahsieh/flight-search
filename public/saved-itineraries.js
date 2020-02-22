@@ -35,7 +35,7 @@ function auth() {
   let xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/auth");
   xhr.onload = () => {
-    let body = JSON.parse(xhr.responseText)[0];
+    let body = JSON.parse(xhr.responseText);
     if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
         body.authenticated) {
       qs("#itineraries-authenticated").classList.remove("hide");
@@ -139,15 +139,11 @@ class SavedItineraries {
         <button class="btn-floating waves-effect waves-light"
           id="refresh${index}">
           <i class="material-icons">refresh</i>
-        </button>
-        &nbsp;
-        <button class="btn-floating waves-effect waves-light"
+        </button>&nbsp;<button class="btn-floating waves-effect waves-light"
           id="share${index}">
           <i class="material-icons">share</i>
           <input type="hidden" id="share-link${index}">
-        </button>
-        &nbsp;
-        <button class="btn-floating waves-effect waves-light red"
+        </button>&nbsp;<button class="btn-floating waves-effect waves-light red"
           id="delete${index}">
           <i class="material-icons">delete</i>
         </button>
@@ -308,23 +304,20 @@ class SavedItineraries {
       let body = JSON.parse(xhr.responseText);
       let icon, message, color;
       if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
-        body.updated) {
+        body.updated && price !== -1) {
         // if the price is a correct value, display it
-        let docId = this.firebaseData[index].name;
-        if (price !== -1) {
-          console.log(`${docId} was succesfully updated`);
+        console.log(`${this.firebaseData[index].name} was succesfully updated`);
 
-          icon = "attach_money";
-          message = "Price refreshed!";
-          color = "";
-        }
-        else {
-          console.error(`${docId} could not be updated`);
-  
-          icon = "error";
-          message = "Error: Price could not be refreshed.";
-          color = "red";
-        }
+        icon = "attach_money";
+        message = "Price refreshed!";
+        color = "";
+      }
+      else {
+        console.error(`${this.firebaseData[index].name} could not be updated`);
+
+        icon = "error";
+        message = "Error: Price could not be refreshed.";
+        color = "red";
       }
       qs(`#refresh${index}`).classList.remove("disabled");
       
