@@ -63,7 +63,7 @@ All Rights Reserved.
       <div class="col s12 m6 input-field">
         <select id="filters" onchange="Itinerary.updateFilters()" multiple>
           <optgroup label="Flight">
-            <option value="select_airlines" selected>Airline</option>
+            <option value="select_airlines">Airline</option>
             <option value="adult_hold_bag">Bags</option>
             <option value="selected_cabins">Cabin</option>
             <!--  Doesn't work
@@ -121,8 +121,8 @@ All Rights Reserved.
         <i class="material-icons left">save</i>
       </button>
     </div>
-    <!-- Status -->
-    <div class="section center-align" style="height: 54px" id="status">
+    <!-- Spinner -->
+    <div class="center-align" style="height: 0; padding-top: 10px;">
       <div class="preloader-wrapper small active hide" id="spinner">
         <div class="spinner-layer spinner-red-only">
           <div class="circle-clipper left"><div class="circle"></div></div>

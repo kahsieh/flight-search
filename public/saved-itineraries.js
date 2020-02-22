@@ -135,15 +135,17 @@ class SavedItineraries {
         <div id="price${index}"></div>
         <span class="note" id="updated${index}"></span>
       </td>
-      <td>
+      <td style="white-space: nowrap;">
         <button class="btn-floating waves-effect waves-light"
           id="refresh${index}">
           <i class="material-icons">refresh</i>
-        </button>&nbsp;<button class="btn-floating waves-effect waves-light"
+        </button>
+        <button class="btn-floating waves-effect waves-light"
           id="share${index}">
           <i class="material-icons">share</i>
           <input type="hidden" id="share-link${index}">
-        </button>&nbsp;<button class="btn-floating waves-effect waves-light red"
+        </button>
+        <button class="btn-floating waves-effect waves-light red"
           id="delete${index}">
           <i class="material-icons">delete</i>
         </button>
