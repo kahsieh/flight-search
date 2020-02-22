@@ -32,8 +32,10 @@ class Itinerary {
     let row = qs("#itinerary").insertRow();
     row.style.border = 0;
     row.innerHTML = `
-      <td style="padding-right: 20px">
-        Flight&nbsp;${this.length}
+      <td style="padding-right: 20px; white-space: nowrap;">
+        <a class="red-text"
+           onclick="Itinerary.removeFlight(${this.length - 1})">×</a>
+        Flight <span class="flight-index">${this.length}</span>
       </td>
       <td><div class="row"><div class="input-field col s12">
         <input type="text" name="fly_from" placeholder=" "
@@ -298,18 +300,21 @@ class Itinerary {
 
   /**
    * Removes a flight from the itinerary.
+   * 
+   * @param {number} row Row number.
    */
-  static removeFlight() {
-    let i = qs("#itinerary").childElementCount - 1;
-    switch (i) {
-      case 0:
-        return;
+  static removeFlight(row) {
+    switch (qs("#itinerary").childElementCount) {
       case 1:
+        return;
+      case 2:
         qs("#remove-flight").classList.add("disabled");
         // fallthrough
       default:
-        qs("#itinerary").lastElementChild.remove();
-        FlightTable.tables[i].remove();
+        qsa("#itinerary tr")[row].remove();
+        for (const [i, el] of qsa("#itinerary .flight-index").entries()) {
+          el.textContent = i + 1;
+        }
         break;
     }
   }

@@ -27,6 +27,7 @@ addEventListener("load", () => {
   }
   else {
     Itinerary.addFlight();
+    Itinerary.addFlight();
     // Itinerary.addFlight({
     //   "fly_from": "LAX",
     //   "max_stopovers": 1,
