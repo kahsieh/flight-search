@@ -316,6 +316,9 @@ class Itinerary {
         for (const [i, el] of qsa("#itinerary .flight-index").entries()) {
           el.textContent = i + 1;
         }
+        for (const [i, el] of qsa("#tabs .flight-index").entries()) {
+          el.textContent = i + 1;
+        }
         break;
     }
   }

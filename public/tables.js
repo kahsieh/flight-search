@@ -66,7 +66,7 @@ class FlightTable {
     tab.classList.add("tab");
     tab.innerHTML = `
       <a href="#table${this._i + 1}">
-        Flight ${this._i + 1}
+        Flight <span class="flight-index">${this._i + 1}</span>
         <span class="check hide">✓</span>
       </a>
     `;
