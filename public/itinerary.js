@@ -37,12 +37,12 @@ class Itinerary {
         Flight <span class="flight-index">${this.length}</span>
       </td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_from" placeholder=" "
+        <input type="text" name="fly_from" class="autocomplete_airport" placeholder=" "
           value="${cells["fly_from"] || ""}">
         <label class="active">Origin</label>
       </div></div></td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_to" placeholder=" "
+        <input type="text" name="fly_to" class="autocomplete_airport" placeholder=" "
           value="${cells["fly_to"] || ""}">
         <label class="active">Destination</label>
       </div></div></td>
@@ -52,7 +52,7 @@ class Itinerary {
           <input type="checkbox" name="select_airlines_exclude" class="filled-in" ${cells["select_airlines_exclude"] === true ? "checked" : ""}>
           <span style="padding-left: 25px">Not</span>
         </label></p></div>
-        <input type="text" name="select_airlines" placeholder="Any"
+        <input type="text" name="select_airlines" class="autocomplete_select_airlines" placeholder="Any"
           value="${cells["select_airlines"] || ""}">
         <label class="active">Airline</label>
       </div></div></td>
@@ -133,7 +133,7 @@ class Itinerary {
           <input type="checkbox" name="select_stop_airport_exclude" class="filled-in" ${cells["select_stop_airport_exclude"] === true ? "checked" : ""}>
           <span style="padding-left: 25px">Not</span>
         </label></p></div>
-        <input type="text" name="select_stop_airport" placeholder="Any"
+        <input type="text" name="select_stop_airport" class="autocomplete_airport" placeholder="Any"
           value="${cells["select_stop_airport"] || ""}">
         <label class="active">Stop&nbsp;airport</label>
       </div></div></td>
@@ -430,5 +430,11 @@ class Itinerary {
       }
     }
     M.FormSelect.init(qsa("#itinerary select"), {});
+ 
+    var autocomplete_select_airlines = document.querySelectorAll('.autocomplete_select_airlines');
+    M.Autocomplete.init(autocomplete_select_airlines, {data: airlines});
+
+    var autocomplete_airport = document.querySelectorAll('.autocomplete_airport');
+    M.Autocomplete.init(autocomplete_airport, {data: airports});
   }
 }
