@@ -8,15 +8,15 @@ All Rights Reserved.
 
 // Runs as soon as the document is loaded.
 addEventListener("DOMContentLoaded", () => {
-  auth();
+  onLoadAuth();
 })
 
 addEventListener("load", () => {
   initFirebase();
 
-  // signup already calls checkAuth, so we do not have to check it twice
+  // signup already calls auth, so we do not have to run it twice
   if (window.location.pathname !== "/") {
-    checkAuth();
+    auth();
   }
 });
 

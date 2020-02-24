@@ -28,7 +28,7 @@ function gapiInit() {
  * @param {GoogleUser} googleUser Information about the signed-in user.
  */
 function signup(googleUser) {
-  checkAuth(googleUser);
+  auth(googleUser);
 }
 
 /**
@@ -53,12 +53,13 @@ function isUserEqual(googleUser, firebaseUser) {
 }
 
 /**
- * Checks if the user is authenticated or not. 
+ * Creates an event listener that returns if the user is authenticated or not.
+ * Also sets the local storage property to the user's display name/email.
  * 
  * @param {GoogleUser} googleUser Google user to check authentication state with
  * when called from signup()
  */
-function checkAuth(googleUser = undefined) {
+function auth(googleUser = undefined) {
   // Event listener that fires when the authentication state changes.
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if (typeof googleUser !== "undefined" && 
@@ -79,10 +80,9 @@ function checkAuth(googleUser = undefined) {
       console.log(`${name} signed in successfully.`);
 
       localStorage.setItem("auth", JSON.stringify({
-        authenticated: true,
         name: name,
       }));
-      auth();
+      onLoadAuth();
     }
     else {
       // remove the authentication state from local storage
@@ -92,12 +92,12 @@ function checkAuth(googleUser = undefined) {
 }
 
 /**
- * Returns the authentication state and calls page specific functions.
- * auth() runs either when:
+ * Calls page specific functions after authentication.
+ * onLoadAuth() runs either when:
  *  1) on DOMContentLoaded, right after the document is parsed
  *  2) after signing in, to update the index page
  */
-function auth() {
+function onLoadAuth() {
   let authStorage = JSON.parse(localStorage.getItem("auth"));
 
   // we assume that the user is authenticated here until 
@@ -123,6 +123,21 @@ function auth() {
         break;
       }
     }
+  }
+}
+
+/**
+ * Returns if the user is currently authenticated or not.
+ * 
+ * @return {boolean} Boolean that reflects current authenticated state.
+ */
+function checkAuth() {
+  if (firebase.auth().currentUser === null) {
+    window.location = "/";
+    return false;
+  }
+  else {
+    return true;
   }
 }
 
