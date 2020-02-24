@@ -7,13 +7,6 @@ All Rights Reserved.
 */
 
 /**
- * Function to run when the saved itineraries page loads.
- */
-addEventListener("load", () => {
-  auth();
-});
-
-/**
  * Function that sends the itineraries to be deleted if the user unloads the
  * page before the toast is dismissed.
  */
@@ -29,30 +22,6 @@ let DeletedProcessing = [];
 const nbsp = "\u00a0";
 
 /**
- * Checks if the user is authenticated and updates the UI accordingly.
- */
-function auth() {
-  let xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/auth");
-  xhr.onload = () => {
-    let body = JSON.parse(xhr.responseText);
-    if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
-        body.authenticated) {
-      qs("#itineraries-authenticated").classList.remove("hide");
-      qs("#greeting").classList.remove("hide");
-      qs("#greeting").innerHTML = body.name;
-
-      // load itinerary table
-      displayItineraries();
-    }
-    else {
-      qs("#itineraries-unauthenticated").classList.remove("hide");
-    }
-  }
-  xhr.send();
-}
-
-/**
  * Renders the itinerary table to be displayed.
  * Otherwise, we hide the authenticated div and display the unauthenticated one
  */
@@ -61,7 +30,7 @@ function displayItineraries() {
   xhr.open("POST", "/api/display-itineraries");
   xhr.onload = () => {
     if (xhr.readyState === xhr.DONE) {
-      let response = JSON.parse(xhr.responseText);
+      // let response = JSON.parse(xhr.responseText);
       if (xhr.status === 200 && response.length !== 0) {
         new SavedItineraries(response);
       }
@@ -119,6 +88,7 @@ class SavedItineraries {
     let itineraryRow = qs("#saved-itineraries").insertRow();
     let index = this.length - 1;
     itineraryRow.classList.add("clickable");
+    itineraryRow.style = "cursor: pointer;";
 
     // HTML template to be rendered for each row
     itineraryRow.innerHTML = `
@@ -141,17 +111,21 @@ class SavedItineraries {
           <i class="material-icons">refresh</i>
         </button>
         <button class="btn-floating waves-effect waves-light"
-          id="load${index}">
-          <i class="material-icons">visibility</i>
-        </button>
-        <button class="btn-floating waves-effect waves-light"
           id="share${index}">
           <i class="material-icons">share</i>
           <input type="hidden" id="share-link${index}">
         </button>
         <button class="btn-floating waves-effect waves-light red"
           id="delete${index}">
-          <i class="material-icons">delete</i>
+          <i class="material-icons">delete  </i>
+        </button>
+      </td>
+      <td>
+        <button class="btn-flat waves-effect waves-light"
+          id="history${index}" style="width: 40px; height: 40px;
+          border-radius: 50%; padding: 0;">
+          <i class="small material-icons"
+            style="font-size: 2rem; line-height: 40px;">expand_more</i>
         </button>
       </td>
     `;
@@ -180,18 +154,26 @@ class SavedItineraries {
       row.flyTo : "NONE"})`;
     this.getFlightPath(index);
 
-    // add onclick functions for each button
-    qs(`#refresh${index}`).onclick = () => {
-      this.refreshPrice(index);
-    }
-    qs(`#load${index}`).onclick = () => {
+    // add onclick function for the row
+    itineraryRow.onclick = () => {
       this.loadLink(index);
     }
-    qs(`#share${index}`).onclick = () => {
+
+    // add onclick functions for each button
+    qs(`#refresh${index}`).onclick = event => {
+      event.stopPropagation();
+      this.refreshPrice(index);
+    }
+    qs(`#share${index}`).onclick = event => {
+      event.stopPropagation();
       this.shareLink(index);
     }
-    qs(`#delete${index}`).onclick = () => {
+    qs(`#delete${index}`).onclick = event => {
+      event.stopPropagation();
       this.deleteRow(index);
+    }
+    qs(`#history${index}`).onclick = event => {
+      event.stopPropagation();
     }
   }
   
@@ -207,6 +189,7 @@ class SavedItineraries {
       <th>Return</th>
       <th>Flight&nbsp;Path</th>
       <th>Latest&nbsp;Price</th>
+      <th></th>
       <th></th>
     `;
   }
@@ -288,6 +271,12 @@ class SavedItineraries {
       Object.entries(default_values).forEach(([key, value]) => {
         if (typeof flight[key] === "undefined") {
           flight[key] = default_values[key];
+        }
+      });
+
+      required_fields.forEach(field => {
+        if (typeof flight[field] === "undefined") {
+          flight[field] = "";
         }
       });
     });

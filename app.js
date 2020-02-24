@@ -28,7 +28,7 @@ const CLIENT_ID =
 const authMap = {};
 
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.text());
 
@@ -38,103 +38,6 @@ if (module === require.main) {
   const server = app.listen(process.env.PORT || 8080, () => {
     const port = server.address().port;
     console.log(`App listening on port ${port}`);
-  });
-
-  /**
-   * Listener that signs user up after using Google Sign-in
-   */
-  app.post("/api/sign-up", (req, res) => {
-    let response = res;
-
-    const token = req.body.idtoken;
-    const {OAuth2Client} = require("google-auth-library");
-    const client = new OAuth2Client(CLIENT_ID);
-
-    verify(client, token)
-      .then(() => {
-        var credential = fire.auth.GoogleAuthProvider.credential(token);
-
-        firebase.auth().signInWithCredential(credential)
-          .then(userCredential => {
-            return userCredential.user;
-          })
-          .then(async user => {
-            await firestore.collection("users").doc(user.uid).set({
-              name: user.displayName,
-              email: user.email,
-            });
-            return user.getIdTokenResult();
-          })
-          .then(idTokenResult => {
-            authMap[idTokenResult.token] = idTokenResult.expirationTime;
-            response = res.cookie("AuthToken", idTokenResult.token);
-            response.sendStatus("303");
-          })
-          .catch(function(error) { console.error(error) });
-      })
-      .catch(error => console.error(error));
-  })
-
-  /**
-   * Listener that checks if user is authenticated and returns user's 
-   * name or email
-   */
-  app.post("/api/auth", (req, res) => {
-    let response = res;
-    let token = getAuthToken(req);
-    let authenticated = isUserAuthenticated(token);
-    response.contentType = res.type("application/json");
-    
-    if (!authenticated) {
-      response = res.clearCookie("AuthToken");
-    }
-
-    getUid(token).then(async uid => {
-      if (uid) {
-        const doc = await firestore.collection("users").doc(uid).get();
-        return doc.data();
-      }
-    }).then(user => {
-      const name = (user.name !== null) ? user.name : user.email;
-      response.status(200);
-
-      return {
-        authenticated: authenticated,
-        name: name,
-      }
-    }).catch(error => {
-      console.log(error);
-      response.status(400);
-      return {
-        authenticated: false,
-      };
-    }).then(jsonObj => {
-      response.send(JSON.stringify(jsonObj));
-    });
-  });
-
-  /**
-   * Listener that signs user out of Firebase
-   */
-  app.post("/api/sign-out", (req, res) => {
-    let token = getAuthToken(req);
-    
-    getUid(token).then(uid => {
-      firebase.auth().signOut().then(() => {
-        console.log(uid + " signed out succesfully.")
-      }).catch(error => {
-        return Promise.reject(error);
-      });
-  
-      if (typeof token !== "undefined" &&
-        typeof authMap[token] !== "undefined") {
-        delete authMap[token];
-      }
-  
-      res.clearCookie("AuthToken").sendStatus(200);
-    }).catch(error => {
-      console.log(error);
-    });
   });
 
   /**
@@ -347,16 +250,6 @@ function getAuthToken(req) {
 async function getUid(idToken) {
   const decodedToken = await admin.auth().verifyIdToken(idToken);
   return decodedToken.uid;
-}
-
-/**
- * Verifies the idtoken provided by the client to make sure it is valid
- */
-async function verify(client, token) {
-  await client.verifyIdToken({
-      idToken: token,
-      audience: CLIENT_ID,
-  });
 }
 
 module.exports = app;

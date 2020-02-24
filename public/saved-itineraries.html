@@ -16,7 +16,11 @@ All Rights Reserved.
 <link rel="stylesheet" href="materialize/icon.css">
 <link rel="stylesheet" href="styles.css">
 <script src="materialize/materialize.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-app.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-auth.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-firestore.js" defer></script>
 <script src="globals.js"></script>
+<script src="firebase.js"></script>
 <script src="itinerary.js"></script>
 <script src="sharing.js"></script>
 <script src="flight-search.js"></script>
@@ -39,7 +43,7 @@ All Rights Reserved.
         <a href="/" class="waves-effect waves-light btn">Back</a>
       </div>
     </div>
-    <p id="itineraries-unauthenticated" class="hide">
+    <p id="itineraries-unauthenticated">
       You must be logged in to view your saved itineraries.
     </p>
     <p id="itineraries-none" class="hide">
