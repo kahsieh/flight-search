@@ -432,9 +432,25 @@ class Itinerary {
     M.FormSelect.init(qsa("#itinerary select"), {});
  
     var autocomplete_select_airlines = document.querySelectorAll('.autocomplete_select_airlines');
-    M.Autocomplete.init(autocomplete_select_airlines, {data: airlines});
+    M.Autocomplete.init(autocomplete_select_airlines, {
+      data: airlines, 
+      onAutocomplete: () => {
+        const trim = (el) => {el.value = el.value.search(" - ") != -1 ? el.value.split(" - ")[1] : el.value};
+        qsa("[name=select_airlines]").forEach(trim);
+      },
+      limit: 10
+    });
 
     var autocomplete_airport = document.querySelectorAll('.autocomplete_airport');
-    M.Autocomplete.init(autocomplete_airport, {data: airports});
+    M.Autocomplete.init(autocomplete_airport, {
+      data: airports, 
+      onAutocomplete: () => {
+        const trim = (el) => {el.value = el.value.search(" - ") != -1 ? el.value.split(" - ")[1] : el.value};
+        qsa("[name=fly_from]").forEach(trim);
+        qsa("[name=fly_to]").forEach(trim);
+        qsa("[name=select_stop_airport]").forEach(trim);
+      },
+      limit: 10
+    });
   }
 }
