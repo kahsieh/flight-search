@@ -26,8 +26,15 @@ addEventListener("load", () => {
     loadItinerary(url_params["n"], url_params["i"]);
   }
   else {
-    Itinerary.addFlight();
-    Itinerary.addFlight();
+    let date = new Date();
+    date.setDate(date.getDate() + 14);
+    Itinerary.addFlight({
+      "date_from": date.toISOString().substring(0, 10)
+    });
+    date.setDate(date.getDate() + 7);
+    Itinerary.addFlight({
+      "date_from": date.toISOString().substring(0, 10)
+    });
     // Itinerary.addFlight({
     //   "fly_from": "LAX",
     //   "max_stopovers": 1,
