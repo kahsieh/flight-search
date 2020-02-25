@@ -7,6 +7,14 @@ All Rights Reserved.
 */
 
 /**
+ * Function that displays the itinerary table after authentication
+ */
+addEventListener("load", () => {
+  // loads itinerary table
+  displayItineraries();
+})
+
+/**
  * Function that sends the itineraries to be deleted if the user unloads the
  * page before the toast is dismissed.
  */
@@ -26,21 +34,32 @@ const nbsp = "\u00a0";
  * Otherwise, we hide the authenticated div and display the unauthenticated one
  */
 function displayItineraries() {
-  let xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/display-itineraries");
-  xhr.onload = () => {
-    if (xhr.readyState === xhr.DONE) {
-      // let response = JSON.parse(xhr.responseText);
-      if (xhr.status === 200 && response.length !== 0) {
-        new SavedItineraries(response);
-      }
-      else {
-        qs("#itineraries-authenticated").classList.add("hide");
-        qs("#itineraries-none").classList.remove("hide");
-      }
-    }
+  let user = checkAuth();
+  if (!user || !user.uid) {
+    qs("#itineraries-authenticated").classList.add("hide");
+    qs("#itineraries-none").classList.remove("hide");
   }
-  xhr.send();
+
+  let data = [];
+
+  firebase.firestore().collection("itineraries")
+    .where("uid", "==", user.uid)
+    .orderBy("created", "asc")
+    .get()
+    .then(querySnapshot => {
+    querySnapshot.forEach(doc => {
+      data.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+  }).then(() => {
+    new SavedItineraries(data);
+  }).catch(error => {
+    console.error(error);
+    qs("#itineraries-authenticated").classList.add("hide");
+    qs("#itineraries-none").classList.remove("hide");
+  });
 }
 
 /**
@@ -258,7 +277,13 @@ class SavedItineraries {
    * @param {number} index index of row
    */
   async refreshPrice(index) {
+    let user = checkAuth();
+
+    if (!user || !user.uid) {
+      console.error("User is not authenticated.");
+    }
     qs(`#refresh${index}`).classList.add("disabled");
+
     let itinerary = this.firebaseData[index].itinerary;
     if (typeof itinerary !== "object") {
       qs(`#refresh${index}`).classList.remove("disabled");
@@ -292,31 +317,30 @@ class SavedItineraries {
     if (res[0] !== undefined) {
       price = res[0].price;
     }
+
+    let icon, message, color;
+    let docId = this.docIds[index];
     let currentDate = new Date();
-    
-    // Send an XHR to our backend to update the firebase data.
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/update-itinerary");
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onload = () => {
-      let body = JSON.parse(xhr.responseText);
-      let icon, message, color;
-      if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
-        body.updated && price !== -1) {
-        // if the price is a correct value, display it
-        console.log(`${this.firebaseData[index].name} was succesfully updated`);
 
-        icon = "attach_money";
-        message = "Price refreshed!";
-        color = "";
+    firebase.firestore().collection("itineraries").doc(docId).update({
+      price: price,
+      updated: currentDate,
+    }).then(() => {
+      if (price == -1) {
+        throw new Error("Could not retrieve price");
       }
-      else {
-        console.error(`${this.firebaseData[index].name} could not be updated`);
+      console.log(`${this.firebaseData[index].name} was succesfully updated`);
 
-        icon = "error";
-        message = "Error: Price could not be refreshed.";
-        color = "red";
-      }
+      icon = "attach_money";
+      message = "Price refreshed!";
+      color = "";
+    }).catch(error => {
+      console.error(error);
+
+      icon = "error";
+      message = "Error: Price could not be refreshed.";
+      color = "red";
+    }).then(() => {
       qs(`#refresh${index}`).classList.remove("disabled");
       
       // Display message.
@@ -331,16 +355,7 @@ class SavedItineraries {
         this.printPrice(price) : "NONE";
       qs(`#updated${index}`).textContent =
         this.printDate(currentDate.getTime() / 1000);
-    }
-
-    // Send to firebase the data that we are updating.
-    xhr.send(JSON.stringify({
-      docId: this.docIds[index],
-      update: {
-        price: price,
-        updated: currentDate.getTime(),
-      }
-    }));
+    });
   }
 
   /**
@@ -415,6 +430,11 @@ class SavedItineraries {
    * @param {number} index index of row
    */
   deleteItinerary(index) {
+    let user = checkAuth();
+
+    if (!user || !user.uid) {
+      console.error("User is not authenticated.");
+    }
     qs(`#delete${index}`).classList.remove("disabled");
 
     let xhr = new XMLHttpRequest();

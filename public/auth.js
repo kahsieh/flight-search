@@ -74,20 +74,21 @@ function auth(googleUser = undefined) {
 
     // if the user was authenticated
     if (firebaseUser) {
-      let name = (typeof firebaseUser.displayName !== "undefined") ?
+      let name = (firebaseUser.displayName !== null) ?
         firebaseUser.displayName : firebaseUser.email;
 
       console.log(`${name} signed in successfully.`);
 
       localStorage.setItem("auth", JSON.stringify({
+        uid: firebaseUser.uid,
         name: name,
       }));
-      onLoadAuth();
     }
     else {
       // remove the authentication state from local storage
       localStorage.removeItem("auth");
     }
+    onLoadAuth();
   });
 }
 
@@ -98,12 +99,12 @@ function auth(googleUser = undefined) {
  *  2) after signing in, to update the index page
  */
 function onLoadAuth() {
-  let authStorage = JSON.parse(localStorage.getItem("auth"));
+  let user = checkAuth();
 
   // we assume that the user is authenticated here until 
-  if (authStorage) {
+  if (user) {
     qs("#greeting").classList.remove("hide");
-    qs("#greeting").innerHTML = authStorage.name;
+    qs("#greeting").innerHTML = user.name;
 
     // Switch statement based on what location the window is currently in.
     switch(window.location.pathname) {
@@ -115,11 +116,15 @@ function onLoadAuth() {
         break;
       }
       case "/saved-itineraries.html": {
-        qs("#itineraries-unauthenticated").classList.add("hide");
         qs("#itineraries-authenticated").classList.remove("hide");
-
-        // loads itinerary table (found in saved-itineraries.js)
-        displayItineraries();
+        break;
+      }
+    }
+  }
+  else {
+    switch(window.location.pathname) {
+      case "/saved-itineraries.html": {
+        qs("#itineraries-unauthenticated").classList.remove("hide");
         break;
       }
     }
@@ -129,15 +134,18 @@ function onLoadAuth() {
 /**
  * Returns if the user is currently authenticated or not.
  * 
- * @return {boolean} Boolean that reflects current authenticated state.
+ * @return {string} UID of authenticated user.
  */
 function checkAuth() {
-  if (firebase.auth().currentUser === null) {
-    window.location = "/";
-    return false;
+  let user = JSON.parse(localStorage.getItem("auth"));
+
+  if (!user) {
+    return;
   }
   else {
-    return true;
+    let name = (user.displayName !== null) ? user.displayName : user.email;
+
+    return user;
   }
 }
 
@@ -145,11 +153,11 @@ function checkAuth() {
  * Signs out the user from both the Google client API and the Firebase auth API
  */
 function signout() {
-  let authStorage = JSON.parse(localStorage.getItem("auth"));
+  let user = checkAuth();
 
   gapi.auth2.getAuthInstance().signOut().then(() => {
     firebase.auth().signOut().then(() => {
-      console.log(`${authStorage.name} signed out successfully.`);
+      console.log(`${user.name} signed out successfully.`);
       localStorage.removeItem("auth");
       location.reload();
     });

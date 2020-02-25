@@ -95,7 +95,8 @@ async function search() {
     }
 
     if (single ||
-        res.length > 0 && res[0]["route"].length == Itinerary.length) {
+        res.length > 0 && typeof res[0]["route"] !== "undefined" &&
+        res[0]["route"].length == Itinerary.length) {
       // Display message.
       qsa(".results-message").forEach(el => el.classList.remove("hide"));  
 

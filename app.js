@@ -41,76 +41,6 @@ if (module === require.main) {
   });
 
   /**
-   * Listener that saves user's itinerary
-   */
-  app.post("/api/save-itinerary", (req, res) => {
-    let token = getAuthToken(req);
-    let authenticated = isUserAuthenticated(token);
-
-    if (!authenticated) {
-      res.sendStatus(401);
-    }
-    else {
-      getUid(token).then(uid => {
-        firestore.collection("itineraries").add({
-          uid: uid,
-          name: req.body.name,
-          created: new Date(req.body.created),
-          updated: new Date(req.body.updated),
-          price: req.body.price,
-          itinerary: req.body.itinerary,
-          dTime: req.body.dTime,
-          aTime: req.body.aTime,
-          flyFrom: req.body.flyFrom,
-          flyTo: req.body.flyTo,
-        }).then(docRef => {
-          console.log(`Document written by ${uid} with ID: ${docRef.id}`);
-        }).catch(error => {
-          console.error("Error adding document:", error);
-        });
-        res.sendStatus(200);
-      });
-    }
-  });
-
-  /**
-   * Listener that displays user's itineraries
-   */
-  app.post("/api/display-itineraries", (req, res) => {
-    let token = getAuthToken(req);
-    let authenticated = isUserAuthenticated(token);
-    let response = res.type("application/json");
-
-    if (!authenticated) {
-      response.sendStatus(401);
-    }
-    else {
-      getUid(token).then(uid => {
-        let data = [];
-        response = res.status(200);
-  
-        firestore.collection("itineraries")
-          .where("uid", "==", uid)
-          .orderBy("created", "asc")
-          .get()
-          .then(querySnapshot => {
-          querySnapshot.forEach(doc => {
-            data.push({
-              id: doc.id,
-              ...doc.data()
-            });
-          });
-        }).catch(error => {
-          console.error(error);
-          response.status(500);
-        }).then(() => {
-          response.send(JSON.stringify(data));
-        });
-      });
-    }
-  });
-
-  /**
    * Listener that deletes itinerary for user
    */
   app.post("/api/delete-itinerary", (req, res) => {
@@ -154,45 +84,6 @@ if (module === require.main) {
         Promise.all(promiseArray).then(() => {
           response.send({deleted: status});
         });
-      }
-    }
-  });
-
-  /**
-   * Listener that updates itinerary for user
-   */
-  app.post("/api/update-itinerary", (req, res) => {
-    let authenticated = isUserAuthenticated(getAuthToken(req));
-    let response = res.type("application/json");
-
-    if (!authenticated) {
-      response.sendStatus(401);
-    }
-    else {
-      let status = true;
-      response = res.status(200);
-
-      if (typeof req.body.docId === "undefined") {
-        response.status(400);
-        status = false;
-        response.send({updated: status});
-      }
-      else {
-        let updateObj = req.body.update;
-
-        firestore.collection("itineraries").doc(req.body.docId)
-          .update({
-            price: updateObj.price,
-            updated: new Date(updateObj.updated),
-          })
-          .then(() => console.log(`${req.body.docId} successfully updated.`))
-          .catch(error => {
-            console.error(error);
-            response.status(400);
-            status = false;
-          }).then(() => {
-            response.send({updated: status});
-          });
       }
     }
   });
