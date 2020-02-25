@@ -162,19 +162,22 @@ function getShareableLink(name, itinerary) {
 function createKeys(length) {
   let keys = [];
   let key = "a";
-  let offset = 0;
+  let offset = 0; // offset to use with char code
   for (let i = 0; i < length; i++) {
+    // if we reach the end of the uppercase alphabet, add another letter
     if (i % 52 === 0 && i !== 0) {
       key = key.substring(0, key.length - 1)
           + key[key.length - 1].toLowerCase() + "a";
       offset += 26;
     }
+    // if we reach the end of the lowercase alphabet, make it uppercase
     else if (i % 26 === 0 && i !== 0) {
       key = key.substring(0, key.length - 1)
           + key[key.length - 1].toUpperCase();
       offset += 26;
     }
 
+    // string to be generated from the keys
     let string = "";
     for (let j = 0; j < key.length; j++) {
       string += String.fromCharCode(key[j].charCodeAt(0) + i - offset);
