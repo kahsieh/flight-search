@@ -314,11 +314,8 @@ class Itinerary {
       default:
         qsa("#itinerary tr")[row].remove();
         FlightTable.tables[row].remove();
-        for (const [i, el] of qsa("#itinerary .flight-index").entries()) {
-          el.textContent = i + 1;
-        }
-        for (const [i, el] of qsa("#tabs .flight-index").entries()) {
-          el.textContent = i + 1;
+        for (const [i, e] of qsa("#itinerary .flight-index").entries()) {
+          e.textContent = i + 1;
         }
         break;
     }
