@@ -1,25 +1,11 @@
 "use strict";
 
-const fire = require("firebase");
-const firebase = require("firebase").initializeApp({
-  apiKey: "AIzaSyC26YKW4qgCCQhJSN_7ZzXsm_n5d_wx2j0",
-  authDomain: "five-peas-flight-search.firebase.com",
-  databaseURL: "https://five-peas-flight-search.firebaseio.com",
-  projectId: "five-peas-flight-search",
-  storageBucket: "five-peas-flight-search.appspot.com",
-  messagingSenderId: "773049605239",
-  appId: "1:773049605239:web:7ebbf6c1727bf904983a72",
-  measurementId: "G-V2T9DGETMT"
-});
-require("firebase/firestore");
-let firestore = firebase.firestore();
 const admin = require("firebase-admin");
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
   databaseURL: "https://five-peas-flight-search.firebaseio.com"
 });
 const express = require("express");
-const path = require("path");
 const app = express();
 const bodyParser = require("body-parser");
 const CLIENT_ID = 
@@ -29,7 +15,6 @@ const authMap = {};
 
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 app.use(bodyParser.text());
 
 if (module === require.main) {
@@ -41,51 +26,43 @@ if (module === require.main) {
   });
 
   /**
-   * Listener that deletes itinerary for user
+   * Listener that deletes itineraries for user after page unloads.
    */
   app.post("/api/delete-itinerary", (req, res) => {
-    let token = getAuthToken(req);
-    let authenticated = isUserAuthenticated(token);
     let response = res.type("application/json");
 
-    if (!authenticated) {
-      response.sendStatus(401);
+    let body = JSON.parse(req.body);
+    let idToken = body.idToken;
+    let docIds = body.deletedProcessing;
+    let status = true;
+    if (typeof docIds === "undefined" || docIds.length === 0) {
+      response.status(400);
+      status = false;
+      response.send({ deleted: status })
     }
-    else {
-      let status = true;
-      response = res.status(200);
 
-      let docIds;
-      if (typeof req.body === "string") {
-        docIds = JSON.parse(req.body);
-      }
-      else if (typeof req.body.docId === "string") {
-        docIds = [req.body.docId];
-      }
-
-      if (typeof docIds === "undefined") {
-        response.status(400);
-        status = false;
-        response.send({deleted: status});
-      }
-      else {
-        let promiseArray = [];
-        docIds.forEach(id => {
-          promiseArray.push(firestore.collection("itineraries")
-            .doc(id)
-            .delete()
-            .then(() => console.log(`${id} was successfully deleted.`))
-            .catch(error => {
-              console.error(error);
-              response.status(400);
-              status = false;
-          }).then(() => {})); // resolves if error, so Promise.all still fires
-        });
+    getUid(idToken).then(uid => {
+      let promiseArray = [];
+      docIds.forEach(id => {
+        promiseArray.push(admin.firestore().collection("itineraries")
+          .doc(id)
+          .delete()
+          .then(() => console.log(`${id} was successfully deleted.`))
+          .catch(error => {
+            console.error(error);
+            response.status(400);
+            status = false;
+        }).then(() => {})); // resolves if error, so Promise.all still fires
+      });
+      if (docIds.length > 0) {
         Promise.all(promiseArray).then(() => {
           response.send({deleted: status});
         });
       }
-    }
+    }).catch(error => {
+        response = res.status(401);
+        console.error(error);
+    });
   });
 
   /**
@@ -95,42 +72,6 @@ if (module === require.main) {
   app.use(function(req, res) {
     res.sendStatus(404);
   });
-}
-
-/**
- * Checks that user's token is registered in our authMap and also checks to
- * see if token has expired
- */
-function isUserAuthenticated(token) {
-  let expireTime = new Date();
-  expireTime.setTime(Date.parse(authMap[token]));
-
-  return (typeof authMap[token] !== "undefined") && ((new Date()) < expireTime);
-}
-
-/**
- * Returns Auth token if there is one, otherwise returns nothing
- */
-function getAuthToken(req) {
-  if (typeof req.headers.cookie === "undefined") {
-    return;
-  }
-
-  let cookies = req.headers.cookie.split(";");
-  let authTokenString = "AuthToken";
-  if (cookies.length > 1) {
-    authTokenString = " " + authTokenString;
-  }
-  let find = cookies.find(cookie => {
-    return cookie.startsWith(authTokenString);
-  });
-
-  if (typeof find !== "undefined") {
-    return find.substring((authTokenString + "=").length);
-  }
-  else {
-    return;
-  }
 }
 
 /**

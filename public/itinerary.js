@@ -139,7 +139,7 @@ class Itinerary {
       </div></div></td>
       <td class="max_stopovers"><div class="row"><div class="input-field col s12">
         <input type="number" name="max_stopovers" placeholder="∞" min="0"
-          value="${cells["max_stopovers"] !== undefined ? cells["max_stopovers"] : 2}">
+          value="${typeof cells["max_stopovers"] !== "undefined" ? cells["max_stopovers"] : 2}">
         <label class="active">Max&nbsp;stops</label>
       </div></div></td>
       <td class="stopover_from"><div class="row"><div class="input-field col s12">

@@ -19,12 +19,16 @@ addEventListener("load", () => {
  * page before the toast is dismissed.
  */
 addEventListener("unload", () => {
-  navigator.sendBeacon('/api/delete-itinerary',
-    JSON.stringify(DeletedProcessing));
+  if (Itineraries) {
+    navigator.sendBeacon('/api/delete-itinerary',
+    JSON.stringify({
+      idToken: Itineraries.idToken,
+      deletedProcessing: Itineraries.deletedProcessing,
+    }));
+  }
 })
 
-// stores the saved itineraries
-let DeletedProcessing = [];
+let Itineraries;
 
 // when using text content, we cannot use &nbsp; so we must escape it instead
 const nbsp = "\u00a0";
@@ -36,30 +40,31 @@ const nbsp = "\u00a0";
 function displayItineraries() {
   let user = checkAuth();
   if (!user || !user.uid) {
-    qs("#itineraries-authenticated").classList.add("hide");
-    qs("#itineraries-none").classList.remove("hide");
+    qs("#itineraries-unauthenticated").classList.remove("hide");
+    return;
   }
 
   let data = [];
 
-  firebase.firestore().collection("itineraries")
+  firebase.firestore()
+    .collection("itineraries")
     .where("uid", "==", user.uid)
     .orderBy("created", "asc")
     .get()
     .then(querySnapshot => {
-    querySnapshot.forEach(doc => {
-      data.push({
-        id: doc.id,
-        ...doc.data()
+      querySnapshot.forEach(doc => {
+        data.push({
+          id: doc.id,
+          ...doc.data()
+        });
       });
+    }).then(() => {
+      Itineraries = new SavedItineraries(data);
+    }).catch(error => {
+      console.error(error);
+      qs("#itineraries-authenticated").classList.add("hide");
+      qs("#itineraries-none").classList.remove("hide");
     });
-  }).then(() => {
-    new SavedItineraries(data);
-  }).catch(error => {
-    console.error(error);
-    qs("#itineraries-authenticated").classList.add("hide");
-    qs("#itineraries-none").classList.remove("hide");
-  });
 }
 
 /**
@@ -75,7 +80,15 @@ class SavedItineraries {
   constructor(firebaseData) {
     this.firebaseData = firebaseData;
     this.docIds = [];
+    this.deletedProcessing = [];
     this.createItineraryTable();
+
+    let user = firebase.auth().currentUser;
+    if (user) {
+      user.getIdToken().then(idToken => {
+        this.idToken = idToken;
+      });
+    }
   }
 
   /**
@@ -314,7 +327,7 @@ class SavedItineraries {
     res.sort((a, b) => a.price - b.price);
     let price = -1;
 
-    if (res[0] !== undefined) {
+    if (typeof res[0] !== "undefined" && typeof res[0].price !== "undefined") {
       price = res[0].price;
     }
 
@@ -322,13 +335,22 @@ class SavedItineraries {
     let docId = this.docIds[index];
     let currentDate = new Date();
 
-    firebase.firestore().collection("itineraries").doc(docId).update({
-      price: price,
-      updated: currentDate,
-    }).then(() => {
-      if (price == -1) {
-        throw new Error("Could not retrieve price");
+    new Promise((resolve, reject) => {
+      if (price === -1) {
+        reject("Could not retrieve price.");
       }
+      else {
+        resolve();
+      }
+    }).then(() => {
+      return firebase.firestore()
+        .collection("itineraries")
+        .doc(docId)
+        .update({
+          price: price,
+          updated: currentDate,
+        });
+    }).then(() => {
       console.log(`${this.firebaseData[index].name} was succesfully updated`);
 
       icon = "attach_money";
@@ -399,7 +421,7 @@ class SavedItineraries {
     qs("#saved-itineraries").rows[index].hidden = true;
     let confirm = true;
     this.updateRowNumbers();
-    DeletedProcessing.push(this.docIds[index]);
+    this.deletedProcessing.push(this.docIds[index]);
 
     // dismiss previous toast, if one exists
     let toastElement = qs(".toast");
@@ -437,28 +459,13 @@ class SavedItineraries {
     }
     qs(`#delete${index}`).classList.remove("disabled");
 
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/delete-itinerary");
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onload = () => {
-      let body = JSON.parse(xhr.responseText);
-      if (xhr.readyState === xhr.DONE && xhr.status === 200 &&
-        body.deleted) {
-        console.log(`${this.firebaseData[index].name} was succesfully deleted`);
-        
-        // the document was successfully deleted, so remove it from the array
-        DeletedProcessing.splice(
-          DeletedProcessing.indexOf(this.docIds[index]), 1);
-      }
-      else {
-        console.error(`${this.firebaseData[index].name} could not be deleted`);
-      }
-    }
-
-    // send to the backend the document id to be deleted
-    xhr.send(JSON.stringify({
-      docId: this.docIds[index],
-    }));
+    let id = this.docIds[index];
+    firebase.firestore().collection("itineraries").doc(id).delete().then(() => {
+      console.log(`${this.firebaseData[index].name} was succesfully deleted`);
+      this.deletedProcessing.splice(this.deletedProcessing.indexOf(id), 1);
+    }).catch(error => {
+      console.error(error);
+    });
   }
 
   /**
@@ -467,7 +474,8 @@ class SavedItineraries {
    * @param {number} index index of row
    */
   undoDeleteItinerary(index) {
-    DeletedProcessing.splice(DeletedProcessing.indexOf(this.docIds[index]), 1);
+    this.deletedProcessing.splice(
+      this.deletedProcessing.indexOf(this.docIds[index]), 1);
     qs(`#delete${index}`).classList.remove("disabled");
     qs("#saved-itineraries").rows[index].hidden = false;
     this.updateRowNumbers();

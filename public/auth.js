@@ -83,12 +83,12 @@ function auth(googleUser = undefined) {
         uid: firebaseUser.uid,
         name: name,
       }));
+      onLoadAuth();
     }
     else {
       // remove the authentication state from local storage
       localStorage.removeItem("auth");
     }
-    onLoadAuth();
   });
 }
 
@@ -156,7 +156,7 @@ function signout() {
   let user = checkAuth();
 
   gapi.auth2.getAuthInstance().signOut().then(() => {
-    firebase.auth().signOut().then(() => {
+    return firebase.auth().signOut().then(() => {
       console.log(`${user.name} signed out successfully.`);
       localStorage.removeItem("auth");
       location.reload();

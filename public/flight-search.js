@@ -83,7 +83,7 @@ async function search() {
     })
     .then(bodies => bodies.flat())
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 
   if (res) {
@@ -183,7 +183,7 @@ function prepareFetches(itineraries = Itinerary.getAll(true)) {
       body: JSON.stringify(body)
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     }));
   }
   return promises;

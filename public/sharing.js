@@ -38,11 +38,11 @@ async function saveItinerary() {
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
   }
 
-  let [uid, name] = checkAuth();
+  let user = checkAuth();
 
-  if (uid) {
+  if (user.uid) {
     firebase.firestore().collection("itineraries").add({
-      uid: uid,
+      uid: user.uid,
       name: qs("#itinerary-name").value || "Untitled",
       itinerary: Itinerary.getAll(),
       created: currentDate,
@@ -53,7 +53,7 @@ async function saveItinerary() {
       flyFrom: flyFrom,
       flyTo: flyTo,
     }).then(docRef => {
-      console.log(`Document written by ${name} with ID: ${docRef.id}`);
+      console.log(`Document written by ${user.name} with ID: ${docRef.id}`);
     }).catch(error => {
       console.error("Error adding document:", error);
     }).then(() => {
@@ -195,14 +195,14 @@ function encodeItinerary(itinerary) {
     let j = 0;
     for (; j < required_fields.length; j++) {
       const field = required_fields[j];
-      if (flight[field] !== undefined) {
+      if (typeof flight[field] !== "undefined") {
         minified[keys[j]] = flight[field];
       }
     }
     // Shrink optional field names.
     for (; j < required_fields.length + optional_fields.length; j++) {
       const field = optional_fields[j - required_fields.length];
-      if (flight[field] !== undefined) {
+      if (typeof flight[field] !== "undefined") {
         minified[keys[j]] = flight[field];
       }
     }
@@ -227,14 +227,14 @@ function decodeItinerary(encoded) {
     let j = 0;
     for (; j < required_fields.length; j++) {
       const key = keys[j];
-      if (minified[key] !== undefined) {
+      if (typeof minified[key] !== "undefined") {
         flight[required_fields[j]] = minified[key];
       }
     }
     // Expand optional field names.
     for (; j < required_fields.length + optional_fields.length; j++) {
       const key = keys[j];
-      if (minified[key] !== undefined) {
+      if (typeof minified[key] !== "undefined") {
         flight[optional_fields[j - required_fields.length]] = minified[key];
       }
     }
