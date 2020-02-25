@@ -33,8 +33,7 @@ function signup(googleUser) {
   let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
     unsubscribe();
 
-    if (typeof googleUser !== "undefined" && 
-      !isUserEqual(googleUser, firebaseUser)) {
+    if (!isUserEqual(googleUser, firebaseUser)) {
       let credential = firebase.auth.GoogleAuthProvider.credential(
         googleUser.getAuthResponse().id_token);
       
