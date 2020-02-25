@@ -5,6 +5,7 @@ sharing.js
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
+"use strict";
 
 /**
  * Saves the itinerary. Uploads the data to Firebase.

@@ -5,6 +5,7 @@ tables.js
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
+"use strict";
 
 const columns = [
   ["Flight", "flight_no"],

@@ -5,6 +5,7 @@ itinerary.js
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
+"use strict";
 
 class Itinerary {
   static get length() { return qs("#itinerary").childElementCount; }
@@ -37,12 +38,12 @@ class Itinerary {
         Flight <span class="flight-index">${this.length}</span>
       </td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_from" class="autocomplete_airport" placeholder=" "
+        <input type="text" name="fly_from" class="autocomplete_airport" placeholder="Any"
           value="${cells["fly_from"] || ""}">
         <label class="active">Origin</label>
       </div></div></td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_to" class="autocomplete_airport" placeholder=" "
+        <input type="text" name="fly_to" class="autocomplete_airport" placeholder="Any"
           value="${cells["fly_to"] || ""}">
         <label class="active">Destination</label>
       </div></div></td>

@@ -5,6 +5,7 @@ globals.js
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
+"use strict";
 
 const app = {
   version: "v0.1.0",
