@@ -7,8 +7,7 @@ All Rights Reserved.
 */
 
 /**
- * Saves the itinerary. Sends an HTTP request to the backend to upload data to
- * Firebase.
+ * Saves the itinerary. Uploads the data to Firebase.
  */
 async function saveItinerary() {
   qs("#save").classList.add("disabled");
@@ -24,14 +23,14 @@ async function saveItinerary() {
   let aTime = "NONE";
   let flyFrom = "NONE";
   let flyTo = "NONE";
-  let currentDate = new Date().getTime();
+  let currentDate = new Date();
 
   // Reformat response for single-flight itineraries.
   if (res.length == 1 && Array.isArray(res[0])) {
     res = res[0];
   }
 
-  if (res[0] !== undefined) {
+  if (typeof res[0] !== "undefined" && typeof res[0].route !== "undefined") {
     price = res[0].price;
     dTime = localeString(res[0].route[0].dTime);
     aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
@@ -39,28 +38,35 @@ async function saveItinerary() {
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
   }
 
-  // Send HTTP request to save-itinerary.
-  let xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/save-itinerary");
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onload = _ => qs("#save").classList.remove("disabled");
-  xhr.send(JSON.stringify({
-    name: qs("#itinerary-name").value || "Untitled",
-    itinerary: Itinerary.getAll(),
-    created: currentDate,
-    updated: currentDate,
-    price: price,
-    dTime: dTime,
-    aTime: aTime,
-    flyFrom: flyFrom,
-    flyTo: flyTo,
-  }));
+  let user = checkAuth();
 
-  // Show that the itinerary was saved.
-  M.toast({
-    html: '<i class="material-icons left">star</i><div>Itinerary saved!</div>',
-    displayLength: 1500
-  });
+  if (user.uid) {
+    firebase.firestore().collection("itineraries").add({
+      uid: user.uid,
+      name: qs("#itinerary-name").value || "Untitled",
+      itinerary: Itinerary.getAll(),
+      created: currentDate,
+      updated: currentDate,
+      price: price,
+      dTime: dTime,
+      aTime: aTime,
+      flyFrom: flyFrom,
+      flyTo: flyTo,
+    }).then(docRef => {
+      console.log(`Document written by ${user.name} with ID: ${docRef.id}`);
+    }).catch(error => {
+      console.error("Error adding document:", error);
+    }).then(() => {
+      qs("#save").classList.remove("disabled");
+
+      // Show that the itinerary was saved.
+      M.toast({
+        html: `<i class="material-icons left">star</i>
+          <div>Itinerary saved!</div>`,
+        displayLength: 1500
+      });
+    });
+  }
 }
 
 /**
@@ -189,14 +195,14 @@ function encodeItinerary(itinerary) {
     let j = 0;
     for (; j < required_fields.length; j++) {
       const field = required_fields[j];
-      if (flight[field] !== undefined) {
+      if (typeof flight[field] !== "undefined") {
         minified[keys[j]] = flight[field];
       }
     }
     // Shrink optional field names.
     for (; j < required_fields.length + optional_fields.length; j++) {
       const field = optional_fields[j - required_fields.length];
-      if (flight[field] !== undefined) {
+      if (typeof flight[field] !== "undefined") {
         minified[keys[j]] = flight[field];
       }
     }
@@ -221,14 +227,14 @@ function decodeItinerary(encoded) {
     let j = 0;
     for (; j < required_fields.length; j++) {
       const key = keys[j];
-      if (minified[key] !== undefined) {
+      if (typeof minified[key] !== "undefined") {
         flight[required_fields[j]] = minified[key];
       }
     }
     // Expand optional field names.
     for (; j < required_fields.length + optional_fields.length; j++) {
       const key = keys[j];
-      if (minified[key] !== undefined) {
+      if (typeof minified[key] !== "undefined") {
         flight[optional_fields[j - required_fields.length]] = minified[key];
       }
     }
