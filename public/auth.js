@@ -28,7 +28,23 @@ function gapiInit() {
  * @param {GoogleUser} googleUser Information about the signed-in user.
  */
 function signup(googleUser) {
-  auth(googleUser);
+  qs("#sign-out").classList.remove("disabled");
+
+  let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
+    unsubscribe();
+
+    if (typeof googleUser !== "undefined" && 
+      !isUserEqual(googleUser, firebaseUser)) {
+      let credential = firebase.auth.GoogleAuthProvider.credential(
+        googleUser.getAuthResponse().id_token);
+      
+      firebase.auth().signInWithCredential(credential).catch(error => {
+        console.error(error);
+      });
+    }
+  });
+
+  auth();
 }
 
 /**
@@ -56,22 +72,10 @@ function isUserEqual(googleUser, firebaseUser) {
  * Creates an event listener that returns if the user is authenticated or not.
  * Also sets the local storage property to the user's display name/email.
  * 
- * @param {GoogleUser} googleUser Google user to check authentication state with
- * when called from signup()
  */
-function auth(googleUser = undefined) {
+function auth() {
   // Event listener that fires when the authentication state changes.
   firebase.auth().onAuthStateChanged(firebaseUser => {
-    if (typeof googleUser !== "undefined" && 
-      !isUserEqual(googleUser, firebaseUser)) {
-      let credential = firebase.auth.GoogleAuthProvider.credential(
-        googleUser.getAuthResponse().id_token);
-      
-      firebase.auth().signInWithCredential(credential).catch(error => {
-        console.error(error);
-      });
-    }
-
     // if the user was authenticated
     if (firebaseUser) {
       let name = (firebaseUser.displayName !== null) ?
@@ -83,12 +87,12 @@ function auth(googleUser = undefined) {
         uid: firebaseUser.uid,
         name: name,
       }));
-      onLoadAuth();
     }
     else {
       // remove the authentication state from local storage
       localStorage.removeItem("auth");
     }
+    onLoadAuth();
   });
 }
 
