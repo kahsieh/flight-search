@@ -6,15 +6,10 @@ admin.initializeApp({
   databaseURL: "https://five-peas-flight-search.firebaseio.com"
 });
 const express = require("express");
-const app = express();
 const bodyParser = require("body-parser");
-const CLIENT_ID = 
-  "773049605239-i20d5b73br9717fipmm8896s5cqpa4s0.apps.googleusercontent.com";
 
-const authMap = {};
-
+const app = express();
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.text());
 
 if (module === require.main) {
@@ -38,7 +33,7 @@ if (module === require.main) {
     if (typeof docIds === "undefined" || docIds.length === 0) {
       response.status(400);
       status = false;
-      response.send({ deleted: status })
+      response.send({ deleted: status });
     }
 
     getUid(idToken).then(uid => {
@@ -80,8 +75,7 @@ if (module === require.main) {
  * @param {string} idToken Auth token for user
  */
 async function getUid(idToken) {
-  const decodedToken = await admin.auth().verifyIdToken(idToken);
-  return decodedToken.uid;
+  return await admin.auth().verifyIdToken(idToken).uid;
 }
 
 module.exports = app;
