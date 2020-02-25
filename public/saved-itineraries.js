@@ -137,7 +137,7 @@ class SavedItineraries {
       <td id="flight-path${index}"></td>
       <td>
         <div id="price${index}"></div>
-        <span class="note" id="updated${index}"></span>
+        <span class="note" id="retrieved${index}"></span>
       </td>
       <td style="white-space: nowrap;">
         <button class="btn-floating waves-effect waves-light"
@@ -163,6 +163,12 @@ class SavedItineraries {
         </button>
       </td>
     `;
+    let price = -1;
+    let retrieved;
+    if (Array.isArray(row.history)) {
+      retrieved = row.history[row.history.length - 1].retrieved;
+      price = row.history[row.history.length - 1].price;
+    }
 
     // sets text content for each element to be rendered
     qs(`#name${index}`).textContent =
@@ -172,12 +178,12 @@ class SavedItineraries {
       typeof row.created.seconds === "number") ?
       this.printDate(row.created.seconds) : "NONE"}`;
     qs(`#price${index}`).textContent =
-      (typeof row.price === "number" && row.price !== -1) ?
-      this.printPrice(row.price) : "NONE";
-    qs(`#updated${index}`).textContent =
-      (typeof row.updated !== "undefined" &&
-      typeof row.updated.seconds === "number") ?
-      this.printDate(row.updated.seconds) : "NONE";
+      (typeof price === "number" && price !== -1) ?
+      this.printPrice(price) : "NONE";
+    qs(`#retrieved${index}`).textContent =
+      (typeof retrieved !== "undefined" &&
+      typeof retrieved.seconds === "number") ?
+      this.printDate(retrieved.seconds) : "NONE";
     qs(`#departure${index}`).textContent =
       `${(typeof row.dTime !== "undefined") ?
       row.dTime : "NONE"}${nbsp}(${(typeof row.flyFrom !== "undefined") ?
@@ -265,7 +271,7 @@ class SavedItineraries {
   getFlightPath(index) {
     let itinerary = this.firebaseData[index].itinerary;
     // display NONE if itinerary is not an object
-    if (typeof itinerary !== "object") {
+    if (!Array.isArray(itinerary)) {
       let div = document.createElement("div");
       div.textContent = "NONE";
       qs(`#flight-path${index}`).appendChild(div);
@@ -301,7 +307,7 @@ class SavedItineraries {
     qs(`#refresh${index}`).classList.add("disabled");
 
     let itinerary = this.firebaseData[index].itinerary;
-    if (typeof itinerary !== "object") {
+    if (!Array.isArray(itinerary)) {
       qs(`#refresh${index}`).classList.remove("disabled");
       console.error("No itinerary object was found.");
       return;
@@ -350,8 +356,10 @@ class SavedItineraries {
         .collection("itineraries")
         .doc(docId)
         .update({
-          price: price,
-          updated: currentDate,
+          history: firebase.firestore.FieldValue.arrayUnion({
+            price: price,
+            retrieved: currentDate,
+          }),
         });
     }).then(() => {
       console.log(`${this.firebaseData[index].name} was succesfully updated`);
@@ -378,7 +386,7 @@ class SavedItineraries {
       // Update the price on our front end
       qs(`#price${index}`).textContent = price !== -1 ?
         this.printPrice(price) : "NONE";
-      qs(`#updated${index}`).textContent =
+      qs(`#retrieved${index}`).textContent =
         this.printDate(currentDate.getTime() / 1000);
     });
   }
@@ -405,7 +413,7 @@ class SavedItineraries {
       data.name = "NONE";
     }
 
-    if (typeof data.itinerary !== "object") {
+    if (!Array.isArray(data.itinerary)) {
       console.error("No itinerary object was found.");
       return;
     }

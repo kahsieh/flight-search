@@ -50,8 +50,10 @@ async function saveItinerary() {
     name: qs("#itinerary-name").value || "Untitled",
     itinerary: Itinerary.getAll(),
     created: currentDate,
-    updated: currentDate,
-    price: price,
+    history: [{
+      price: price,
+      retrieved: currentDate,
+    }],
     dTime: dTime,
     aTime: aTime,
     flyFrom: flyFrom,
