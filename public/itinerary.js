@@ -5,6 +5,7 @@ itinerary.js
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
+"use strict";
 
 class Itinerary {
   static get length() { return qs("#itinerary").childElementCount; }
