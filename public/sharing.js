@@ -25,10 +25,10 @@ async function saveItinerary() {
     .catch(error => console.error(error));
   res.sort((a, b) => a.price - b.price);
   let price = -1;
-  let dTime = "NONE";
-  let aTime = "NONE";
-  let flyFrom = "NONE";
-  let flyTo = "NONE";
+  let dTime = null;
+  let aTime = null;
+  let flyFrom = null;
+  let flyTo = null;
   let currentDate = new Date();
 
   // Reformat response for single-flight itineraries.
@@ -36,7 +36,8 @@ async function saveItinerary() {
     res = res[0];
   }
 
-  if (typeof res[0] !== "undefined" && typeof res[0].route !== "undefined") {
+  if (typeof res[0] !== "undefined" && typeof res[0].route !== "undefined"
+    && res[0]["route"].length == Itinerary.length) {
     price = res[0].price;
     dTime = localeString(res[0].route[0].dTime);
     aTime = localeString(res[0].route[res[0].route.length - 1].aTime);

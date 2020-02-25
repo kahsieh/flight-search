@@ -172,26 +172,38 @@ class SavedItineraries {
 
     // sets text content for each element to be rendered
     qs(`#name${index}`).textContent =
-      (typeof row.name !== "undefined") ? row.name : "NONE";
+      (typeof row.name !== "undefined") ? row.name : "Untitled";
     qs(`#created${index}`).textContent = 
       `Created: ${(typeof row.created !== "undefined" &&
       typeof row.created.seconds === "number") ?
-      this.printDate(row.created.seconds) : "NONE"}`;
+      this.printDate(row.created.seconds) : ""}`;
     qs(`#price${index}`).textContent =
       (typeof price === "number" && price !== -1) ?
-      this.printPrice(price) : "NONE";
+      this.printPrice(price) : "No Results";
     qs(`#retrieved${index}`).textContent =
       (typeof retrieved !== "undefined" &&
       typeof retrieved.seconds === "number") ?
-      this.printDate(retrieved.seconds) : "NONE";
-    qs(`#departure${index}`).textContent =
-      `${(typeof row.dTime !== "undefined") ?
-      row.dTime : "NONE"}${nbsp}(${(typeof row.flyFrom !== "undefined") ?
-      row.flyFrom : "NONE"})`;
-    qs(`#arrival${index}`).textContent =
-      `${(typeof row.aTime !== "undefined") ?
-      row.aTime : "NONE"}${nbsp}(${(typeof row.flyTo !== "undefined") ?
-      row.flyTo : "NONE"})`;
+      this.printDate(retrieved.seconds) : "";
+    if ((typeof row.dTime === "undefined" || row.dTime === null) &&
+      typeof row.flyFrom === "undefined" || row.flyFrom === null) {
+      qs(`#departure${index}`).textContent = "No Results";
+    }
+    else {
+      qs(`#departure${index}`).textContent =
+        `${(typeof row.dTime !== "undefined") ?
+        row.dTime : "None"}${nbsp}(${(typeof row.flyFrom !== "undefined") ?
+        row.flyFrom : "None"})`;
+    }
+    if ((typeof row.aTime === "undefined" || row.aTime === null) &&
+      typeof row.flyTo === "undefined" || row.flyTo === null) {
+        qs(`#arrival${index}`).textContent = "No Results";
+    }
+    else {    
+      qs(`#arrival${index}`).textContent =
+        `${(typeof row.aTime !== "undefined") ?
+        row.aTime : "None"}${nbsp}(${(typeof row.flyTo !== "undefined") ?
+        row.flyTo : "None"})`;
+    }
     this.getFlightPath(index);
 
     // add onclick function for the row
@@ -214,6 +226,7 @@ class SavedItineraries {
     }
     qs(`#history${index}`).onclick = event => {
       event.stopPropagation();
+      this.showHistory(index, chartRow);
     }
   }
   
@@ -270,10 +283,10 @@ class SavedItineraries {
    */
   getFlightPath(index) {
     let itinerary = this.firebaseData[index].itinerary;
-    // display NONE if itinerary is not an object
+    // display No Results if itinerary is not an object
     if (!Array.isArray(itinerary)) {
       let div = document.createElement("div");
-      div.textContent = "NONE";
+      div.textContent = "No Results";
       qs(`#flight-path${index}`).appendChild(div);
       return;
     }
@@ -282,9 +295,9 @@ class SavedItineraries {
       let div = document.createElement("div");
 
       let src = (typeof flight.fly_from !== "undefined") ?
-        flight.fly_from : "NONE";
+        flight.fly_from : "Any";
       let dest = (typeof flight.fly_to !== "undefined") ?
-        flight.fly_to : "NONE";
+        flight.fly_to : "Any";
 
       div.textContent = `${src}${nbsp}→${nbsp}${dest}`;
 
@@ -336,7 +349,8 @@ class SavedItineraries {
     res.sort((a, b) => a.price - b.price);
     let price = -1;
 
-    if (typeof res[0] !== "undefined" && typeof res[0].price !== "undefined") {
+    if (typeof res[0] !== "undefined" && typeof res[0].price !== "undefined"
+      && res[0]["route"].length === itinerary.length) {
       price = res[0].price;
     }
 
@@ -385,7 +399,7 @@ class SavedItineraries {
 
       // Update the price on our front end
       qs(`#price${index}`).textContent = price !== -1 ?
-        this.printPrice(price) : "NONE";
+        this.printPrice(price) : "No results";
       qs(`#retrieved${index}`).textContent =
         this.printDate(currentDate.getTime() / 1000);
     });
@@ -410,7 +424,7 @@ class SavedItineraries {
   shareLink(index) {
     let data = this.firebaseData[index];
     if (typeof data.name === "undefined") {
-      data.name = "NONE";
+      data.name = "Untitled";
     }
 
     if (!Array.isArray(data.itinerary)) {

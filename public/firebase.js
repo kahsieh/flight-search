@@ -20,6 +20,9 @@ addEventListener("load", () => {
   }
 });
 
+/**
+ * Initializes the firebase app for use.
+ */
 function initFirebase() {
   firebase.initializeApp({
     apiKey: "AIzaSyC26YKW4qgCCQhJSN_7ZzXsm_n5d_wx2j0",
