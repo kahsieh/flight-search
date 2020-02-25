@@ -19,7 +19,7 @@ class Itinerary {
 
     // populate default values
     Object.entries(default_values).forEach(([key, value]) => {
-      if (typeof cells[key] === 'undefined') {
+      if (typeof cells[key] === "undefined") {
         cells[key] = value;
       }
     });
@@ -237,8 +237,8 @@ class Itinerary {
    * generate select options for the itinerary based on value given. If value is invalid, uses value found in default_values.
    * 
    * @param {Object} options array of possible options. the following formats are acceptable:
-   *    ['value1', 'value2', ...]                                         creates an option with value and name set to string
-   *    [{ value: 'value1'}, { value: 'value2'}, ...]                     creates an option with value set to value1, name set to value1
+   *    ["value1", "value2", ...]                                         creates an option with value and name set to string
+   *    [{ value: "value1"}, { value: "value2"}, ...]                     creates an option with value set to value1, name set to value1
    *    [{ name: name1, value: value1 }, { name: name2, value: value2 }]  creates an option with name set to name1, value set to value1
    * @param {string} value string containing default values to fill the select with
    *    can either be a string, or a comma separated string if select is multiple
@@ -248,18 +248,18 @@ class Itinerary {
    * @return {string} HTML string that contains all generated options with name and values
    */
   static generateSelectOptions(options, value, field, multiple = false) {
-    if (typeof value === 'undefined') {
-      value = '';
+    if (typeof value === "undefined") {
+      value = "";
     }
     // if select is multiple, create an array from the string.
     // otherwise, we just encapsulate value into an array (in case the string has a comma and we want to keep it as one)
-    value = (multiple ? value.split(',') : [value]);
+    value = (multiple ? value.split(",") : [value]);
     // list of all possible values the string can be
     let possibleValues = [];
     options = options.map(option => {
       let obj = option;
       // if the options specified is just a string, we create an object with value set to that string
-      if (typeof option === 'string') {
+      if (typeof option === "string") {
         obj = {value: option};
       }
       
@@ -276,13 +276,13 @@ class Itinerary {
     });
 
     if (defaultValue) {
-      // if there is no default value found in default_values, value = ''
-      if (typeof default_values[field] === 'undefined') {
-        value = '';
+      // if there is no default value found in default_values, value = ""
+      if (typeof default_values[field] === "undefined") {
+        value = "";
       }
       else {
         // otherwise, we do the same as before and split it up/put it in an array
-        value = (multiple ? default_values[field].split(',') : [default_values[field]]);
+        value = (multiple ? default_values[field].split(",") : [default_values[field]]);
       }
     }
 
@@ -293,8 +293,8 @@ class Itinerary {
         selected = true;
       }
 
-      return `<option value="${option.value}" ${selected ? "selected" : ""} ${option.value === "" ? "disabled" : ""}>${typeof option.name !== 'undefined' ? option.name : option.value}</option>`;
-    }).join('');
+      return `<option value="${option.value}" ${selected ? "selected" : ""} ${option.value === "" ? "disabled" : ""}>${typeof option.name !== "undefined" ? option.name : option.value}</option>`;
+    }).join("");
   }
 
   /**
@@ -362,16 +362,16 @@ class Itinerary {
       let value;
       for (let j = 0; j < required_fields.length; j++) {
         value = this.get(i, required_fields[j]);
-        if (typeof value !== 'undefined') {
-          if (includeDefaults || (value !== '' && default_values[required_fields[j]] !== value)) {
+        if (typeof value !== "undefined") {
+          if (includeDefaults || (value !== "" && default_values[required_fields[j]] !== value)) {
             obj[required_fields[j]] = value;
           }
         }
       }
       for (let j = 0; j < optional_fields.length; j++) {
         value = this.get(i, optional_fields[j]);
-        if (typeof value !== 'undefined') {
-          if (includeDefaults || (value !== '' && default_values[optional_fields[j]] !== value)) {
+        if (typeof value !== "undefined") {
+          if (includeDefaults || (value !== "" && default_values[optional_fields[j]] !== value)) {
             obj[optional_fields[j]] = value;
           }
         }
@@ -390,22 +390,22 @@ class Itinerary {
   static selectFilters(cells) {
     // some properties do not have entries in the table, but are related to another entry and may not be default
     let filterMap = {
-      'fly_from': undefined,
-      'fly_to': undefined,
-      'date_from': undefined,
-      'select_airlines_exclude': 'select_airlines',
-      'adult_hand_bag': 'adult_hold_bag',
-      'mix_with_cabins': 'selected_cabins',
-      'price_to': 'price_from',
-      'select_stop_airport_exclude': 'select_stop_airport',
-      'stopover_to': 'stopover_from',
-      'dtime_to': 'dtime_from',
-      'atime_to': 'atime_from',
+      "fly_from": undefined,
+      "fly_to": undefined,
+      "date_from": undefined,
+      "select_airlines_exclude": "select_airlines",
+      "adult_hand_bag": "adult_hold_bag",
+      "mix_with_cabins": "selected_cabins",
+      "price_to": "price_from",
+      "select_stop_airport_exclude": "select_stop_airport",
+      "stopover_to": "stopover_from",
+      "dtime_to": "dtime_from",
+      "atime_to": "atime_from",
     }
 
     Object.entries(cells).forEach(([key, value]) => {
-      if (typeof value !== 'undefined' && default_values[key] !== value) {
-        let filterKey = ((typeof filterMap[key] !== 'undefined') ? filterMap[key] : key);
+      if (typeof value !== "undefined" && default_values[key] !== value) {
+        let filterKey = ((typeof filterMap[key] !== "undefined") ? filterMap[key] : key);
         let filter = qs(`#filters option[value=${filterKey}]`);
         if (filter !== null) {
           filter.selected = true;
@@ -431,7 +431,7 @@ class Itinerary {
     }
     M.FormSelect.init(qsa("#itinerary select"), {});
  
-    var autocomplete_select_airlines = document.querySelectorAll('.autocomplete_select_airlines');
+    var autocomplete_select_airlines = document.querySelectorAll(".autocomplete_select_airlines");
     M.Autocomplete.init(autocomplete_select_airlines, {
       data: airlines, 
       onAutocomplete: () => {
@@ -441,7 +441,7 @@ class Itinerary {
       limit: 10
     });
 
-    var autocomplete_airport = document.querySelectorAll('.autocomplete_airport');
+    var autocomplete_airport = document.querySelectorAll(".autocomplete_airport");
     M.Autocomplete.init(autocomplete_airport, {
       data: airports, 
       onAutocomplete: () => {

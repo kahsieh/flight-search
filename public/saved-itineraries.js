@@ -20,11 +20,12 @@ addEventListener("load", () => {
  */
 addEventListener("unload", () => {
   if (Itineraries) {
-    navigator.sendBeacon('/api/delete-itinerary',
-    JSON.stringify({
-      idToken: Itineraries.idToken,
-      deletedProcessing: Itineraries.deletedProcessing,
-    }));
+    navigator.sendBeacon("/api/delete-itinerary",
+      JSON.stringify({
+        idToken: Itineraries.idToken,
+        deletedProcessing: Itineraries.deletedProcessing,
+      })
+    );
   }
 })
 
@@ -485,7 +486,7 @@ class SavedItineraries {
    * Updates all the row numbers if a row was deleted.
    */
   updateRowNumbers() {
-    qsa('tr:not([hidden]).clickable .row-number').forEach((node, index) => {
+    qsa("tr:not([hidden]).clickable .row-number").forEach((node, index) => {
       node.textContent = `${index + 1}${nbsp}|${nbsp}`;
     });
   }
