@@ -326,35 +326,26 @@ class FlightTable {
   }
 
   /**
-   * Removes the tab and table, then re-initializes tabs.
+   * Removes a tab and table. Clears all other tables.
    */
   remove() {
-    // Save active tab (or previous tab, if this tab is active).
-    let active_tab = -1;
-    for (const [i, ft] of this.constructor.tables.entries()) {
-      if (ft._tab.firstElementChild.classList.contains("active")) {
-        active_tab = i;
-        break;
-      }
-    }
-    if (active_tab == this._i) {
-      active_tab = this._i - 1;
+    // Remove old DOM elements.
+    const n = this.constructor.tables.length - 1;
+    for (let ft of this.constructor.tables) {
+      ft._tab.remove();
+      ft._table.remove();
     }
 
-    // Destroy old instance and remove any indicators.
-    if (this.constructor.tabs_instance) {
-      this.constructor.tabs_instance.destroy();
+    // Clear static fields.
+    this.constructor.res = [];
+    this.constructor.single = null;
+    this.constructor.tables = [];
+
+    // Create new DOM elements.
+    for (let i = 0; i < n; i++) {
+      new FlightTable();
     }
-    qsa("#tabs .indicator").forEach(e => e.remove());
-
-    // Update fields.
-    this._tab.remove();
-    this._table.remove();
-
-    // Update static fields.
-    this.constructor.tabs_instance = M.Tabs.init(qs("#tabs"), {});
-    this.constructor.tabs_instance.select(`table${active_tab + 1}`);
-    this.constructor.tables.splice(this._i, 1);
+    this.constructor.displayResults();
   }
 
   /**
@@ -428,7 +419,7 @@ class FlightTable {
 }
 
 // Cached response from server.
-FlightTable.res = null;
+FlightTable.res = [];
 FlightTable.single = null;
 
 // State of tables.
