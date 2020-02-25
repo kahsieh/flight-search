@@ -125,8 +125,17 @@ function onLoadAuth() {
       }
     }
   }
-  else {
+  else { // user is not authenticated
+    qs("#greeting").classList.add("hide");
+
     switch(window.location.pathname) {
+      case "/": {
+        qs("#sign-in").classList.remove("hide");
+        qs("#saved-itineraries").classList.add("hide");
+        qs("#sign-out").classList.add("hide");
+        qs("#save").classList.add("disabled");
+        break;
+      }
       case "/saved-itineraries.html": {
         qs("#itineraries-unauthenticated").classList.remove("hide");
         break;
@@ -163,7 +172,7 @@ function signout() {
     return firebase.auth().signOut().then(() => {
       console.log(`${user.name} signed out successfully.`);
       localStorage.removeItem("auth");
-      location.reload();
+      onLoadAuth();
     });
   }).catch(error => {
     console.error(error);

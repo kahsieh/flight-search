@@ -10,6 +10,12 @@ All Rights Reserved.
  * Saves the itinerary. Uploads the data to Firebase.
  */
 async function saveItinerary() {
+  let user = checkAuth();
+
+  if (!user || !user.uid) {
+    console.error("User is not authenticated.");
+    return;
+  }
   qs("#save").classList.add("disabled");
 
   // Prepare details, including price.
@@ -38,35 +44,32 @@ async function saveItinerary() {
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
   }
 
-  let user = checkAuth();
-
-  if (user.uid) {
-    firebase.firestore().collection("itineraries").add({
-      uid: user.uid,
-      name: qs("#itinerary-name").value || "Untitled",
-      itinerary: Itinerary.getAll(),
-      created: currentDate,
-      updated: currentDate,
-      price: price,
-      dTime: dTime,
-      aTime: aTime,
-      flyFrom: flyFrom,
-      flyTo: flyTo,
-    }).then(docRef => {
-      console.log(`Document written by ${user.name} with ID: ${docRef.id}`);
-    }).catch(error => {
-      console.error("Error adding document:", error);
-    }).then(() => {
-      qs("#save").classList.remove("disabled");
-
-      // Show that the itinerary was saved.
-      M.toast({
-        html: `<i class="material-icons left">star</i>
-          <div>Itinerary saved!</div>`,
-        displayLength: 1500
-      });
+  
+  firebase.firestore().collection("itineraries").add({
+    uid: user.uid,
+    name: qs("#itinerary-name").value || "Untitled",
+    itinerary: Itinerary.getAll(),
+    created: currentDate,
+    updated: currentDate,
+    price: price,
+    dTime: dTime,
+    aTime: aTime,
+    flyFrom: flyFrom,
+    flyTo: flyTo,
+  }).then(docRef => {
+    console.log(`Document written by ${user.name} with ID: ${docRef.id}`);
+  }).then(() => {
+    qs("#save").classList.remove("disabled");
+    
+    // Show that the itinerary was saved.
+    M.toast({
+      html: `<i class="material-icons left">star</i>
+      <div>Itinerary saved!</div>`,
+      displayLength: 1500
     });
-  }
+  }).catch(error => {
+    console.error("Error adding document:", error);
+  });
 }
 
 /**

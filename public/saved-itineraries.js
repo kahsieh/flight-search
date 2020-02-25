@@ -42,6 +42,7 @@ function displayItineraries() {
   let user = checkAuth();
   if (!user || !user.uid) {
     qs("#itineraries-unauthenticated").classList.remove("hide");
+    console.error("User is not authenticated.");
     return;
   }
 
@@ -295,6 +296,7 @@ class SavedItineraries {
 
     if (!user || !user.uid) {
       console.error("User is not authenticated.");
+      return;
     }
     qs(`#refresh${index}`).classList.add("disabled");
 
@@ -457,6 +459,7 @@ class SavedItineraries {
 
     if (!user || !user.uid) {
       console.error("User is not authenticated.");
+      return;
     }
     qs(`#delete${index}`).classList.remove("disabled");
 
