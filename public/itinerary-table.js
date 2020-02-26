@@ -1,13 +1,13 @@
 /*
 Five Peas Flight Search
-itinerary.js
+itinerary-table.js
 
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
 "use strict";
 
-class Itinerary {
+class ItineraryTable {
   static get length() { return qs("#itinerary").childElementCount; }
 
   /**
@@ -34,7 +34,7 @@ class Itinerary {
     row.style.border = 0;
     row.innerHTML = `
       <td style="padding-right: 20px; white-space: nowrap;">
-        <a class="red-text" onclick="Itinerary.removeFlight()">×</a>
+        <a class="red-text" onclick="ItineraryTable.removeFlight()">×</a>
         Flight <span class="flight-index">${this.length}</span>
       </td>
       <td><div class="row"><div class="input-field col s12">

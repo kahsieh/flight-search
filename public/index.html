@@ -22,7 +22,7 @@ All Rights Reserved.
   <script src="globals.js"></script>
   <script src="firebase.js"></script>
   <script src="auth.js"></script>
-  <script src="itinerary.js"></script>
+  <script src="itinerary-table.js"></script>
   <script src="sharing.js"></script>
   <script src="tables.js"></script>
   <script src="flight-search.js"></script>
@@ -65,7 +65,7 @@ All Rights Reserved.
         <label class="active">Itinerary name</label>
       </div>
       <div class="col s12 m6 input-field">
-        <select id="filters" onchange="Itinerary.updateFilters()" multiple>
+        <select id="filters" onchange="ItineraryTable.updateFilters()" multiple>
           <optgroup label="Flight">
             <option value="select_airlines">Airline</option>
             <option value="adult_hold_bag">Bags</option>
@@ -108,7 +108,7 @@ All Rights Reserved.
     </button>
     <button id="remove-flight"
             class="btn-floating waves-effect waves-light"
-            onclick="Itinerary.removeFlight()">
+            onclick="ItineraryTable.removeFlight()">
       <i class="material-icons left">remove</i>
     </button>
     &emsp;

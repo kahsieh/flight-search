@@ -38,7 +38,7 @@ async function saveItinerary() {
   }
 
   if (typeof res[0] !== "undefined" && typeof res[0].route !== "undefined"
-    && res[0]["route"].length == Itinerary.length) {
+    && res[0]["route"].length == ItineraryTable.length) {
     price = res[0].price;
     dTime = localeString(res[0].route[0].dTime);
     aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
@@ -50,7 +50,7 @@ async function saveItinerary() {
   firebase.firestore().collection("itineraries").add({
     uid: user.uid,
     name: qs("#itinerary-name").value || "Untitled",
-    itinerary: Itinerary.getAll(),
+    itinerary: ItineraryTable.getAll(),
     created: currentDate,
     history: [{
       price: price,
@@ -86,7 +86,7 @@ async function saveItinerary() {
  *   actions, with prepended "#".
  */
 function shareItinerary(name = qs("#itinerary-name").value,
-                        itinerary = Itinerary.getAll(),
+                        itinerary = ItineraryTable.getAll(),
                         button_id = "#share",
                         hidden_input_id = "#share-link") {
   qs(button_id).classList.add("disabled");
@@ -129,7 +129,7 @@ function shareItinerary(name = qs("#itinerary-name").value,
 function loadItinerary(name, encoded) {
   qs("#itinerary-name").value = name;
   for (let flight of decodeItinerary(encoded)) {
-    Itinerary.addFlight(flight);
+    ItineraryTable.addFlight(flight);
   }
 }
 

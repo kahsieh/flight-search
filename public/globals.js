@@ -25,7 +25,6 @@ const optional_fields = [
   "adult_hand_bag",
   "selected_cabins",
   "mix_with_cabins",
-  "adults",
   "price_from",
   "price_to",
   "select_stop_airport",
@@ -40,8 +39,6 @@ const optional_fields = [
   "atime_from",
   "atime_to",
   "max_fly_duration",
-  "nights_in_dst_from",
-  "nights_in_dst_to",
 ];
 
 // list of default values (that are not empty strings)

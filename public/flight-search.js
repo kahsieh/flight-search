@@ -29,32 +29,32 @@ addEventListener("load", () => {
   else {
     let date = new Date();
     date.setDate(date.getDate() + 14);
-    Itinerary.addFlight({
+    ItineraryTable.addFlight({
       "date_from": date.toISOString().substring(0, 10)
     });
     date.setDate(date.getDate() + 7);
-    Itinerary.addFlight({
+    ItineraryTable.addFlight({
       "date_from": date.toISOString().substring(0, 10)
     });
-    // Itinerary.addFlight({
+    // ItineraryTable.addFlight({
     //   "fly_from": "LAX",
     //   "max_stopovers": 1,
     //   "fly_to": "KHH",
     //   "date_from": "2020-05-15",
     // });
-    // Itinerary.addFlight({
+    // ItineraryTable.addFlight({
     //   "fly_from": "KHH",
     //   "max_stopovers": 0,
     //   "fly_to": "NRT|KIX",
     //   "date_from": "2020-05-22",
     // });
-    // Itinerary.addFlight({
+    // ItineraryTable.addFlight({
     //   "fly_from": "KIX|NRT",
     //   "max_stopovers": 0,
     //   "fly_to": "KHH",
     //   "date_from": "2020-05-29",
     // });
-    // Itinerary.addFlight({
+    // ItineraryTable.addFlight({
     //   "fly_from": "KHH",
     //   "max_stopovers": 1,
     //   "fly_to": "LAX",
@@ -104,7 +104,7 @@ async function search() {
 
     if (single ||
         res.length > 0 && typeof res[0]["route"] !== "undefined" &&
-        res[0]["route"].length == Itinerary.length) {
+        res[0]["route"].length == ItineraryTable.length) {
       // Display message.
       qsa(".results-message").forEach(el => el.classList.remove("hide"));  
 
@@ -136,7 +136,7 @@ async function search() {
  *
  * @return {Array} Array of Promises.
  */
-function prepareFetches(itineraries = Itinerary.getAll(true)) {
+function prepareFetches(itineraries = ItineraryTable.getAll(true)) {
   // num_airports is dynamically updated when we discover a pipe-separated
   // airport list.
   let num_airports = 1;
