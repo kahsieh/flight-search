@@ -59,6 +59,16 @@ class Itinerary {
   }
 
   /**
+   * Gets a sharable URL for the itinerary.
+   * 
+   * @param {string} name Name for this Itinerary.
+   */
+  getLink(name) {
+    const i = this.encoded();
+    return `${window.location.origin.split("?")[0]}?n=${name}&i=${i}`;
+  }
+
+  /**
    * Decodes a base64-encoded matrix representation into Object form.
    *
    * @param {string} str Matrix representation in base64.

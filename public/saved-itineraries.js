@@ -443,7 +443,7 @@ class SavedItineraries {
   loadLink(index) {
     let data = this.firebaseData[index];
 
-    window.location = getShareableLink(data.name, data.itinerary);
+    window.location = new Itinerary(data.itinerary).getLink(data.name);
   }
 
   /**

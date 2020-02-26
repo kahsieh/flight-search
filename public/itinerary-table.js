@@ -11,6 +11,25 @@ class ItineraryTable {
   static get length() { return qs("#itinerary").childElementCount; }
 
   /**
+   * Loads the itinerary from the current URL.
+   *
+   * @return {boolean} Whether the load was successful or not.
+   */
+  static loadFromURL() {
+    let urlParams = {};
+    window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+      (_, k, v) => urlParams[k] = decodeURIComponent(v));
+    if ("n" in urlParams && "i" in urlParams) {
+      qs("#itinerary-name").value = urlParams["n"];
+      for (let flight of new Itinerary(urlParams["i"]).raw()) {
+        ItineraryTable.addFlight(flight);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Adds a flight to the itinerary.
    *
    * @param {object} cells Optional. Values to pre-populate the row with.

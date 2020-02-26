@@ -16,17 +16,7 @@ addEventListener("load", () => {
     return;
   }
 
-  // Decode URL parameters.
-  let url_params = {};
-  window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,
-    (_, key, value) => url_params[key] = decodeURIComponent(value));
-
-  // Load the itinerary if one is specified via URL parameters, otherwise load
-  // a default itinerary.
-  if ("n" in url_params && "i" in url_params) {
-    loadItinerary(url_params["n"], url_params["i"]);
-  }
-  else {
+  if (!ItineraryTable.loadFromURL()) {
     let date = new Date();
     date.setDate(date.getDate() + 14);
     ItineraryTable.addFlight({
@@ -195,4 +185,48 @@ function prepareFetches(itineraries = ItineraryTable.getAll(true)) {
     }));
   }
   return promises;
+}
+
+/**
+ * Shares itinerary by copying URL to clipboard.
+ * 
+ * @param {string} name Name of itinerary.
+ * @param {Object} itinerary Itinerary to be shared.
+ * @param {string} button DOM element of share button.
+ * @param {string} hiddenInput DOM element of input to use with clipboard.
+ *   actions, with prepended "#".
+ */
+function shareItinerary(name = qs("#itinerary-name").value,
+                        itinerary = ItineraryTable.getAll(),
+                        button = qs("#share"),
+                        hiddenInput = qs("#share-link")) {
+  button.classList.add("disabled");
+
+  // Copy URL to clipboard if possible and set the message.
+  let url = new Itinerary(itinerary).getLink(name);
+  let icon, message, color;
+  if (url.length > 2048) {
+    icon = "error";
+    message = "Error: Itinerary is too long to share.";
+    color = "red";
+  }
+  else {
+    icon = "content_copy";
+    message = "Link copied!";
+    color = "";
+
+    hiddenInput.value = url;
+    hiddenInput.type = "text";
+    hiddenInput.select();
+    document.execCommand("copy");
+    hiddenInput.type = "hidden";
+  }
+
+  // Display message.
+  M.toast({
+    html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
+    displayLength: 1500,
+    classes: color,
+  });
+  button.classList.remove("disabled");
 }
