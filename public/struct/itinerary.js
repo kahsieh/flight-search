@@ -45,7 +45,7 @@ class Itinerary {
    * 
    * @return {!Set<string>} Set of fields with non-default values.
    */
-  nonDefaultFields() {
+  usedFields() {
     let fields = new Set();
     for (const flight of this._raw) {
       for (const k in flight) {
@@ -81,7 +81,7 @@ class Itinerary {
    * 
    * @param {string} name Name for this Itinerary.
    */
-  getLink(name) {
+  link(name) {
     return `${location.origin.split("?")[0]}?n=${name}&i=${this.encoded()}`;
   }
 

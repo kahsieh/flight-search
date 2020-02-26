@@ -443,7 +443,7 @@ class SavedItineraries {
   loadLink(index) {
     let data = this.firebaseData[index];
 
-    window.location = new Itinerary(data.itinerary).getLink(data.name);
+    window.location = new Itinerary(data.itinerary).link(data.name);
   }
 
   /**

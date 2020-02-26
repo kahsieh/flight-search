@@ -68,7 +68,7 @@ async function saveItinerary() {
   }
 
   if (typeof res[0] !== "undefined" && typeof res[0].route !== "undefined"
-    && res[0]["route"].length == ItineraryTable.length) {
+    && res[0]["route"].length == itable.length) {
     price = res[0].price;
     dTime = localeString(res[0].route[0].dTime);
     aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
@@ -80,7 +80,7 @@ async function saveItinerary() {
   firebase.firestore().collection("itineraries").add({
     uid: user.uid,
     name: qs("#itinerary-name").value || "Untitled",
-    itinerary: ItineraryTable.getAll(),
+    itinerary: itable.getAll(),
     created: currentDate,
     history: [{
       price: price,

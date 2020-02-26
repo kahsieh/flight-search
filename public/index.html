@@ -65,7 +65,7 @@ All Rights Reserved.
         <label class="active">Itinerary name</label>
       </div>
       <div class="col s12 m6 input-field">
-        <select id="filters" onchange="ItineraryTable.updateFilters()" multiple>
+        <select id="filters" onchange="itable.updateFilters()" multiple>
           <optgroup label="Flight">
             <option value="select_airlines">Airline</option>
             <option value="adult_hold_bag">Bags</option>
@@ -103,12 +103,12 @@ All Rights Reserved.
     <!-- Buttons -->
     <button id="add-flight"
             class="btn-floating waves-effect waves-light"
-            onclick="Itinerary.addFlight()">
+            onclick="itable.addFlight()">
       <i class="material-icons left">add</i>
     </button>
     <button id="remove-flight"
             class="btn-floating waves-effect waves-light"
-            onclick="ItineraryTable.removeFlight()">
+            onclick="itable.removeFlight()">
       <i class="material-icons left">remove</i>
     </button>
     &emsp;

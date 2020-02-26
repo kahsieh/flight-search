@@ -16,12 +16,17 @@ addEventListener("load", () => {
     return;
   }
 
-  if (!ItineraryTable.loadFromURL()) {
+  itable = new ItineraryTable(qs("#itinerary-name"),
+                              qs("#filters"),
+                              qs("#itinerary"),
+                              qs("#remove-flight"));
+
+  if (!itable.loadFromURL()) {
     let date1 = new Date();
     date1.setDate(date1.getDate() + 14);
     let date2 = new Date();
     date2.setDate(date1.getDate() + 21);
-    ItineraryTable.loadFromItinerary(new Itinerary([
+    itable.loadFromItinerary(new Itinerary([
       { "date_from": date1.toISOString().substring(0, 10) },
       { "date_from": date2.toISOString().substring(0, 10) },
     ]));
@@ -69,7 +74,7 @@ async function search() {
 
     if (single ||
         res.length > 0 && typeof res[0]["route"] !== "undefined" &&
-        res[0]["route"].length == ItineraryTable.length) {
+        res[0]["route"].length == itable.length) {
       // Display message.
       qsa(".results-message").forEach(el => el.classList.remove("hide"));  
 
@@ -101,7 +106,7 @@ async function search() {
  *
  * @return {Array} Array of Promises.
  */
-function prepareFetches(itineraries = ItineraryTable.getAll(true)) {
+function prepareFetches(itineraries = itable.getAll(true)) {
   // num_airports is dynamically updated when we discover a pipe-separated
   // airport list.
   let num_airports = 1;
@@ -172,13 +177,13 @@ function prepareFetches(itineraries = ItineraryTable.getAll(true)) {
  *   actions, with prepended "#".
  */
 function shareItinerary(name = qs("#itinerary-name").value,
-                        itinerary = ItineraryTable.getAll(),
+                        itinerary = itable.getAll(),
                         button = qs("#share"),
                         hiddenInput = qs("#share-link")) {
   button.classList.add("disabled");
 
   // Copy URL to clipboard if possible and set the message.
-  let url = new Itinerary(itinerary).getLink(name);
+  let url = new Itinerary(itinerary).link(name);
   let icon, message, color;
   if (url.length > 2048) {
     icon = "error";
