@@ -141,7 +141,7 @@ class SavedItineraries {
         <span class="retrieved note"></span>
       </td>
       <td style="white-space: nowrap;">
-        <button class="refresh btn-floating waves-effect waves-light">
+        <button class="update btn-floating waves-effect waves-light">
           <i class="material-icons">refresh</i>
         </button>
         <button class="share btn-floating waves-effect waves-light">
@@ -161,48 +161,8 @@ class SavedItineraries {
         </button>
       </td>
     `;
-    let price = -1;
-    let retrieved;
-    if (Array.isArray(row.history)) {
-      retrieved = row.history[row.history.length - 1].retrieved;
-      price = row.history[row.history.length - 1].price;
-    }
-
-    // sets text content for each element to be rendered
-    qsa(".name")[index].textContent =
-      (typeof row.name !== "undefined") ? row.name : "Untitled";
-    qsa(".created")[index].textContent = 
-      `Created: ${(typeof row.created !== "undefined" &&
-      typeof row.created.seconds === "number") ?
-      this.printDate(row.created.seconds) : ""}`;
-    qsa(".price")[index].textContent =
-      (typeof price === "number" && price !== -1) ?
-      this.printPrice(price) : "No results";
-    qsa(".retrieved")[index].textContent =
-      (typeof retrieved !== "undefined" &&
-      typeof retrieved.seconds === "number") ?
-      this.printDate(retrieved.seconds) : "";
-    if ((typeof row.dTime === "undefined" || row.dTime === null) &&
-      typeof row.flyFrom === "undefined" || row.flyFrom === null) {
-      qsa(".departure")[index].textContent = "No results";
-    }
-    else {
-      qsa(".departure")[index].textContent =
-        `${(typeof row.dTime !== "undefined") ?
-        row.dTime : "None"}${nbsp}(${(typeof row.flyFrom !== "undefined") ?
-        row.flyFrom : "None"})`;
-    }
-    if ((typeof row.aTime === "undefined" || row.aTime === null) &&
-      typeof row.flyTo === "undefined" || row.flyTo === null) {
-        qsa(".arrival")[index].textContent = "No results";
-    }
-    else {    
-      qsa(".arrival")[index].textContent =
-        `${(typeof row.aTime !== "undefined") ?
-        row.aTime : "None"}${nbsp}(${(typeof row.flyTo !== "undefined") ?
-        row.flyTo : "None"})`;
-    }
-    this.getFlightPath(index);
+    
+    this.updateRow(index);
 
     // add onclick function for the row
     itineraryRow.onclick = () => {
@@ -210,9 +170,9 @@ class SavedItineraries {
     }
 
     // add onclick functions for each button
-    qsa(".refresh")[index].onclick = event => {
+    qsa(".update")[index].onclick = event => {
       event.stopPropagation();
-      this.refreshPrice(index);
+      this.updateItinerary(index);
     }
     qsa(".share")[index].onclick = event => {
       event.stopPropagation();
@@ -283,18 +243,19 @@ class SavedItineraries {
     let itinerary = this.firebaseData[index].itinerary;
     // display No results if itinerary is not an object
     if (!Array.isArray(itinerary)) {
-      let div = document.createElement("div");
-      div.textContent = "No results";
-      qsa(".flight-path")[index].appendChild(div);
+      qsa(".flight-path")[index].textContent = "No results";
       return;
     }
+
+    // clear content of flight path before we proceed
+    qsa(".flight-path")[index].textContent = "";
 
     itinerary.forEach(flight => {
       let div = document.createElement("div");
 
-      let src = (typeof flight.fly_from !== "undefined") ?
+      let src = (typeof flight.fly_from !== "undefined" && flight.fly_from) ?
         flight.fly_from : "Any";
-      let dest = (typeof flight.fly_to !== "undefined") ?
+      let dest = (typeof flight.fly_to !== "undefined" && flight.fly_to) ?
         flight.fly_to : "Any";
 
       div.textContent = `${src}${nbsp}→${nbsp}${dest}`;
@@ -302,24 +263,75 @@ class SavedItineraries {
       qsa(".flight-path")[index].appendChild(div);
     });
   }
+
+  /**
+   * Populates given fields in the saved itineraries table.
+   * 
+   * @param {number} index row number to update.
+   * @param {object} update object to update fields, otherwise based on index.
+   */
+  updateRow(index, update = this.firebaseData[index]) {
+    let price = -1;
+    let retrieved;
+    if (Array.isArray(update.history) && update.history.length > 0) {
+      retrieved = update.history[update.history.length - 1].retrieved;
+      price = update.history[update.history.length - 1].price;
+    }
+
+    // sets text content for each element to be rendered
+    qsa(".name")[index].textContent =
+      (typeof update.name !== "undefined") ? update.name : "Untitled";
+    qsa(".created")[index].textContent = 
+      `Created: ${(typeof update.created !== "undefined" &&
+      typeof update.created.seconds === "number") ?
+      this.printDate(update.created.seconds) : ""}`;
+    qsa(".price")[index].textContent =
+      (typeof price === "number" && price !== -1) ?
+      this.printPrice(price) : "No results";
+    qsa(".retrieved")[index].textContent =
+      (typeof retrieved !== "undefined" &&
+      typeof retrieved.seconds === "number") ?
+      this.printDate(retrieved.seconds) : "";
+    if ((typeof update.dTime === "undefined" || update.dTime === null) &&
+      typeof update.flyFrom === "undefined" || update.flyFrom === null) {
+      qsa(".departure")[index].textContent = "No results";
+    }
+    else {
+      qsa(".departure")[index].textContent =
+        `${(typeof update.dTime !== "undefined") ?
+        update.dTime : "None"}${nbsp}(${(typeof update.flyFrom !== "undefined")
+        ? update.flyFrom : "None"})`;
+    }
+    if ((typeof update.aTime === "undefined" || update.aTime === null) &&
+      typeof update.flyTo === "undefined" || update.flyTo === null) {
+        qsa(".arrival")[index].textContent = "No results";
+    }
+    else {    
+      qsa(".arrival")[index].textContent =
+        `${(typeof update.aTime !== "undefined") ?
+        update.aTime : "None"}${nbsp}(${(typeof update.flyTo !== "undefined") ?
+        update.flyTo : "None"})`;
+    }
+    this.getFlightPath(index);
+  }
   
   /**
-   * Refreshes the price of the given itinerary in the row
+   * Updates the given itinerary in the row
    * 
    * @param {number} index index of row
    */
-  async refreshPrice(index) {
+  async updateItinerary(index) {
     let user = checkAuth();
 
     if (!user || !user.uid) {
       console.error("User is not authenticated.");
       return;
     }
-    qsa(".refresh")[index].classList.add("disabled");
+    qsa(".update")[index].classList.add("disabled");
 
     let itinerary = this.firebaseData[index].itinerary;
     if (!Array.isArray(itinerary)) {
-      qsa(".refresh")[index].classList.remove("disabled");
+      qsa(".update")[index].classList.remove("disabled");
       console.error("No itinerary object was found.");
       return;
     }
@@ -346,10 +358,18 @@ class SavedItineraries {
       .catch(error => console.error(error));
     res.sort((a, b) => a.price - b.price);
     let price = -1;
+    let dTime = null;
+    let aTime = null;
+    let flyFrom = null;
+    let flyTo = null;
 
     if (typeof res[0] !== "undefined" && typeof res[0].price !== "undefined"
       && res[0]["route"].length === itinerary.length) {
       price = res[0].price;
+      dTime = localeString(res[0].route[0].dTime);
+      aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
+      flyFrom = res[0].route[0].flyFrom;
+      flyTo = res[0].route[res[0].route.length - 1].flyTo;
     }
 
     let icon, message, color;
@@ -360,6 +380,10 @@ class SavedItineraries {
       .collection("itineraries")
       .doc(docId)
       .update({
+        dTime: dTime,
+        aTime: aTime,
+        flyFrom: flyFrom,
+        flyTo: flyTo,
         history: firebase.firestore.FieldValue.arrayUnion({
           price: price,
           retrieved: currentDate,
@@ -367,7 +391,7 @@ class SavedItineraries {
       }).then(() => {
         return new Promise((resolve, reject) => {
           if (price === -1) {
-            reject("Could not update price.");
+            reject("Could not update itinerary.");
           }
           else {
             resolve();
@@ -376,17 +400,17 @@ class SavedItineraries {
       }).then(() => {
         console.log(`${this.firebaseData[index].name} was succesfully updated`);
 
-        icon = "attach_money";
-        message = "Price refreshed!";
+        icon = "done";
+        message = "Itinerary updated!";
         color = "";
       }).catch(error => {
         console.error(error);
 
         icon = "error";
-        message = "Error: Price could not be refreshed.";
+        message = "Error: Itinerary could not be updated.";
         color = "red";
       }).then(() => {
-        qsa(".refresh")[index].classList.remove("disabled");
+        qsa(".update")[index].classList.remove("disabled");
         
         // Display message.
         M.toast({
@@ -395,11 +419,19 @@ class SavedItineraries {
           classes: color
         });
 
-        // Update the price on our front end
-        qsa(".price")[index].textContent = price !== -1 ?
-          this.printPrice(price) : "No results";
-        qsa(".retrieved")[index].textContent =
-          this.printDate(currentDate.getTime() / 1000);
+        let row = this.firebaseData[index];
+        row.history.push({
+          price: price,
+          retrieved: {
+            seconds: Date.parse(currentDate) / 1000,
+          },
+        });
+        row.dTime = dTime;
+        row.aTime = aTime;
+        row.flyFrom = flyFrom;
+        row.flyTo = flyTo;
+
+        this.updateRow(index);
       });
   }
 
