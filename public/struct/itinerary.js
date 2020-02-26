@@ -82,8 +82,7 @@ class Itinerary {
    * @param {string} name Name for this Itinerary.
    */
   getLink(name) {
-    const i = this.encoded();
-    return `${window.location.origin.split("?")[0]}?n=${name}&i=${i}`;
+    return `${location.origin.split("?")[0]}?n=${name}&i=${this.encoded()}`;
   }
 
   /**
@@ -149,7 +148,7 @@ Itinerary.FIELDS = Object.keys(Itinerary.DEFAULTS);
  * 
  * @param {number} length The number of strings to be generated.
  * @return {Array<string>} Array of lexicographically increasing strings:
- *   ["a", "b", ..., "A", "B", ..., "aa", "ab", ...]
+ *     ["a", "b", ..., "A", "B", ..., "aa", "ab", ...]
  */
 function createKeys(length) {
   // Represent a string as a reversed sequence of indices into an alphabet.
