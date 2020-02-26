@@ -9740,22 +9740,3 @@ function stick() {
     event.currentTarget.style.minHeight = parseInt(height) + "px";
   }
 }
-
-/**
- * Escapes a string so that it can be used as HTML attribute content.
- * 
- * @param {string} str An untrusted string.
- * @return {string} A string suitable for use as HTML attribute content.
- */
-function escape(str) {
-  switch (typeof str) {
-    case "string":
-      return str.replace(/./g, c => `&#${c.charCodeAt(0)};`);
-    case "number":
-      return str;
-    case "boolean":
-      return str;
-    default:
-      return "";
-  }
-}

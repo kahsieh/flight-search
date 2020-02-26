@@ -24,17 +24,35 @@ class Itinerary {
         k in Itinerary.DEFAULTS && v !== Itinerary.DEFAULTS[k]);
   }
 
+  get length() { return this._raw.length; }
+
   /**
    * Retrieves a value from the itinerary.
    * 
-   * @param {number} index Flight index.
+   * @param {number} i Flight index.
    * @param {string} field Field name.
+   * @param {boolean=} escaped Escape non-default values.
    * @return {any} Field value.
    */
-  get(index, field) {
-    return field in this._raw[index]
-         ? this._raw[index][field]
+  get(i, field, escaped=true) {
+    return field in this._raw[i]
+         ? (escaped ? escape(this._raw[i][field]) : this._raw[i][field])
          : Itinerary.DEFAULTS[field];
+  }
+
+  /**
+   * Finds names of fields containing non-default values in this Itinerary.
+   * 
+   * @return {!Set<string>} Set of fields with non-default values.
+   */
+  nonDefaultFields() {
+    let fields = new Set();
+    for (const flight of this._raw) {
+      for (const k in flight) {
+        fields.add(k);
+      }
+    }
+    return fields;
   }
 
   /**
@@ -162,14 +180,22 @@ function createKeys(length) {
 }
 
 /**
- * Calls map on each entry of objects in an array.
- *
- * @param {!Array<Object>} arr An array of Objects.
- * @param {function} f Mapping function.
- * @return {!Array<Object>} Result.
+ * Escapes a string so that it can be used as HTML attribute content.
+ * 
+ * @param {string} str An untrusted string.
+ * @return {string} A string suitable for use as HTML attribute content.
  */
-function mapEntries(arr, f) {
-  return arr.map(obj => Object.fromEntries(Object.entries(obj).map(f)));
+function escape(str) {
+  switch (typeof str) {
+    case "string":
+      return str.replace(/./g, c => `&#${c.charCodeAt(0)};`);
+    case "number":
+      return str;
+    case "boolean":
+      return str;
+    default:
+      return "";
+  }
 }
 
 /**
@@ -181,4 +207,15 @@ function mapEntries(arr, f) {
  */
 function filterEntries(arr, f) {
   return arr.map(obj => Object.fromEntries(Object.entries(obj).filter(f)));
+}
+
+/**
+ * Calls map on each entry of objects in an array.
+ *
+ * @param {!Array<Object>} arr An array of Objects.
+ * @param {function} f Mapping function.
+ * @return {!Array<Object>} Result.
+ */
+function mapEntries(arr, f) {
+  return arr.map(obj => Object.fromEntries(Object.entries(obj).map(f)));
 }

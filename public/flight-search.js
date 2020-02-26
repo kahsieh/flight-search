@@ -17,39 +17,14 @@ addEventListener("load", () => {
   }
 
   if (!ItineraryTable.loadFromURL()) {
-    let date = new Date();
-    date.setDate(date.getDate() + 14);
-    ItineraryTable.addFlight({
-      "date_from": date.toISOString().substring(0, 10)
-    });
-    date.setDate(date.getDate() + 7);
-    ItineraryTable.addFlight({
-      "date_from": date.toISOString().substring(0, 10)
-    });
-    // ItineraryTable.addFlight({
-    //   "fly_from": "LAX",
-    //   "max_stopovers": 1,
-    //   "fly_to": "KHH",
-    //   "date_from": "2020-05-15",
-    // });
-    // ItineraryTable.addFlight({
-    //   "fly_from": "KHH",
-    //   "max_stopovers": 0,
-    //   "fly_to": "NRT|KIX",
-    //   "date_from": "2020-05-22",
-    // });
-    // ItineraryTable.addFlight({
-    //   "fly_from": "KIX|NRT",
-    //   "max_stopovers": 0,
-    //   "fly_to": "KHH",
-    //   "date_from": "2020-05-29",
-    // });
-    // ItineraryTable.addFlight({
-    //   "fly_from": "KHH",
-    //   "max_stopovers": 1,
-    //   "fly_to": "LAX",
-    //   "date_from": "2020-06-05",
-    // });
+    let date1 = new Date();
+    date1.setDate(date1.getDate() + 14);
+    let date2 = new Date();
+    date2.setDate(date1.getDate() + 21);
+    ItineraryTable.loadFromItinerary(new Itinerary([
+      { "date_from": date1.toISOString().substring(0, 10) },
+      { "date_from": date2.toISOString().substring(0, 10) },
+    ]));
   }
 
   // Initialize Materialize elements.
