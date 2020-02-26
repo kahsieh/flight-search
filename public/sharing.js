@@ -81,15 +81,15 @@ async function saveItinerary() {
  * 
  * @param {string} name Name of itinerary.
  * @param {Object} itinerary Itinerary to be shared.
- * @param {string} button_id id of share button with prepended "#".
- * @param {string} hidden_input_id id of hidden input to use with clipboard
+ * @param {string} button DOM element of share button.
+ * @param {string} hiddenInput DOM element of input to use with clipboard.
  *   actions, with prepended "#".
  */
 function shareItinerary(name = qs("#itinerary-name").value,
                         itinerary = ItineraryTable.getAll(),
-                        button_id = "#share",
-                        hidden_input_id = "#share-link") {
-  qs(button_id).classList.add("disabled");
+                        button = qs("#share"),
+                        hiddenInput = qs("#share-link")) {
+  button.classList.add("disabled");
 
   // Copy URL to clipboard if possible and set the message.
   let url = getShareableLink(name, itinerary);
@@ -104,21 +104,20 @@ function shareItinerary(name = qs("#itinerary-name").value,
     message = "Link copied!";
     color = "";
 
-    let hidden_input = qs(hidden_input_id);
-    hidden_input.value = url;
-    hidden_input.type = "text";
-    hidden_input.select();
+    hiddenInput.value = url;
+    hiddenInput.type = "text";
+    hiddenInput.select();
     document.execCommand("copy");
-    hidden_input.type = "hidden";
+    hiddenInput.type = "hidden";
   }
 
   // Display message.
   M.toast({
     html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
     displayLength: 1500,
-    classes: color
+    classes: color,
   });
-  qs(button_id).classList.remove("disabled")
+  button.classList.remove("disabled");
 }
 
 /**

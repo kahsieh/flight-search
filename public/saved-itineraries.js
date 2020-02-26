@@ -129,35 +129,32 @@ class SavedItineraries {
     itineraryRow.innerHTML = `
       <td>
         <b class="row-number">${this.length}&nbsp;|&nbsp;</b><div
-          style="display: inline;" class="truncate" id="name${index}"></div>
+          style="display: inline;" class="name truncate"></div>
         <br>
-        <span class="note" id="created${index}"></span>
+        <span class="created note"></span>
       </td>
-      <td id="departure${index}"></td>
-      <td id="arrival${index}"></td>
-      <td id="flight-path${index}"></td>
+      <td class="departure"></td>
+      <td class="arrival"></td>
+      <td class="flight-path"></td>
       <td>
-        <div id="price${index}"></div>
-        <span class="note" id="retrieved${index}"></span>
+        <div class="price"></div>
+        <span class="retrieved note"></span>
       </td>
       <td style="white-space: nowrap;">
-        <button class="btn-floating waves-effect waves-light"
-          id="refresh${index}">
+        <button class="refresh btn-floating waves-effect waves-light">
           <i class="material-icons">refresh</i>
         </button>
-        <button class="btn-floating waves-effect waves-light"
-          id="share${index}">
+        <button class="share btn-floating waves-effect waves-light">
           <i class="material-icons">share</i>
-          <input type="hidden" id="share-link${index}">
+          <input type="hidden" class="share-link">
         </button>
-        <button class="btn-floating waves-effect waves-light red"
-          id="delete${index}">
-          <i class="material-icons">delete  </i>
+        <button class="delete btn-floating waves-effect waves-light red">
+          <i class="material-icons">delete</i>
         </button>
       </td>
       <td>
-        <button class="btn-flat waves-effect waves-light"
-          id="history${index}" style="width: 40px; height: 40px;
+        <button class="history btn-flat waves-effect waves-light"
+          style="width: 40px; height: 40px;
           border-radius: 50%; padding: 0;">
           <i class="small material-icons"
             style="font-size: 2rem; line-height: 40px;">expand_more</i>
@@ -172,35 +169,35 @@ class SavedItineraries {
     }
 
     // sets text content for each element to be rendered
-    qs(`#name${index}`).textContent =
+    qsa(".name")[index].textContent =
       (typeof row.name !== "undefined") ? row.name : "Untitled";
-    qs(`#created${index}`).textContent = 
+    qsa(".created")[index].textContent = 
       `Created: ${(typeof row.created !== "undefined" &&
       typeof row.created.seconds === "number") ?
       this.printDate(row.created.seconds) : ""}`;
-    qs(`#price${index}`).textContent =
+    qsa(".price")[index].textContent =
       (typeof price === "number" && price !== -1) ?
-      this.printPrice(price) : "No Results";
-    qs(`#retrieved${index}`).textContent =
+      this.printPrice(price) : "No results";
+    qsa(".retrieved")[index].textContent =
       (typeof retrieved !== "undefined" &&
       typeof retrieved.seconds === "number") ?
       this.printDate(retrieved.seconds) : "";
     if ((typeof row.dTime === "undefined" || row.dTime === null) &&
       typeof row.flyFrom === "undefined" || row.flyFrom === null) {
-      qs(`#departure${index}`).textContent = "No Results";
+      qsa(".departure")[index].textContent = "No results";
     }
     else {
-      qs(`#departure${index}`).textContent =
+      qsa(".departure")[index].textContent =
         `${(typeof row.dTime !== "undefined") ?
         row.dTime : "None"}${nbsp}(${(typeof row.flyFrom !== "undefined") ?
         row.flyFrom : "None"})`;
     }
     if ((typeof row.aTime === "undefined" || row.aTime === null) &&
       typeof row.flyTo === "undefined" || row.flyTo === null) {
-        qs(`#arrival${index}`).textContent = "No Results";
+        qsa(".arrival")[index].textContent = "No results";
     }
     else {    
-      qs(`#arrival${index}`).textContent =
+      qsa(".arrival")[index].textContent =
         `${(typeof row.aTime !== "undefined") ?
         row.aTime : "None"}${nbsp}(${(typeof row.flyTo !== "undefined") ?
         row.flyTo : "None"})`;
@@ -213,19 +210,19 @@ class SavedItineraries {
     }
 
     // add onclick functions for each button
-    qs(`#refresh${index}`).onclick = event => {
+    qsa(".refresh")[index].onclick = event => {
       event.stopPropagation();
       this.refreshPrice(index);
     }
-    qs(`#share${index}`).onclick = event => {
+    qsa(".share")[index].onclick = event => {
       event.stopPropagation();
       this.shareLink(index);
     }
-    qs(`#delete${index}`).onclick = event => {
+    qsa(".delete")[index].onclick = event => {
       event.stopPropagation();
       this.deleteRow(index);
     }
-    qs(`#history${index}`).onclick = event => {
+    qsa(".history")[index].onclick = event => {
       event.stopPropagation();
       this.showHistory(index, chartRow);
     }
@@ -284,11 +281,11 @@ class SavedItineraries {
    */
   getFlightPath(index) {
     let itinerary = this.firebaseData[index].itinerary;
-    // display No Results if itinerary is not an object
+    // display No results if itinerary is not an object
     if (!Array.isArray(itinerary)) {
       let div = document.createElement("div");
-      div.textContent = "No Results";
-      qs(`#flight-path${index}`).appendChild(div);
+      div.textContent = "No results";
+      qsa(".flight-path")[index].appendChild(div);
       return;
     }
 
@@ -302,7 +299,7 @@ class SavedItineraries {
 
       div.textContent = `${src}${nbsp}→${nbsp}${dest}`;
 
-      qs(`#flight-path${index}`).appendChild(div);
+      qsa(".flight-path")[index].appendChild(div);
     });
   }
   
@@ -318,11 +315,11 @@ class SavedItineraries {
       console.error("User is not authenticated.");
       return;
     }
-    qs(`#refresh${index}`).classList.add("disabled");
+    qsa(".refresh")[index].classList.add("disabled");
 
     let itinerary = this.firebaseData[index].itinerary;
     if (!Array.isArray(itinerary)) {
-      qs(`#refresh${index}`).classList.remove("disabled");
+      qsa(".refresh")[index].classList.remove("disabled");
       console.error("No itinerary object was found.");
       return;
     }
@@ -359,51 +356,51 @@ class SavedItineraries {
     let docId = this.docIds[index];
     let currentDate = new Date();
 
-    new Promise((resolve, reject) => {
-      if (price === -1) {
-        reject("Could not retrieve price.");
-      }
-      else {
-        resolve();
-      }
-    }).then(() => {
-      return firebase.firestore()
-        .collection("itineraries")
-        .doc(docId)
-        .update({
-          history: firebase.firestore.FieldValue.arrayUnion({
-            price: price,
-            retrieved: currentDate,
-          }),
+    firebase.firestore()
+      .collection("itineraries")
+      .doc(docId)
+      .update({
+        history: firebase.firestore.FieldValue.arrayUnion({
+          price: price,
+          retrieved: currentDate,
+        }),
+      }).then(() => {
+        return new Promise((resolve, reject) => {
+          if (price === -1) {
+            reject("Could not update price.");
+          }
+          else {
+            resolve();
+          }
         });
-    }).then(() => {
-      console.log(`${this.firebaseData[index].name} was succesfully updated`);
+      }).then(() => {
+        console.log(`${this.firebaseData[index].name} was succesfully updated`);
 
-      icon = "attach_money";
-      message = "Price refreshed!";
-      color = "";
-    }).catch(error => {
-      console.error(error);
+        icon = "attach_money";
+        message = "Price refreshed!";
+        color = "";
+      }).catch(error => {
+        console.error(error);
 
-      icon = "error";
-      message = "Error: Price could not be refreshed.";
-      color = "red";
-    }).then(() => {
-      qs(`#refresh${index}`).classList.remove("disabled");
-      
-      // Display message.
-      M.toast({
-        html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
-        displayLength: 1500,
-        classes: color
+        icon = "error";
+        message = "Error: Price could not be refreshed.";
+        color = "red";
+      }).then(() => {
+        qsa(".refresh")[index].classList.remove("disabled");
+        
+        // Display message.
+        M.toast({
+          html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
+          displayLength: 1500,
+          classes: color
+        });
+
+        // Update the price on our front end
+        qsa(".price")[index].textContent = price !== -1 ?
+          this.printPrice(price) : "No results";
+        qsa(".retrieved")[index].textContent =
+          this.printDate(currentDate.getTime() / 1000);
       });
-
-      // Update the price on our front end
-      qs(`#price${index}`).textContent = price !== -1 ?
-        this.printPrice(price) : "No results";
-      qs(`#retrieved${index}`).textContent =
-        this.printDate(currentDate.getTime() / 1000);
-    });
   }
 
   /**
@@ -434,7 +431,7 @@ class SavedItineraries {
     }
 
     shareItinerary(data.name, data.itinerary,
-      `#share${index}`,`#share-link${index}`);
+      qsa(".share")[index], qsa(".share-link")[index]);
   }
 
   /**
@@ -443,7 +440,7 @@ class SavedItineraries {
    * @param {number} index index of row
    */
   deleteRow(index) {
-    qs(`#delete${index}`).classList.add("disabled");
+    qsa(".delete")[index].classList.add("disabled");
     qs("#saved-itineraries").rows[index].hidden = true;
     let confirm = true;
     this.updateRowNumbers();
@@ -457,8 +454,8 @@ class SavedItineraries {
 
     // toast with undo button for deletion
     M.toast({
-      html: `<div>Itinerary deleted</div><button class="btn-flat toast-action
-        undoButton${index}">Undo</button>`,
+      html: `<div>Itinerary deleted</div><button class="btn-flat toast-action"
+        id="undoButton${index}">Undo</button>`,
       displayLength: 5000,
       completeCallback: () => { (confirm) ?
         this.deleteItinerary(index) : this.undoDeleteItinerary(index) }
@@ -466,7 +463,7 @@ class SavedItineraries {
 
     // Reverse deletion if undo button is clicked, also dismiss toast that was
     // previously generated
-    qs(`.undoButton${index}`).onclick = () => {
+    qs(`#undoButton${index}`).onclick = () => {
       confirm = false;
       M.Toast.getInstance(qs(".toast")).dismiss();
     }
@@ -484,7 +481,7 @@ class SavedItineraries {
       console.error("User is not authenticated.");
       return;
     }
-    qs(`#delete${index}`).classList.remove("disabled");
+    qsa(".delete")[index].classList.remove("disabled");
 
     let id = this.docIds[index];
     firebase.firestore().collection("itineraries").doc(id).delete().then(() => {
@@ -503,7 +500,7 @@ class SavedItineraries {
   undoDeleteItinerary(index) {
     this.deletedProcessing.splice(
       this.deletedProcessing.indexOf(this.docIds[index]), 1);
-    qs(`#delete${index}`).classList.remove("disabled");
+    qsa(".delete")[index].classList.remove("disabled");
     qs("#saved-itineraries").rows[index].hidden = false;
     this.updateRowNumbers();
   }
