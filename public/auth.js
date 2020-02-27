@@ -154,16 +154,7 @@ function onLoadAuth() {
  * @return {string} UID of authenticated user.
  */
 function checkAuth() {
-  let user = JSON.parse(localStorage.getItem("auth"));
-
-  if (!user) {
-    return;
-  }
-  else {
-    let name = (user.displayName !== null) ? user.displayName : user.email;
-
-    return user;
-  }
+  return JSON.parse(localStorage.getItem("auth"));
 }
 
 /**
