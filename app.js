@@ -42,40 +42,41 @@ if (module === require.main) {
       status = false;
       response.send({ deleted: status });
     }
+    else {
+      // verify the id token so that it is a valid uid
+      admin.auth().verifyIdToken(idToken).then(async decodedToken => {
+        let uid = decodedToken.uid;
 
-    // verify the id token so that it is a valid uid
-    admin.auth().verifyIdToken(idToken).then(async decodedToken => {
-      let uid = decodedToken.uid;
-
-      const querySnapshot = await admin.firestore()
-        .collection("itineraries")
-        .where("uid", "==", uid)
-        .get();
-      let promiseArray = [];
-      promiseArray.push(new Promise(resolve => {
-        querySnapshot.forEach(doc => {
-          if (docIds.includes(doc.id)) {
-            doc.ref.delete().then(() => {
-              console.log(`${doc.id} was successfully deleted.`);
-            }).catch(error => {
-              console.error(error);
-              response.status(400);
-              status = false;
-            }).then(() => { // resolve regardless of error so the array resolves
-              resolve();
-            });
-          }
+        const querySnapshot = await admin.firestore()
+          .collection("itineraries")
+          .where("uid", "==", uid)
+          .get();
+        let promiseArray = [];
+        promiseArray.push(new Promise(resolve => {
+          querySnapshot.forEach(doc => {
+            if (docIds.includes(doc.id)) {
+              doc.ref.delete().then(() => {
+                console.log(`${doc.id} was successfully deleted.`);
+              }).catch(error => {
+                console.error(error);
+                response.status(400);
+                status = false;
+              }).then(() => { // resolve regardless of error so array resolves
+                resolve();
+              });
+            }
+          });
+        }));
+        Promise.all(promiseArray).then(() => {
+          response.send({ deleted: status });
         });
-      }));
-      Promise.all(promiseArray).then(() => {
+      }).catch(error => { // if we get an error from verifying or querying
+        console.error(error);
+        response = res.status(401);
+        status = false;
         response.send({ deleted: status });
       });
-    }).catch(error => { // if we get an error from verifying or querying
-      console.error(error);
-      response = res.status(401);
-      status = false;
-      response.send({ deleted: status });
-    });
+    }
   });
 
   /**
