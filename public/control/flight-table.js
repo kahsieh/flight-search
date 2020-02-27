@@ -194,7 +194,7 @@ class FlightTable {
       </div>
     `;
 
-    // Checked bag.
+    // Carry-on bag.
     customary = "", metric = "";
     if (flight.baglimit.hand_weight) {
       customary += parseInt(kgToLb(flight.baglimit.hand_weight)) + " lb";
