@@ -454,7 +454,7 @@ function generateSelectOptions(options, value) {
 
   return options.map(option => `
     <option value="${option.value}"
-      ${value.includes(option.value) ? "selected" : ""}
+      ${value.includes(escape(option.value)) ? "selected" : ""}
       ${option.value === "" ? "disabled" : ""}
       >${typeof option.name !== "undefined" ? option.name : option.value}</
     option>
