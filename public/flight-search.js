@@ -59,6 +59,7 @@ async function search() {
   let res = await Promise.all(prepareFetches())
     .then((responses) => {
       return Promise.all(responses.map((res) => {
+        // Fail all requests if one fails.
         if (!res){
           throw new Error("Error with fetches");
         }

@@ -413,7 +413,7 @@ class SavedItineraries {
       return;
     }
 
-    shareItinerary(data.name, data.itinerary,
+    shareItinerary(data.name, new Itinerary(data.itinerary),
       qsa(".share")[index], qsa(".share-link")[index]);
   }
 
