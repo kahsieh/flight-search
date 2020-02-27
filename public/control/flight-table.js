@@ -282,12 +282,7 @@ class FlightTable {
     // Price.
     cells[11] += `
       <div style="line-height: normal">
-        ${itinerary.price.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        })}<br>
+        ${localeStringUSD(itinerary.price)}<br>
         <span class="note">entire trip</span>
       </div>
     `;

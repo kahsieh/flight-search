@@ -5,41 +5,13 @@ saved-itineraries.js
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
+
 "use strict";
 
 /**
- * Function that displays the itinerary table after authentication
+ * Function that displays the itinerary table after authentication.
  */
 addEventListener("load", () => {
-  // loads itinerary table
-  displayItineraries();
-})
-
-/**
- * Function that sends the itineraries to be deleted if the user unloads the
- * page before the toast is dismissed.
- */
-addEventListener("unload", () => {
-  if (Itineraries) {
-    navigator.sendBeacon("/api/delete-itinerary",
-      JSON.stringify({
-        idToken: Itineraries.idToken,
-        deletedProcessing: Itineraries.deletedProcessing,
-      })
-    );
-  }
-})
-
-let Itineraries;
-
-// when using text content, we cannot use &nbsp; so we must escape it instead
-const nbsp = "\u00a0";
-
-/**
- * Renders the itinerary table to be displayed.
- * Otherwise, we hide the authenticated div and display the unauthenticated one
- */
-function displayItineraries() {
   let user = checkAuth();
   if (!user || !user.uid) {
     qs("#itineraries-unauthenticated").classList.remove("hide");
@@ -68,10 +40,27 @@ function displayItineraries() {
       qs("#itineraries-authenticated").classList.add("hide");
       qs("#itineraries-none").classList.remove("hide");
     });
-}
+})
 
 /**
- * SavedItineraries is a class that renders the itinerary table.
+ * Function that sends the itineraries to be deleted if the user unloads the
+ * page before the toast is dismissed.
+ */
+addEventListener("unload", () => {
+  if (Itineraries) {
+    navigator.sendBeacon("/api/delete-itinerary",
+      JSON.stringify({
+        idToken: Itineraries.idToken,
+        deletedProcessing: Itineraries.deletedProcessing,
+      })
+    );
+  }
+})
+
+let Itineraries;
+
+/**
+ * SavedItineraries is a class that renders the saved itinerary table.
  */
 class SavedItineraries {
   /**
@@ -81,7 +70,7 @@ class SavedItineraries {
    * @member {array} docIds Array of firebase doc IDs, indexed based on row
    */
   constructor(firebaseData) {
-    this.firebaseData = firebaseData;
+    this._firebaseData = firebaseData;
     this.docIds = [];
     this.deletedProcessing = [];
     this.createItineraryTable();
@@ -103,7 +92,7 @@ class SavedItineraries {
    * Creates the itinerary rows and header
    */
   createItineraryTable() {
-    this.firebaseData.forEach(data => {
+    this._firebaseData.forEach(data => {
       this.createRow(data);
     });
     
@@ -206,41 +195,12 @@ class SavedItineraries {
   }
 
   /**
-   * @param {number} seconds number of seconds in UTC time
-   * @return {string} date formatted local time
-   */
-  printDate(seconds) {
-    let date = new Date(seconds * 1000);
-
-    return date.toLocaleString([], {
-      weekday: "short",
-      month: "numeric",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  }
-
-  /**
-   * @param {number} price price to be formatted
-   * @return {string} USD formatted price
-   */
-  printPrice(price) {
-    return price.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-  }
-
-  /**
    * Gets the overall flight path of the itinerary
    * 
    * @param {number} index index of row
    */
   getFlightPath(index) {
-    let itinerary = this.firebaseData[index].itinerary;
+    let itinerary = this._firebaseData[index].itinerary;
     // display No results if itinerary is not an object
     if (!Array.isArray(itinerary)) {
       qsa(".flight-path")[index].textContent = "No results";
@@ -270,7 +230,7 @@ class SavedItineraries {
    * @param {number} index row number to update.
    * @param {object} update object to update fields, otherwise based on index.
    */
-  updateRow(index, update = this.firebaseData[index]) {
+  updateRow(index, update = this._firebaseData[index]) {
     let price = -1;
     let retrieved;
     if (Array.isArray(update.history) && update.history.length > 0) {
@@ -284,14 +244,14 @@ class SavedItineraries {
     qsa(".created")[index].textContent = 
       `Created: ${(typeof update.created !== "undefined" &&
       typeof update.created.seconds === "number") ?
-      this.printDate(update.created.seconds) : ""}`;
+      localeString(update.created.seconds, false) : ""}`;
     qsa(".price")[index].textContent =
       (typeof price === "number" && price !== -1) ?
-      this.printPrice(price) : "No results";
+      localeStringUSD(price) : "No results";
     qsa(".retrieved")[index].textContent =
       (typeof retrieved !== "undefined" &&
       typeof retrieved.seconds === "number") ?
-      this.printDate(retrieved.seconds) : "";
+      localeString(retrieved.seconds, false) : "";
     if ((typeof update.dTime === "undefined" || update.dTime === null) &&
       typeof update.flyFrom === "undefined" || update.flyFrom === null) {
       qsa(".departure")[index].textContent = "No results";
@@ -329,7 +289,7 @@ class SavedItineraries {
     }
     qsa(".update")[index].classList.add("disabled");
 
-    let itinerary = this.firebaseData[index].itinerary;
+    let itinerary = this._firebaseData[index].itinerary;
     if (!Array.isArray(itinerary)) {
       qsa(".update")[index].classList.remove("disabled");
       console.error("No itinerary object was found.");
@@ -398,7 +358,7 @@ class SavedItineraries {
           }
         });
       }).then(() => {
-        console.log(`${this.firebaseData[index].name} was succesfully updated`);
+        console.log(`${this._firebaseData[index].name} was succesfully updated`);
 
         icon = "done";
         message = "Itinerary updated!";
@@ -419,7 +379,7 @@ class SavedItineraries {
           classes: color
         });
 
-        let row = this.firebaseData[index];
+        let row = this._firebaseData[index];
         row.history.push({
           price: price,
           retrieved: {
@@ -441,7 +401,7 @@ class SavedItineraries {
    * @param {number} index index of row
    */
   loadLink(index) {
-    let data = this.firebaseData[index];
+    let data = this._firebaseData[index];
 
     window.location = new Itinerary(data.itinerary).link(data.name);
   }
@@ -452,7 +412,7 @@ class SavedItineraries {
    * @param {number} index index of row
    */
   shareLink(index) {
-    let data = this.firebaseData[index];
+    let data = this._firebaseData[index];
     if (typeof data.name === "undefined") {
       data.name = "Untitled";
     }
@@ -517,7 +477,7 @@ class SavedItineraries {
 
     let id = this.docIds[index];
     firebase.firestore().collection("itineraries").doc(id).delete().then(() => {
-      console.log(`${this.firebaseData[index].name} was succesfully deleted`);
+      console.log(`${this._firebaseData[index].name} was succesfully deleted`);
       this.deletedProcessing.splice(this.deletedProcessing.indexOf(id), 1);
     }).catch(error => {
       console.error(error);

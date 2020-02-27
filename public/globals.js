@@ -11,6 +11,8 @@ const app = {
   version: "v0.1.0",
 };
 
+const nbsp = "\u00a0";
+
 const required_fields = [
   "fly_from",
   "fly_to",
@@ -9679,19 +9681,34 @@ function kiwiDate(str) {
 }
 
 /**
- * Converts a UTC UNIX timestamp to a locale string.
+ * Converts a UNIX timestamp to a locale string.
  *
- * @param {number} unix A UTC UNIX timestamp.
+ * @param {number} unix A UNIX timestamp.
  * @return {string} A locale string.
  */
-function localeString(unix) {
+function localeString(unix, UTC = true) {
   return new Date(unix * 1000).toLocaleString([], {
-    timeZone: "UTC",
+    timeZone: UTC ? "UTC" : undefined,
     weekday: "short",
     month: "numeric",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
+  });
+}
+
+/**
+ * Formats a numerical dollar amount into a string.
+ * 
+ * @param {number} amt Numerical dollar amount.
+ * @return {string} Formatted dollar amount.
+ */
+function localeStringUSD(amt) {
+  return amt.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 }
 
