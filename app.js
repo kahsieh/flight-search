@@ -43,27 +43,38 @@ if (module === require.main) {
       response.send({ deleted: status });
     }
 
-    getUid(idToken).then(uid => {
+    // verify the id token so that it is a valid uid
+    admin.auth().verifyIdToken(idToken).then(async decodedToken => {
+      let uid = decodedToken.uid;
+
+      const querySnapshot = await admin.firestore()
+        .collection("itineraries")
+        .where("uid", "==", uid)
+        .get();
       let promiseArray = [];
-      docIds.forEach(id => {
-        promiseArray.push(admin.firestore().collection("itineraries")
-          .doc(id)
-          .delete()
-          .then(() => console.log(`${id} was successfully deleted.`))
-          .catch(error => {
-            console.error(error);
-            response.status(400);
-            status = false;
-        }).then(() => {})); // resolves if error, so Promise.all still fires
-      });
-      if (docIds.length > 0) {
-        Promise.all(promiseArray).then(() => {
-          response.send({deleted: status});
+      promiseArray.push(new Promise(resolve => {
+        querySnapshot.forEach(doc => {
+          if (docIds.includes(doc.id)) {
+            doc.ref.delete().then(() => {
+              console.log(`${doc.id} was successfully deleted.`);
+            }).catch(error => {
+              console.error(error);
+              response.status(400);
+              status = false;
+            }).then(() => { // resolve regardless of error so the array resolves
+              resolve();
+            });
+          }
         });
-      }
-    }).catch(error => {
-        response = res.status(401);
-        console.error(error);
+      }));
+      Promise.all(promiseArray).then(() => {
+        response.send({ deleted: status });
+      });
+    }).catch(error => { // if we get an error from verifying or querying
+      console.error(error);
+      response = res.status(401);
+      status = false;
+      response.send({ deleted: status });
     });
   });
 
@@ -74,15 +85,6 @@ if (module === require.main) {
   app.use(function(req, res) {
     res.sendStatus(404);
   });
-}
-
-/**
- * Gets the uid from the auth token specified
- * 
- * @param {string} idToken Auth token for user
- */
-async function getUid(idToken) {
-  return await admin.auth().verifyIdToken(idToken).uid;
 }
 
 module.exports = app;
