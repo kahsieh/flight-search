@@ -110,7 +110,8 @@ function auth() {
 function onLoadAuth() {
   let user = checkAuth();
 
-  // we assume that the user is authenticated here until 
+  // We assume that the user is authenticated through localStorage here until we
+  // authenticate with firebase. 
   if (user) {
     qs("#greeting").classList.remove("hide");
     qs("#greeting").innerHTML = user.name;
