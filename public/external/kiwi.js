@@ -37,8 +37,8 @@ async function kiwiSearch(itinerary) {
   }
 
   // Reformat response for single-flight itineraries.
-  if (res.length === 1 && Array.isArray(res[0])) {
-    return [res[0], true];
+  if (res.length > 0 && Array.isArray(res[0])) {
+    return [res.flat(), true];
   }
 
   // If the response is empty, improperly formatted, or doesn't have the
