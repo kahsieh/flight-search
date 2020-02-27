@@ -310,8 +310,9 @@ class SavedItineraries {
     let flyFrom = null;
     let flyTo = null;
 
-    if (typeof res[0] !== "undefined" && typeof res[0].price !== "undefined"
-      && res[0]["route"].length === itinerary.length) {
+    if (res !== null && typeof res[0] !== "undefined" &&
+      typeof res[0].price !== "undefined" &&
+      res[0]["route"].length === itinerary.length) {
       price = res[0].price;
       dTime = localeString(res[0].route[0].dTime);
       aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
