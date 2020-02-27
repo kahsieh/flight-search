@@ -67,21 +67,19 @@ function prepareBitches(itinerary) {
   for (let a = 0; a < num_airports; a++) {
     let body = {"requests": []};
     for (let i = 0; i < itinerary.length; i++) {
-      let curr_num_airports = Math.max(
-        itinerary.get(i, "fly_from", false).split("|").length,
-        itinerary.get(i, "fly_to", false).split("|").length
-      );
-      if (num_airports > 1 && curr_num_airports > 1 &&
-          num_airports != curr_num_airports) {
+      let fly_from = itinerary.get(i, "fly_from", false).split("|");
+      let fly_to = itinerary.get(i, "fly_to", false).split("|");
+
+      if ((num_airports > 1 && fly_from.length > 1 && num_airports != fly_from.length) 
+        || (num_airports > 1 && fly_to.length > 1 && num_airports != fly_to.length)) {
         // Error: pipe-separated airport lists have inconsistent length.
+        console.error("Pipe-separated airport lists have inconsistent length")
         return [];
       }
       else {
-        num_airports = Math.max(num_airports, curr_num_airports);
+        num_airports = Math.max(num_airports, fly_from.length, fly_to.length);
       }
 
-      let fly_from = itinerary.get(i, "fly_from", false).split("|");
-      let fly_to = itinerary.get(i, "fly_to", false).split("|");
       let flight = {
         "fly_from": fly_from[Math.min(fly_from.length - 1, a)],
         "fly_to": fly_to[Math.min(fly_to.length - 1, a)],
