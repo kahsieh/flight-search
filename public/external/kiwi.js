@@ -1,0 +1,114 @@
+/*
+Five Peas Flight Search
+kiwi.js
+
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
+All Rights Reserved.
+*/
+
+const KIWI_API_URL =
+  "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky";
+
+/**
+ * Executes a search via Kiwi.
+ * 
+ * @param {!Itinerary} itinerary Itinerary to execute search for.
+ * @return {?Array<Object>, ?boolean} Response from Kiwi and boolean indicating
+ *     whether the response is in single-flight format, or nulls if the search
+ *     failed.
+ */
+async function kiwiSearch(itinerary) {
+  let res = await Promise.all(prepareBitches(itinerary))
+    .then(responses =>
+      Promise.all(responses.map(res => {
+        // Fail all requests if any one fails.
+        if (!res){
+          throw new Error("Error with fetches");
+        }
+        return res.json();
+      })))
+    .then(bodies => bodies.flat())
+    .catch(e => console.error(e));
+
+  // If one or more request fails, then return null.
+  if (!res) {
+    return [null, null];
+  }
+
+  // Reformat response for single-flight itineraries.
+  if (res.length === 1 && Array.isArray(res[0])) {
+    return [res[0], true];
+  }
+
+  // If the response is empty, improperly formatted, or doesn't have the
+  // expected number of flights, then return null.
+  if (res.length === 0 ||
+      !("route" in res[0]) ||
+      res[0]["route"].length !== itinerary.length) {
+    return [null, null];
+  }
+
+  res.sort((a, b) => a.price - b.price);
+  return [res, false];
+}
+
+/**
+ * Prepares Promises for a search via Kiwi.
+ *
+ * @param {!Itinerary} Itinerary to execute search for.
+ * @return {!Array<Pronise>} Array of Promises.
+ */
+function prepareBitches(itinerary) {
+  // num_airports is dynamically updated when we discover a pipe-separated
+  // airport list.
+  let num_airports = 1;
+  let promises = [];
+  for (let a = 0; a < num_airports; a++) {
+    let body = {"requests": []};
+    for (let i = 0; i < itinerary.length; i++) {
+      let curr_num_airports = Math.max(
+        itinerary.get(i, "fly_from", false).split("|").length,
+        itinerary.get(i, "fly_to", false).split("|").length
+      );
+      if (num_airports > 1 && curr_num_airports > 1 &&
+          num_airports != curr_num_airports) {
+        // Error: pipe-separated airport lists have inconsistent length.
+        return [];
+      }
+      else {
+        num_airports = Math.max(num_airports, curr_num_airports);
+      }
+
+      let fly_from = itinerary.get(i, "fly_from", false).split("|");
+      let fly_to = itinerary.get(i, "fly_to", false).split("|");
+      let flight = {
+        "fly_from": fly_from[Math.min(fly_from.length - 1, a)],
+        "fly_to": fly_to[Math.min(fly_to.length - 1, a)],
+        "date_from": kiwiDate(itinerary.get(i, "date_from", false)),
+        "date_to": kiwiDate(itinerary.get(i, "date_to", false)) ||
+                   kiwiDate(itinerary.get(i, "date_from", false)),
+        "adults": 1,
+      };
+      for (const field of itinerary.usedFields()) {
+        if (!(field in flight)) {
+          flight[field] = itinerary.get(i, field, false);
+        }
+      }
+      body["requests"].push(flight);
+    }
+    console.log(`Request ${a}:`);
+    console.log(body);
+
+    promises.push(fetch(KIWI_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    })
+    .catch((error) => {
+      console.error(error);
+    }));
+  }
+  return promises;
+}

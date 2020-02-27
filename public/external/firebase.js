@@ -47,22 +47,13 @@ async function saveItinerary() {
   qs("#save").classList.add("disabled");
 
   // Prepare details, including price.
-  let res = await Promise.all(prepareFetches())
-    .then(responses => Promise.all(responses.map(res => res.json())))
-    .then(bodies => bodies.flat())
-    .catch(error => console.error(error));
-  res.sort((a, b) => a.price - b.price);
+  let [res, _] = await kiwiSearch(itable.get());
   let price = -1;
   let dTime = null;
   let aTime = null;
   let flyFrom = null;
   let flyTo = null;
   let currentDate = new Date();
-
-  // Reformat response for single-flight itineraries.
-  if (res.length == 1 && Array.isArray(res[0])) {
-    res = res[0];
-  }
 
   if (typeof res[0] !== "undefined" && typeof res[0].route !== "undefined"
     && res[0]["route"].length == itable.length) {

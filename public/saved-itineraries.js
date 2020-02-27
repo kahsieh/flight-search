@@ -303,11 +303,7 @@ class SavedItineraries {
     }
     
     // Prepare details, including price.
-    let res = await Promise.all(prepareFetches(new Itinerary(itinerary)))
-      .then(responses => Promise.all(responses.map(res => res.json())))
-      .then(bodies => bodies.flat())
-      .catch(error => console.error(error));
-    res.sort((a, b) => a.price - b.price);
+    let [res, _] = await kiwiSearch(new Itinerary(itinerary));
     let price = -1;
     let dTime = null;
     let aTime = null;

@@ -56,45 +56,16 @@ async function search() {
   FlightTable.tables.forEach(ft => ft.clearSelection());
 
   // Execute fetches.
-  let res = await Promise.all(prepareFetches())
-    .then((responses) => {
-      return Promise.all(responses.map((res) => {
-        // Fail all requests if one fails.
-        if (!res){
-          throw new Error("Error with fetches");
-        }
-        return res.json();
-      }))
-    })
-    .then(bodies => bodies.flat())
-    .catch((error) => {
-      console.error(error);
-    });
+  let [res, single] = await kiwiSearch(itable.get());
 
   if (res) {
-    // Reformat response for single-flight itineraries.
-    let single = false;
-    if (res.length == 1 && Array.isArray(res[0])) {
-      res = res[0];
-      single = true;
-    }
+    // Display message.
+    qsa(".results-message").forEach(el => el.classList.remove("hide"));  
 
-    if (single ||
-        res.length > 0 && typeof res[0]["route"] !== "undefined" &&
-        res[0]["route"].length == itable.length) {
-      // Display message.
-      qsa(".results-message").forEach(el => el.classList.remove("hide"));  
-
-      // Display results.
-      res.sort((a, b) => a.price - b.price);
-      console.log("Response:");
-      console.log(res);
-      FlightTable.displayResults(res, single);
-    }
-    else {
-      FlightTable.displayResults([], true);
-      qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
-    }
+    // Display results.
+    console.log("Response:");
+    console.log(res);
+    FlightTable.displayResults(res, single);
   }
   else {
     FlightTable.displayResults([], true);
@@ -106,66 +77,6 @@ async function search() {
   qs("#remove-flight").classList.remove("disabled");
   qs("#search").classList.remove("disabled");
   qs("#spinner").classList.add("hide");
-}
-
-/**
- * Prepares Promises for calls to the Kiwi API based on the input.
- *
- * @return {Array} Array of Promises.
- */
-function prepareFetches(itinerary = itable.get()) {
-  // num_airports is dynamically updated when we discover a pipe-separated
-  // airport list.
-  let num_airports = 1;
-  let promises = [];
-  for (let a = 0; a < num_airports; a++) {
-    let body = {"requests": []};
-    for (let i = 0; i < itinerary.length; i++) {
-      let curr_num_airports = Math.max(
-        itinerary.get(i, "fly_from", false).split("|").length,
-        itinerary.get(i, "fly_to", false).split("|").length
-      );
-      if (num_airports > 1 && curr_num_airports > 1 &&
-          num_airports != curr_num_airports) {
-        // Error: pipe-separated airport lists have inconsistent length.
-        return [];
-      }
-      else {
-        num_airports = Math.max(num_airports, curr_num_airports);
-      }
-
-      let fly_from = itinerary.get(i, "fly_from", false).split("|");
-      let fly_to = itinerary.get(i, "fly_to", false).split("|");
-      let flight = {
-        "fly_from": fly_from[Math.min(fly_from.length - 1, a)],
-        "fly_to": fly_to[Math.min(fly_to.length - 1, a)],
-        "date_from": kiwiDate(itinerary.get(i, "date_from", false)),
-        "date_to": kiwiDate(itinerary.get(i, "date_to", false)) ||
-                   kiwiDate(itinerary.get(i, "date_from", false)),
-        "adults": 1,
-      };
-      for (const field of itinerary.usedFields()) {
-        if (!(field in flight)) {
-          flight[field] = itinerary.get(i, field, false);
-        }
-      }
-      body["requests"].push(flight);
-    }
-    console.log(`Request ${a}:`);
-    console.log(body);
-
-    promises.push(fetch("https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-    })
-    .catch((error) => {
-      console.error(error);
-    }));
-  }
-  return promises;
 }
 
 /**
