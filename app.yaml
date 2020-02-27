@@ -6,3 +6,4 @@ handlers:
   redirect_http_response_code: 301
 env_variables:
   NODE_ENV: "production"
+  GOOGLE_APPLICATION_CREDENTIALS: "service-account-file.json"
