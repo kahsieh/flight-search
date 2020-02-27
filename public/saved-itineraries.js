@@ -78,11 +78,12 @@ class SavedItineraries {
     this._firebaseData = firebaseData;
     this.docIds = [];
     this.deletedProcessing = [];
+    this.charts = {};
     this.createItineraryTable();
 
     let user = firebase.auth().currentUser;
     if (user) {
-      user.getIdToken().then(idToken => {
+      user.getIdToken(/* forceRefresh */ true).then(idToken => {
         this.idToken = idToken;
       });
     }
@@ -91,14 +92,15 @@ class SavedItineraries {
   /**
    * returns the length of the itinerary table
    */
-  get length() { return qs("#saved-itineraries").childElementCount; }
+  get length() { return qsa(".itinerary").length; }
 
   /**
    * Creates the itinerary rows and header
    */
   createItineraryTable() {
     this._firebaseData.forEach(data => {
-      this.createRow(data);
+      this.createItineraryRow(data);
+      this.createChartRow(data.history);
     });
     
     this.createHeader();
@@ -110,14 +112,14 @@ class SavedItineraries {
    * @param {object} row Row that contains itinerary object, along with name,
    * price, created timestamp, and updated timestamp
    */
-  createRow(row) {
+  createItineraryRow(row) {
     // keep track of what row belongs to what id, used for deletion
     this.docIds.push(row.id);
 
     let itineraryRow = qs("#saved-itineraries").insertRow();
-    let index = this.length - 1;
-    itineraryRow.classList.add("clickable");
+    itineraryRow.classList.add("itinerary", "clickable");
     itineraryRow.style = "cursor: pointer;";
+    let index = this.length - 1;
 
     // HTML template to be rendered for each row
     itineraryRow.innerHTML = `
@@ -178,8 +180,28 @@ class SavedItineraries {
     }
     qsa(".history")[index].onclick = event => {
       event.stopPropagation();
-      this.showHistory(index, chartRow);
+      this.showHistory(index);
     }
+  }
+
+  /**
+   * Creates the chart history row for use in showHistory().
+   */
+  createChartRow() {
+    let colSpan = qs("#saved-itineraries tr").children.length;
+
+    let chartRow = qs("#saved-itineraries").insertRow();
+    let index = this.length - 1;
+    chartRow.classList.add("chart", "clickable", "hide");
+    chartRow.style = "cursor: pointer;";
+
+    chartRow.innerHTML = `
+      <td colspan="${colSpan}">
+        <p class="chart-none hide center-align"
+          >Price history could not be created.</p>
+        <canvas class="chart-history hide"></canvas>
+      </td>
+    `;
   }
   
   /**
@@ -378,6 +400,8 @@ class SavedItineraries {
         row.flyTo = flyTo;
 
         this.updateRow(index);
+        // do not create a new chart if none is displayed
+        this.updateChart(index, false);
       });
   }
 
@@ -419,7 +443,7 @@ class SavedItineraries {
    */
   deleteRow(index) {
     qsa(".delete")[index].classList.add("disabled");
-    qs("#saved-itineraries").rows[index].hidden = true;
+    qsa(".itinerary")[index].classList.add("hide");
     let confirm = true;
     this.updateRowNumbers();
     this.deletedProcessing.push(this.docIds[index]);
@@ -479,7 +503,7 @@ class SavedItineraries {
     this.deletedProcessing.splice(
       this.deletedProcessing.indexOf(this.docIds[index]), 1);
     qsa(".delete")[index].classList.remove("disabled");
-    qs("#saved-itineraries").rows[index].hidden = false;
+    qsa(".itinerary")[index].classList.remove("hide");
     this.updateRowNumbers();
   }
 
@@ -490,5 +514,118 @@ class SavedItineraries {
     qsa("tr:not([hidden]).clickable .row-number").forEach((node, index) => {
       node.textContent = `${index + 1}${nbsp}|${nbsp}`;
     });
+  }
+
+  /**
+   * Shows the price history for the given itinerary.
+   * 
+   * @param {number} index index of row
+   */
+  showHistory(index) {
+    qsa(".chart")[index].classList.toggle("hide");
+    this.updateChart(index);
+  }
+
+  /**
+   * Updates or creates a chart based on firebase data.
+   * 
+   * @param {number} index index of row
+   * @param {boolean} create specifies whether to create a new chart or not.
+   * this is mainly so that if the itinerary is updated, we do not create a new
+   * chart if one has not been made yet.
+   */
+  updateChart(index, create = true) {
+    const data = this._firebaseData[index];
+
+    // removes all entries in the array where the price === -1.
+    const reduced = data.history.reduce((acc, {price, retrieved}) => {
+      if (price !== -1) {
+        acc.push({
+          retrieved: retrieved.seconds,
+          price: price,
+        });
+      }
+      return acc;
+    }, []);
+
+    // transformed data so that it can be used with Chart.js
+    const history = reduced.map(({price, retrieved}) => {
+      return {
+        x: new Date(retrieved * 1000),
+        y: price,
+      }
+    });
+
+    // do not display chart
+    if (!Array.isArray(history) || history.length === 0) {
+      qsa(".chart-none")[index].classList.remove("hide");
+      return;
+    }
+    else {
+      qsa(".chart-history")[index].classList.remove("hide");
+    }
+
+    // create a new chart
+    if (!(index in this.charts) && create) {
+      const context = qsa(".chart-history")[index].getContext("2d");
+
+      this.charts[index] = new Chart(context, {
+        type: "line",
+        data: {
+          datasets: [{
+            label: (typeof data.name !== "undefined") ?
+              data.name : "Untitled",
+            data: history,
+            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            borderColor: "rgb(255, 99, 132)",
+            fill: false,
+            pointRadius: 2,
+            lineTension: 0,
+            borderWidth: 2,
+          }]
+        },
+        options: {
+          animation: {
+            duration: 0,
+          },
+          scales: {
+            xAxes: [{
+              type: "time",
+              time: {
+                stepSize: 20, // adjust this to change # of tick marks
+              },
+              scaleLabel: {
+                display: true,
+                labelString: `${localeString(
+                  reduced[0].retrieved, false)}–${localeString(
+                  reduced[reduced.length - 1].retrieved, false)}`,
+              },
+            }],
+            yAxes: [{
+              type: "linear",
+              gridLines: {
+                drawBorder: false,
+              },
+              scaleLabel: {
+                display: true,
+                labelString: "Price",
+              },
+            }],
+          }
+        }
+      });
+    }
+    // update the old chart, if it exists
+    else if (typeof this.charts[index] !== "undefined") {
+      const chart = this.charts[index];
+      const config = this.charts[index].config;
+
+      // update the history object displayed
+      config.data.datasets[0].data = history;
+      config.options.scales.xAxes[0].scaleLabel.labelString = `${localeString(
+        reduced[0].retrieved, false)}–${localeString(
+          reduced[reduced.length - 1].retrieved, false)}`;
+      chart.update();
+    }
   }
 }
