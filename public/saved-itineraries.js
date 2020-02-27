@@ -296,21 +296,6 @@ class SavedItineraries {
       return;
     }
     
-    // Add default values to the flight.
-    itinerary.forEach(flight => {
-      Object.entries(default_values).forEach(([key, value]) => {
-        if (typeof flight[key] === "undefined") {
-          flight[key] = default_values[key];
-        }
-      });
-
-      required_fields.forEach(field => {
-        if (typeof flight[field] === "undefined") {
-          flight[field] = "";
-        }
-      });
-    });
-
     // Prepare details, including price.
     let res = await Promise.all(prepareFetches(itinerary))
       .then(responses => Promise.all(responses.map(res => res.json())))
