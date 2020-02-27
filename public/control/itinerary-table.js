@@ -137,19 +137,19 @@ class ItineraryTable {
         <div class="row"><div class="col s12 input-field">
           <select name="selected_cabins">
             ${generateSelectOptions([{
-              name: "Economy",
+              display: "Economy",
               value: "M",
             },
             {
-              name: "Premium Economy",
+              display: "Premium Economy",
               value: "W",
             },
             {
-              name: "Business",
+              display: "Business",
               value: "C",
             },
             {
-              name: "First",
+              display: "First",
               value: "F",
             }], itinerary.get(i, "selected_cabins"), "selected_cabins")}
           </select>
@@ -163,19 +163,19 @@ class ItineraryTable {
               value: "",
             },
             {
-              name: "Economy",
+              display: "Economy",
               value: "M",
             },
             {
-              name: "Premium Economy",
+              display: "Premium Economy",
               value: "W",
             },
             {
-              name: "Business",
+              display: "Business",
               value: "C",
             },
             {
-              name: "First",
+              display: "First",
               value: "F",
             }], itinerary.get(i, "mix_with_cabins"), "mix_with_cabins")}
           </select>
@@ -253,31 +253,31 @@ class ItineraryTable {
       <td class="fly_days"><div class="row"><div class="col s12 input-field">
         <select name="fly_days" multiple>
           ${generateSelectOptions([{
-            name: "Sunday",
+            display: "Sunday",
             value: "0",
           },
           {
-            name: "Monday",
+            display: "Monday",
             value: "1",
           },
           {
-            name: "Tuesday",
+            display: "Tuesday",
             value: "2",
           },
           {
-            name: "Wednesday",
+            display: "Wednesday",
             value: "3",
           },
           {
-            name: "Thursday",
+            display: "Thursday",
             value: "4",
           },
           {
-            name: "Friday",
+            display: "Friday",
             value: "5",
           },
           {
-            name: "Saturday",
+            display: "Saturday",
             value: "6",
           }], itinerary.get(i, "fly_days"), "fly_days", true)}
         </select>
@@ -434,13 +434,13 @@ class ItineraryTable {
  * @param {!Array<string>|Array<Object<string, string>>} options Array of
  *    possible options. The following formats are acceptable:
  *      ["value1", "value2", ...]
- *        Creates options with content and value set to the same string.
- *      [{ content: "name1", value: "value1" }, ...]
- *        Creates options with content and value set to different strings.
- *        content may be omitted to use the same string as value.
+ *        Creates options with display and value set to the same string.
+ *      [{ display: "display1", value: "value1" }, ...]
+ *        Creates options with display and value set to different strings.
+ *        display may be omitted to use the same string as value.
  * @param {?string} value Default option. May contain comma-separated options
  *     in the case of a multiple select.
- * @return {string} HTML string that contains all generated options with name
+ * @return {string} HTML string that contains all generated options with display
  *      and values.
  */
 function generateSelectOptions(options, value) {
@@ -456,7 +456,7 @@ function generateSelectOptions(options, value) {
     <option value="${option.value}"
       ${value.includes(escape(option.value)) ? "selected" : ""}
       ${option.value === "" ? "disabled" : ""}
-      >${typeof option.name !== "undefined" ? option.name : option.value}</
-    option>
+      >${typeof option.display !== "undefined" ?
+      option.display : option.value}</option>
   `).join("");
 }
