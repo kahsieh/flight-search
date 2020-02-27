@@ -48,8 +48,6 @@ function signup(googleUser) {
       });
     }
   });
-
-  auth();
 }
 
 /**

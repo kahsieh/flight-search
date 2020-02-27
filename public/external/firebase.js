@@ -15,10 +15,7 @@ addEventListener("DOMContentLoaded", () => {
 addEventListener("load", () => {
   initFirebase();
 
-  // signup already calls auth, so we do not have to run it twice
-  if (window.location.pathname !== "/") {
-    auth();
-  }
+  auth();
 });
 
 /**
