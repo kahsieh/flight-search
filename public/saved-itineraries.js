@@ -34,7 +34,13 @@ addEventListener("load", () => {
         });
       });
     }).then(() => {
-      Itineraries = new SavedItineraries(data);
+      if (data.length === 0) {
+        qs("#itineraries-authenticated").classList.add("hide");
+        qs("#itineraries-none").classList.remove("hide");
+      }
+      else {
+        Itineraries = new SavedItineraries(data);
+      }
     }).catch(error => {
       console.error(error);
       qs("#itineraries-authenticated").classList.add("hide");
