@@ -5,7 +5,6 @@ saved-itineraries.js
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
-
 "use strict";
 
 /**

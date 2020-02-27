@@ -1,4 +1,15 @@
-// KV of airlines and their logos for autocomplete
+/*
+Five Peas Flight Search
+airlines.js
+
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
+All Rights Reserved.
+*/
+"use strict";
+
+/**
+ * KV of airlines and their logos for autocomplete.
+ */
 const airlines = {
   "Motor Sich - M9": "https://images.kiwi.com/airlines/64/M9.png",
   "El Al Israel Airlines - LY": "https://images.kiwi.com/airlines/64/LY.png",
