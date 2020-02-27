@@ -119,7 +119,7 @@ class ItineraryTable {
         <div class="row"><div class="col s12 input-field">
           <select name="adult_hold_bag">
             ${generateSelectOptions(["0", "1", "2"],
-              itinerary.get(i, "adult_hold_bag"), "adult_hold_bag")}
+              itinerary.get(i, "adult_hold_bag"))}
           </select>
           <label>Checked&nbsp;bags</label>
         </div></div>
@@ -128,7 +128,7 @@ class ItineraryTable {
         <div class="row"><div class="col s12 input-field">
           <select name="adult_hand_bag">
             ${generateSelectOptions(["0", "1"],
-              itinerary.get(i, "adult_hand_bag"), "adult_hand_bag")}
+              itinerary.get(i, "adult_hand_bag"))}
           </select>
           <label>Carry-on&nbsp;bags</label>
         </div></div>
@@ -151,7 +151,7 @@ class ItineraryTable {
             {
               display: "First",
               value: "F",
-            }], itinerary.get(i, "selected_cabins"), "selected_cabins")}
+            }], itinerary.get(i, "selected_cabins"))}
           </select>
           <label>Cabin</label>
         </div></div>
@@ -177,7 +177,7 @@ class ItineraryTable {
             {
               display: "First",
               value: "F",
-            }], itinerary.get(i, "mix_with_cabins"), "mix_with_cabins")}
+            }], itinerary.get(i, "mix_with_cabins"))}
           </select>
           <label>Mixed&nbsp;with</label>
         </div></div>
@@ -279,7 +279,7 @@ class ItineraryTable {
           {
             display: "Saturday",
             value: "6",
-          }], itinerary.get(i, "fly_days"), "fly_days", true)}
+          }], itinerary.get(i, "fly_days"))}
         </select>
         <label>Day&nbsp;of&nbsp;week</label>
       </div></div></td>
