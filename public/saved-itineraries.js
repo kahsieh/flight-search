@@ -297,7 +297,7 @@ class SavedItineraries {
     }
     
     // Prepare details, including price.
-    let res = await Promise.all(prepareFetches(itinerary))
+    let res = await Promise.all(prepareFetches(new Itinerary(itinerary)))
       .then(responses => Promise.all(responses.map(res => res.json())))
       .then(bodies => bodies.flat())
       .catch(error => console.error(error));

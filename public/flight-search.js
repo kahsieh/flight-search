@@ -112,17 +112,17 @@ async function search() {
  *
  * @return {Array} Array of Promises.
  */
-function prepareFetches(itineraries = itable.get().raw()) {
+function prepareFetches(itinerary = itable.get()) {
   // num_airports is dynamically updated when we discover a pipe-separated
   // airport list.
   let num_airports = 1;
   let promises = [];
   for (let a = 0; a < num_airports; a++) {
     let body = {"requests": []};
-    for (let i = 0; i < itineraries.length; i++) {
+    for (let i = 0; i < itinerary.length; i++) {
       let curr_num_airports = Math.max(
-        itineraries[i]["fly_from"].split("|").length,
-        itineraries[i]["fly_to"].split("|").length
+        itinerary.get(i, "fly_from", false).split("|").length,
+        itinerary.get(i, "fly_to", false).split("|").length
       );
       if (num_airports > 1 && curr_num_airports > 1 &&
           num_airports != curr_num_airports) {
@@ -133,25 +133,19 @@ function prepareFetches(itineraries = itable.get().raw()) {
         num_airports = Math.max(num_airports, curr_num_airports);
       }
 
-      let fly_from = itineraries[i]["fly_from"].split("|");
-      let fly_to = itineraries[i]["fly_to"].split("|");
+      let fly_from = itinerary.get(i, "fly_from", false).split("|");
+      let fly_to = itinerary.get(i, "fly_to", false).split("|");
       let flight = {
         "fly_from": fly_from[Math.min(fly_from.length - 1, a)],
         "fly_to": fly_to[Math.min(fly_to.length - 1, a)],
-        "date_from": kiwiDate(itineraries[i]["date_from"]),
-        "date_to": kiwiDate(itineraries[i]["date_to"]) ||
-                   kiwiDate(itineraries[i]["date_from"]),
+        "date_from": kiwiDate(itinerary.get(i, "date_from", false)),
+        "date_to": kiwiDate(itinerary.get(i, "date_to", false)) ||
+                   kiwiDate(itinerary.get(i, "date_from", false)),
         "adults": 1,
       };
-      for (const field of optional_fields) {
-        if (field == "conn_on_diff_airport") {
-          if (!itineraries[i][field]) {
-            flight[field] = 0;
-          }
-        }
-        else if (itineraries[i][field]) {
-          // This won't automatically add falsy values to the request.
-          flight[field] = itineraries[i][field];
+      for (const field of itinerary.usedFields()) {
+        if (!(field in flight)) {
+          flight[field] = itinerary.get(i, field, false);
         }
       }
       body["requests"].push(flight);
