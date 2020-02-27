@@ -1,4 +1,15 @@
-// KV of airports for autocomplete
+/*
+Five Peas Flight Search
+airports.js
+
+Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
+All Rights Reserved.
+*/
+"use strict";
+
+/**
+ * KV of airports for autocomplete.
+ */
 const airports = {
   // City
   "Bangkok (all airports), TH - BKK": null,
