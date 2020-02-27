@@ -31,13 +31,18 @@ function gapiInit() {
 function signup(googleUser) {
   qs("#sign-out").classList.remove("disabled");
 
+  // We need to register an Observer on Firebase Auth to make sure auth
+  // is initialized.
   let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
     unsubscribe();
 
+    // Check if we are already signed-in Firebase with the correct user.
     if (!isUserEqual(googleUser, firebaseUser)) {
+      // Build Firebase credential with the Google ID token.
       let credential = firebase.auth.GoogleAuthProvider.credential(
         googleUser.getAuthResponse().id_token);
       
+      // Sign in with credential from the Google user.
       firebase.auth().signInWithCredential(credential).catch(error => {
         console.error(error);
       });
