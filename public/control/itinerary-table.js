@@ -32,6 +32,20 @@ class ItineraryTable {
   get length() { return this._table.childElementCount; }
 
   /**
+   * Retrieves the entire itinerary.
+   * 
+   * @return {!Itinerary} The contents of the ItineraryTable.
+   */
+  get() {
+    let raw = [];
+    for (let i = 0; i < this.length; i++) {
+      raw.push(Object.fromEntries(Itinerary.FIELDS.map(field =>
+        [field, this._getCell(i, field)])));
+    }
+    return new Itinerary(raw);
+  }
+
+  /**
    * Loads the itinerary from the current URL.
    *
    * @return {boolean} Whether the load was successful or not.
@@ -54,7 +68,7 @@ class ItineraryTable {
    * @param {!Itinerary} itinerary Itinerary object.
    */
   loadFromItinerary(itinerary) {
-    this.selectFilters(itinerary);
+    this._selectFilters(itinerary);
     for (let i = 0; i < itinerary.length; i++) {
       this.addFlight(itinerary, i);
     }
@@ -66,7 +80,7 @@ class ItineraryTable {
    * @param {!Itinerary=} itinerary Itinerary to load fields from.
    * @param {number=} i Flight index in Itinerary.
    */
-  addFlight(itinerary = new Itinerary([{}]), i = 0) {
+  addFlight(itinerary = new Itinerary([{"max_stopovers": 2}]), i = 0) {
     let row = this._table.insertRow();
     row.style.border = 0;
     row.innerHTML = `
@@ -104,7 +118,7 @@ class ItineraryTable {
       <td class="adult_hold_bag">
         <div class="row"><div class="col s12 input-field">
           <select name="adult_hold_bag">
-            ${this.generateSelectOptions(["0", "1", "2"],
+            ${generateSelectOptions(["0", "1", "2"],
               itinerary.get(i, "adult_hold_bag"), "adult_hold_bag")}
           </select>
           <label>Checked&nbsp;bags</label>
@@ -113,7 +127,7 @@ class ItineraryTable {
       <td class="adult_hold_bag">
         <div class="row"><div class="col s12 input-field">
           <select name="adult_hand_bag">
-            ${this.generateSelectOptions(["0", "1"],
+            ${generateSelectOptions(["0", "1"],
               itinerary.get(i, "adult_hand_bag"), "adult_hand_bag")}
           </select>
           <label>Carry-on&nbsp;bags</label>
@@ -122,7 +136,7 @@ class ItineraryTable {
       <td class="selected_cabins">
         <div class="row"><div class="col s12 input-field">
           <select name="selected_cabins">
-            ${this.generateSelectOptions([{
+            ${generateSelectOptions([{
               name: "Economy",
               value: "M",
             },
@@ -145,7 +159,7 @@ class ItineraryTable {
       <td class="selected_cabins">
         <div class="row"><div class="col s12 input-field">
           <select name="mix_with_cabins">
-            ${this.generateSelectOptions([{
+            ${generateSelectOptions([{
               value: "",
             },
             {
@@ -238,7 +252,7 @@ class ItineraryTable {
       </div></div></td>
       <td class="fly_days"><div class="row"><div class="col s12 input-field">
         <select name="fly_days" multiple>
-          ${this.generateSelectOptions([{
+          ${generateSelectOptions([{
             name: "Sunday",
             value: "0",
           },
@@ -298,92 +312,28 @@ class ItineraryTable {
       </td>
     `;
     this.updateFilters();
-    qs("#remove-flight").classList.remove("disabled");
+    this._removeFlight.classList.remove("disabled");
     new FlightTable();
   }
 
   /**
-   * generate select options for the itinerary based on value given. If value is invalid, uses value found in default_values.
-   * 
-   * @param {Object} options array of possible options. the following formats are acceptable:
-   *    ["value1", "value2", ...]                                         creates an option with value and name set to string
-   *    [{ value: "value1"}, { value: "value2"}, ...]                     creates an option with value set to value1, name set to value1
-   *    [{ name: name1, value: value1 }, { name: name2, value: value2 }]  creates an option with name set to name1, value set to value1
-   * @param {string} value string containing default values to fill the select with
-   *    can either be a string, or a comma separated string if select is multiple
-   * @param {string} field name of field being changed
-   * @param {boolean} multiple OPTIONAL boolean that checks if select is multiple. If it is, value becomes an array
-   * 
-   * @return {string} HTML string that contains all generated options with name and values
-   */
-  generateSelectOptions(options, value, field, multiple = false) {
-    if (typeof value === "undefined") {
-      value = "";
-    }
-    // if select is multiple, create an array from the string.
-    // otherwise, we just encapsulate value into an array (in case the string has a comma and we want to keep it as one)
-    value = (multiple ? value.split(",") : [value]);
-    // list of all possible values the string can be
-    let possibleValues = [];
-    options = options.map(option => {
-      let obj = option;
-      // if the options specified is just a string, we create an object with value set to that string
-      if (typeof option === "string") {
-        obj = {value: option};
-      }
-      
-      possibleValues.push(obj.value);
-      return obj;
-    });
-
-    // defaultValue specifies if we should use the default values or not, based on if the value is invalid or not
-    let defaultValue = false;
-    value.forEach(value => {
-      if (!possibleValues.includes(value)) {
-        defaultValue = true;
-      }
-    });
-
-    if (defaultValue) {
-      // if there is no default value found in default_values, value = ""
-      if (typeof default_values[field] === "undefined") {
-        value = "";
-      }
-      else {
-        // otherwise, we do the same as before and split it up/put it in an array
-        value = (multiple ? default_values[field].split(",") : [default_values[field]]);
-      }
-    }
-
-    return options.map(option => {
-      let selected = false;
-      // if value is the current option, we select it
-      if (value.includes(option.value)) {
-        selected = true;
-      }
-
-      return `<option value="${option.value}" ${selected ? "selected" : ""} ${option.value === "" ? "disabled" : ""}>${typeof option.name !== "undefined" ? option.name : option.value}</option>`;
-    }).join("");
-  }
-
-  /**
-   * Removes a flight from the itinerary.
+   * Removes a flight from the itinerary. The flight removed depends on the
+   * triggering event.
    */
   removeFlight() {
-    let row = event.currentTarget.nodeName == "BUTTON"
-            ? this._table.childElementCount - 1
-            : [...this._table.children]
-                .indexOf(event.target.parentNode.parentNode)
-    switch (this._table.childElementCount) {
+    let row = event.currentTarget.nodeName == "BUTTON" ? this.length - 1
+      : [...this._table.children].indexOf(event.target.parentNode.parentNode)
+    switch (this.length) {
       case 1:
         return;
       case 2:
-        qs("#remove-flight").classList.add("disabled");
+        this._removeFlight.classList.add("disabled");
         // fallthrough
       default:
         this._table.querySelectorAll("tr")[row].remove();
         FlightTable.tables[row].remove();
-        for (const [i, e] of this._table.querySelectorAll(".flight-index").entries()) {
+        for (const [i, e] of
+             this._table.querySelectorAll(".flight-index").entries()) {
           e.textContent = i + 1;
         }
         break;
@@ -391,14 +341,46 @@ class ItineraryTable {
   }
 
   /**
+   * Shows or hides filter columns according to the user's selection.
+   */
+  updateFilters() {
+    for (const filter of this._filters.querySelectorAll("option")) {
+      if (filter.value === "") {
+        continue;
+      }
+      this._table.querySelectorAll(`.${filter.value}`)
+                 .forEach(e => e.style.display = filter.selected ? "" : "none");
+    }
+
+    // Re-initialize Materialize selects and autocompletes. 
+    M.FormSelect.init(this._table.querySelectorAll("select"), {});
+    const trim = e =>
+      e.value = e.value.includes(" - ") ? e.value.split(" - ")[1] : e.value;
+    let autocomplete_select_airlines =
+      this._table.querySelectorAll(".autocomplete_select_airlines")
+    M.Autocomplete.init(autocomplete_select_airlines, {
+        data: airlines, 
+        onAutocomplete: () => autocomplete_select_airlines.forEach(trim),
+        limit: 5
+    });
+    let autocomplete_airport =
+      this._table.querySelectorAll(".autocomplete_airport");
+    M.Autocomplete.init(autocomplete_airport, {
+      data: airports, 
+      onAutocomplete: () => autocomplete_airport.forEach(trim),
+      limit: 5
+    });
+  }
+
+  /**
    * Retrieves the value from a cell.
    *
-   * @param {number} row Row number.
-   * @param {string} col Column name.
+   * @param {number} i Flight index.
+   * @param {string} field Field name.
    * @return {string} Current value of cell.
    */
-  get(row, col) {
-    let cell = this._table.children[row].querySelector(`[name=${col}]`);
+  _getCell(i, field) {
+    let cell = this._table.children[i].querySelector(`[name=${field}]`);
     if (!cell) {
       return;
     }
@@ -415,50 +397,14 @@ class ItineraryTable {
   }
 
   /**
-   * Retrieves all nonempty, nondefault values from the itinerary
+   * Selects filter options if itinerary uses non-default options. 
    * 
-   * @param {boolean} includeDefaults specify whether or not to include default values in the itinerary
-   * @return {array} Array with all nonempty, nondefault values in the itinerary
+   * @param {Itinerary} itinerary Itinerary to check for non-default options.
    */
-  getAll(includeDefaults = false) {
-    let length = this.length;
-    let array = [];
-    for (let i = 0; i < length; i++) {
-      let obj = {};
-      let value;
-      for (let j = 0; j < required_fields.length; j++) {
-        value = this.get(i, required_fields[j]);
-        if (typeof value !== "undefined") {
-          if (includeDefaults || (value !== "" && default_values[required_fields[j]] !== value)) {
-            obj[required_fields[j]] = value;
-          }
-        }
-      }
-      for (let j = 0; j < optional_fields.length; j++) {
-        value = this.get(i, optional_fields[j]);
-        if (typeof value !== "undefined") {
-          if (includeDefaults || (value !== "" && default_values[optional_fields[j]] !== value)) {
-            obj[optional_fields[j]] = value;
-          }
-        }
-      }
-      array.push(obj);
-    }
-
-    return array;
-  }
-
-  /**
-   * Selects filter options if cells contains non-default options. 
-   * 
-   * @param {Object} cells Object that contains filterable properties
-   */
-  selectFilters(itinerary) {
-    // some properties do not have entries in the table, but are related to another entry and may not be default
-    let filterMap = {
-      "fly_from": undefined,
-      "fly_to": undefined,
-      "date_from": undefined,
+  _selectFilters(itinerary) {
+    // Some fields are shown by selecting a different filtering option. This
+    // maps the names of those fields to the appropriate options.
+    const filterMap = {
       "select_airlines_exclude": "select_airlines",
       "adult_hand_bag": "adult_hold_bag",
       "mix_with_cabins": "selected_cabins",
@@ -468,53 +414,49 @@ class ItineraryTable {
       "dtime_to": "dtime_from",
       "atime_to": "atime_from",
     }
-
-    for (const k of itinerary.usedFields()) {
-      let filterKey = ((typeof filterMap[k] !== "undefined") ? filterMap[k] : k);
-      let filter = qs(`#filters option[value=${filterKey}]`);
+    for (let k of itinerary.usedFields()) {
+      k = k in filterMap ? filterMap[k] : k;
+      let filter = this._filters.querySelector(`option[value=${k}]`);
       if (filter !== null) {
         filter.selected = true;
       }
     }
   }
+}
 
-  /**
-   * Shows or hides filter columns according to the user's selection.
-   */
-  updateFilters() {
-    for (const filter of qsa("#filters option")) {
-      if (!filter.value) {
-        continue;
-      }
-      if (filter.selected) {
-        qsa(`.${filter.value}`).forEach(e => e.style.display = "");
-      }
-      else {
-        qsa(`.${filter.value}`).forEach(e => e.style.display = "none");
-      }
-    }
-    M.FormSelect.init(qsa("#itinerary select"), {});
- 
-    var autocomplete_select_airlines = document.querySelectorAll(".autocomplete_select_airlines");
-    M.Autocomplete.init(autocomplete_select_airlines, {
-      data: airlines, 
-      onAutocomplete: () => {
-        const trim = (el) => {el.value = el.value.search(" - ") != -1 ? el.value.split(" - ")[1] : el.value};
-        qsa("[name=select_airlines]").forEach(trim);
-      },
-      limit: 10
-    });
+// -----------------------------------------------------------------------------
+// HELPERS
+// -----------------------------------------------------------------------------
 
-    var autocomplete_airport = document.querySelectorAll(".autocomplete_airport");
-    M.Autocomplete.init(autocomplete_airport, {
-      data: airports, 
-      onAutocomplete: () => {
-        const trim = (el) => {el.value = el.value.search(" - ") != -1 ? el.value.split(" - ")[1] : el.value};
-        qsa("[name=fly_from]").forEach(trim);
-        qsa("[name=fly_to]").forEach(trim);
-        qsa("[name=select_stop_airport]").forEach(trim);
-      },
-      limit: 10
-    });
+/**
+ * Generates HTML select options.
+ * 
+ * @param {!Array<string>|Array<Object<string, string>>} options Array of
+ *    possible options. The following formats are acceptable:
+ *      ["value1", "value2", ...]
+ *        Creates options with content and value set to the same string.
+ *      [{ content: "name1", value: "value1" }, ...]
+ *        Creates options with content and value set to different strings.
+ *        content may be omitted to use the same string as value.
+ * @param {?string} value Default option. May contain comma-separated options
+ *     in the case of a multiple select.
+ * @return {string} HTML string that contains all generated options with name
+ *      and values.
+ */
+function generateSelectOptions(options, value) {
+  // Normalize options to an Array<Object<string, string>>.
+  options = options.map(option =>
+    typeof option === "string" ? {value: option} : option);
+  // Normalize value to an Array<string>.
+  if (value.includes(",")) {
+    value = value.split(",");
   }
+
+  return options.map(option => `
+    <option value="${option.value}"
+      ${value.includes(option.value) ? "selected" : ""}
+      ${option.value === "" ? "disabled" : ""}
+      >${typeof option.name !== "undefined" ? option.name : option.value}</
+    option>
+  `).join("");
 }

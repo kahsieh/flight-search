@@ -27,8 +27,14 @@ addEventListener("load", () => {
     let date2 = new Date();
     date2.setDate(date1.getDate() + 21);
     itable.loadFromItinerary(new Itinerary([
-      { "date_from": date1.toISOString().substring(0, 10) },
-      { "date_from": date2.toISOString().substring(0, 10) },
+      {
+        "max_stopovers": 2,
+        "date_from": date1.toISOString().substring(0, 10)
+      },
+      {
+        "max_stopovers": 2,
+        "date_from": date2.toISOString().substring(0, 10)
+      },
     ]));
   }
 
@@ -106,7 +112,7 @@ async function search() {
  *
  * @return {Array} Array of Promises.
  */
-function prepareFetches(itineraries = itable.getAll(true)) {
+function prepareFetches(itineraries = itable.get().raw()) {
   // num_airports is dynamically updated when we discover a pipe-separated
   // airport list.
   let num_airports = 1;
@@ -177,13 +183,13 @@ function prepareFetches(itineraries = itable.getAll(true)) {
  *   actions, with prepended "#".
  */
 function shareItinerary(name = qs("#itinerary-name").value,
-                        itinerary = itable.getAll(),
+                        itinerary = itable.get(),
                         button = qs("#share"),
                         hiddenInput = qs("#share-link")) {
   button.classList.add("disabled");
 
   // Copy URL to clipboard if possible and set the message.
-  let url = new Itinerary(itinerary).link(name);
+  let url = itinerary.link(name);
   let icon, message, color;
   if (url.length > 2048) {
     icon = "error";

@@ -34,7 +34,7 @@ class Itinerary {
    * @param {boolean=} escaped Escape non-default values.
    * @return {any} Field value.
    */
-  get(i, field, escaped=true) {
+  get(i, field, escaped = true) {
     return field in this._raw[i]
          ? (escaped ? escape(this._raw[i][field]) : this._raw[i][field])
          : Itinerary.DEFAULTS[field];
@@ -114,8 +114,8 @@ Itinerary.DEFAULTS = {
   "date_to": "",
   "select_airlines": "",
   "select_airlines_exclude": false,
-  "adult_hold_bag": 0,
-  "adult_hand_bag": 0,
+  "adult_hold_bag": "0",
+  "adult_hand_bag": "0",
   "selected_cabins": "M",
   "mix_with_cabins": "",
   "price_from": "",

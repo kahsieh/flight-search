@@ -80,7 +80,7 @@ async function saveItinerary() {
   firebase.firestore().collection("itineraries").add({
     uid: user.uid,
     name: qs("#itinerary-name").value || "Untitled",
-    itinerary: itable.getAll(),
+    itinerary: itable.get().raw(),
     created: currentDate,
     history: [{
       price: price,
