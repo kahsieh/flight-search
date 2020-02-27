@@ -56,8 +56,7 @@ async function saveItinerary() {
   let currentDate = new Date();
 
   if (res !== null && typeof res[0] !== "undefined" &&
-    typeof res[0].price !== "undefined" &&
-    res[0]["route"].length === itinerary.length) {
+    typeof res[0].price !== "undefined") {
     price = res[0].price;
     dTime = localeString(res[0].route[0].dTime);
     aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
