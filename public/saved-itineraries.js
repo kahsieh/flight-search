@@ -588,10 +588,10 @@ class SavedItineraries {
             label: (typeof data.name !== "undefined") ?
               data.name : "Untitled",
             data: history,
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-            borderColor: "rgb(255, 99, 132)",
+            backgroundColor: "rgba(238, 110, 115, 0.5)",
+            borderColor: "rgb(238, 110, 115)",
             fill: false,
-            pointRadius: 2,
+            pointRadius: 0,
             lineTension: 0,
             borderWidth: 2,
           }]
@@ -606,6 +606,12 @@ class SavedItineraries {
                   reduced[0].retrieved, false)}–${localeString(
                   reduced[reduced.length - 1].retrieved, false)}`,
               },
+              offset: true,
+              ticks: {
+                autoSkip: true,
+                autoSkipPadding: 75,
+                maxRotation: 0,
+              },
             }],
             yAxes: [{
               type: "linear",
@@ -616,8 +622,29 @@ class SavedItineraries {
                 display: true,
                 labelString: "Price",
               },
+              offset: true,
+              ticks: {
+                stepSize: 10,
+                autoSkip: true,
+                autoSkipPadding: 75,
+                maxRotation: 0,
+              },
             }],
-          }
+          },
+          tooltips: {
+            intersect: false,
+            mode: "index",
+            callbacks: {
+            	label: function(tooltip, data) {
+            		let label = data.datasets[tooltip.datasetIndex].label || "";
+            		if (label) {
+            			label += ": ";
+            		}
+            		label += localeStringUSD(parseFloat(tooltip.value));
+            		return label;
+            	}
+            }
+          },
         }
       });
     }
