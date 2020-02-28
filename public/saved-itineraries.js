@@ -191,7 +191,6 @@ class SavedItineraries {
     let colSpan = qs("#saved-itineraries tr").children.length;
 
     let chartRow = qs("#saved-itineraries").insertRow();
-    let index = this.length - 1;
     chartRow.classList.add("chart", "clickable", "hide");
     chartRow.style = "cursor: pointer;";
 
