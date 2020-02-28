@@ -34,9 +34,10 @@ class Itinerary {
    * @return {any} Field value.
    */
   get(i, field, escaped = true) {
-    return field in this._raw[i]
-         ? (escaped ? escape(this._raw[i][field]) : this._raw[i][field])
-         : Itinerary.DEFAULTS[field];
+    let value = field in this._raw[i]
+              ? this._raw[i][field]
+              : Itinerary.DEFAULTS[field];
+    return escaped ? escape(value) : value;
   }
 
   /**
