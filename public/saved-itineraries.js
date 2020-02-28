@@ -597,9 +597,6 @@ class SavedItineraries {
           }]
         },
         options: {
-          animation: {
-            duration: 0,
-          },
           scales: {
             xAxes: [{
               type: "time",
