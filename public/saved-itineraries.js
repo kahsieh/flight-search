@@ -449,6 +449,7 @@ class SavedItineraries {
   deleteRow(index) {
     qsa(".delete")[index].classList.add("disabled");
     qsa(".itinerary")[index].classList.add("hide");
+    qsa(".chart")[index].classList.add("hide");
     let confirm = true;
     this.updateRowNumbers();
     this.deletedProcessing.push(this.docIds[index]);
@@ -508,7 +509,12 @@ class SavedItineraries {
     this.deletedProcessing.splice(
       this.deletedProcessing.indexOf(this.docIds[index]), 1);
     qsa(".delete")[index].classList.remove("disabled");
-    qsa(".itinerary")[index].classList.remove("hide");
+    let itineraryClass = qsa(".itinerary")[index].classList;
+    itineraryClass.remove("hide");
+    if (itineraryClass.contains("expanded")) {
+      // show the chart if the itinerary row is expanded
+      qsa(".chart")[index].classList.remove("hide");
+    }
     this.updateRowNumbers();
   }
 
