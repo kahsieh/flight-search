@@ -63,6 +63,9 @@ class ItineraryTable {
         this._name.value = "";
       }
       this.loadFromItinerary(new Itinerary(urlParams["i"]));
+      if (this.length === 0) {
+        return false;
+      }
       return true;
     }
     return false;

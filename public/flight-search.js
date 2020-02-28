@@ -25,7 +25,7 @@ addEventListener("load", () => {
     let date1 = new Date();
     date1.setDate(date1.getDate() + 14);
     let date2 = new Date();
-    date2.setDate(date1.getDate() + 21);
+    date2.setDate(date2.getDate() + 21);
     itable.loadFromItinerary(new Itinerary([
       {
         "max_stopovers": 2,
