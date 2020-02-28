@@ -597,9 +597,6 @@ class SavedItineraries {
           scales: {
             xAxes: [{
               type: "time",
-              time: {
-                stepSize: 20, // adjust this to change # of tick marks
-              },
               scaleLabel: {
                 display: true,
                 labelString: `${localeString(
