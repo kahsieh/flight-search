@@ -573,6 +573,20 @@ class SavedItineraries {
       qsa(".chart-history")[index].classList.remove("hide");
     }
 
+    // looks for the maximum price and returns it as an object, formatted with:
+    // { retrieved, price, index }.
+    // x is the date, y is the price
+    const max = history.reduce((acc, {x, y}, index) => {
+      let currentMax = acc.price;
+      return currentMax > y ? acc : { retrieved: x, price: y, index: index };
+    }, {});
+
+    // does same as above, but finds minimum instead
+    const min = history.reduce((acc, {x, y}, index) => {
+      let currentMin = acc.price;
+      return currentMin < y ? acc : { retrieved: x, price: y, index: index };
+    }, {});
+
     // create a new chart
     if (!(index in this.charts) && create) {
       const context = qsa(".chart-history")[index].getContext("2d");
@@ -584,12 +598,9 @@ class SavedItineraries {
             label: (typeof data.name !== "undefined") ?
               data.name : "Untitled",
             data: history,
-            backgroundColor: "rgba(238, 110, 115, 0.5)",
             borderColor: "rgb(238, 110, 115)",
             fill: false,
-            pointRadius: 0,
             lineTension: 0,
-            borderWidth: 2,
           }]
         },
         options: {
@@ -632,14 +643,43 @@ class SavedItineraries {
             intersect: false,
             mode: "index",
             callbacks: {
-            	label: function(tooltip, data) {
-            		let label = data.datasets[tooltip.datasetIndex].label || "";
-            		if (label) {
-            			label += ": ";
-            		}
-            		label += localeStringUSD(parseFloat(tooltip.value));
+            	label: (tooltip, data) => {
+                let label =  "";
+                let value = parseFloat(tooltip.value);
+
+                label += this.ifMaxOrMin({
+                  dataIndex: tooltip.index,
+                  dataset: {
+                    data: data.datasets[0].data,
+                  },
+                }, max, min, false);
+
+            		label += localeStringUSD(value);
             		return label;
-            	}
+              },
+            },
+          },
+          elements: {
+            point: {
+              radius: (ctx) => {
+                return this.ifMaxOrMin(ctx, max, min) ? 5 : 0;
+              },
+              hoverRadius: (ctx) => {
+                return this.ifMaxOrMin(ctx, max, min) ? 7 : 0;
+              },
+              backgroundColor: (ctx) => {
+                return this.ifMaxOrMin(ctx, max, min) ?
+                  "rgb(33, 150, 243)" : // blue
+                  "rgb(238, 110, 115)"; // red
+              },
+              borderWidth: (ctx) => {
+                return 1;
+              },
+              borderColor: (ctx) => {
+                return this.ifMaxOrMin(ctx, max, min) ?
+                  "rgb(33, 150, 243)" : // blue
+                  "rgb(238, 110, 115)"; // red
+              },
             }
           },
         }
@@ -657,5 +697,48 @@ class SavedItineraries {
           reduced[reduced.length - 1].retrieved, false)}`;
       chart.update();
     }
+  }
+
+  /**
+   * Updates the max/min price and returns if the index is equal to the new
+   * max/min price.
+   * 
+   * @param {object} context canvas context object, used for data retrieval
+   * @param {object} max max value of dataset
+   * @param {object} min min value of dataset
+   * 
+   * @returns {string} "Max: " or "Min: " if true, for use in label
+   *                   "" if false, to validate if index is max/min
+   */
+  ifMaxOrMin(context, max, min, latest = true) {
+    let index = context.dataIndex;
+    let data = context.dataset.data;
+    let length = data.length;
+    // update the current min/max values if needed
+    if (data[length - 1].y >= max.price) {
+      max = {
+        retrieved: data[length - 1].x,
+        price: data[length - 1].y,
+        index: length - 1,
+      };
+    }
+    if (data[length - 1].y <= min.price) {
+      min = {
+        retrieved: data[length - 1].x,
+        price: data[length - 1].y,
+        index: length - 1,
+      };
+    }
+
+    // Return a string if the index is the index of the max value, or if
+    // we do not care about the latest index, just return if it is equal to the
+    // max price. The same logic applies for min as well.
+    if (index === max.index || (!latest && data[index].y === max.price)) {
+      return "Max: ";
+    }
+    if (index === min.index || (!latest && data[index].y === min.price)) {
+      return "Min: ";
+    }
+    return "";
   }
 }
