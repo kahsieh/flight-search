@@ -81,7 +81,8 @@ class Itinerary {
    * @param {string} name Name for this Itinerary.
    */
   link(name) {
-    return `${location.origin.split("?")[0]}?n=${name}&i=${this.encoded()}`;
+    return `${location.origin.split("?")[0]}?n=${
+      btoa(name)}&i=${this.encoded()}`;
   }
 
   /**
@@ -92,7 +93,14 @@ class Itinerary {
    */
   static _decoded(str) {
     const keys = createKeys(Itinerary.FIELDS.length);
-    let minified = JSON.parse(atob(str));
+    let minified = [];
+    // decode itinerary from base64 encoding
+    try {
+      minified = minified = JSON.parse(atob(str));
+    }
+    catch (error) {
+      console.error(error);
+    }
     return mapEntries(minified, ([k, v]) =>
         [Itinerary.FIELDS[keys.indexOf(k)], v]);
   }

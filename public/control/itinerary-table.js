@@ -54,7 +54,14 @@ class ItineraryTable {
     window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (_, k, v) =>
         urlParams[k] = decodeURIComponent(v));
     if ("n" in urlParams && "i" in urlParams) {
-      this._name.value = urlParams["n"];
+      // decode name from base64 encoding
+      try {
+        this._name.value = atob(urlParams["n"]);
+      }
+      catch (error) {
+        console.error(error);
+        this._name.value = "";
+      }
       this.loadFromItinerary(new Itinerary(urlParams["i"]));
       return true;
     }
