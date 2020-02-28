@@ -123,18 +123,18 @@ class SavedItineraries {
 
     // HTML template to be rendered for each row
     itineraryRow.innerHTML = `
-      <td>
+      <td class="truncate" style="max-width: 16vw;">
         <b class="row-number">${this.length}&nbsp;|&nbsp;</b><div
-          style="display: inline;" class="name truncate"></div>
+          style="display: inline;" class="name"></div>
         <br>
         <span class="created note"></span>
       </td>
-      <td class="departure"></td>
-      <td class="arrival"></td>
+      <td class="departure" style="white-space: nowrap;"></td>
+      <td class="arrival" style="white-space: nowrap;"></td>
       <td class="flight-path"></td>
       <td>
         <div class="price"></div>
-        <span class="retrieved note"></span>
+        <span class="retrieved note" style="white-space: nowrap;"></span>
       </td>
       <td style="white-space: nowrap;">
         <button class="update btn-floating waves-effect waves-light">
@@ -147,8 +147,7 @@ class SavedItineraries {
         <button class="delete btn-floating waves-effect waves-light red">
           <i class="material-icons">delete</i>
         </button>
-      </td>
-      <td>
+        ${nbsp}
         <button class="history btn-flat waves-effect waves-light"
           style="width: 40px; height: 40px;
           border-radius: 50%; padding: 0;">
@@ -221,7 +220,6 @@ class SavedItineraries {
       <th>Return</th>
       <th>Flight&nbsp;Path</th>
       <th>Latest&nbsp;Price</th>
-      <th></th>
       <th></th>
     `;
   }
