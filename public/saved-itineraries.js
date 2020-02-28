@@ -573,18 +573,18 @@ class SavedItineraries {
       qsa(".chart-history")[index].classList.remove("hide");
     }
 
-    // looks for the maximum price and returns it as an object, formatted with:
-    // { retrieved, price, index }.
+    // looks for the maximum price and returns it as an object, formatted as:
+    // { price, index }.
     // x is the date, y is the price
-    const max = history.reduce((acc, {x, y}, index) => {
+    const max = history.reduce((acc, {y}, index) => {
       let currentMax = acc.price;
-      return currentMax > y ? acc : { retrieved: x, price: y, index: index };
+      return currentMax > y ? acc : { price: y, index: index };
     }, {});
 
     // does same as above, but finds minimum instead
-    const min = history.reduce((acc, {x, y}, index) => {
+    const min = history.reduce((acc, {y}, index) => {
       let currentMin = acc.price;
-      return currentMin < y ? acc : { retrieved: x, price: y, index: index };
+      return currentMin < y ? acc : { price: y, index: index };
     }, {});
 
     // create a new chart
