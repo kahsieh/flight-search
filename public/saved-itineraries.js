@@ -345,7 +345,7 @@ class SavedItineraries {
 
     let icon, message, color;
     let docId = this.docIds[index];
-    let currentDate = new Date();
+    let currentDate = firebase.firestore.Timestamp.now();
 
     firebase.firestore()
       .collection("itineraries")
@@ -393,9 +393,7 @@ class SavedItineraries {
         let row = this._firebaseData[index];
         row.history.push({
           price: price,
-          retrieved: {
-            seconds: Date.parse(currentDate) / 1000,
-          },
+          retrieved: currentDate,
         });
         row.dTime = dTime;
         row.aTime = aTime;
