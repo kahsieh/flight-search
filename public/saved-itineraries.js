@@ -193,6 +193,7 @@ class SavedItineraries {
     let chartRow = qs("#saved-itineraries").insertRow();
     chartRow.classList.add("chart", "clickable", "hide");
     chartRow.style = "cursor: pointer;";
+    let index = this.length - 1;
 
     chartRow.innerHTML = `
       <td colspan="${colSpan}">
