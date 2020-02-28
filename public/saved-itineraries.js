@@ -623,6 +623,7 @@ class SavedItineraries {
               offset: true,
               ticks: {
                 stepSize: 10,
+                maxTicksLimit: 7,
                 autoSkip: true,
                 autoSkipPadding: 75,
                 maxRotation: 0,
