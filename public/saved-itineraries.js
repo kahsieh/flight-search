@@ -202,6 +202,11 @@ class SavedItineraries {
         <canvas class="chart-history hide"></canvas>
       </td>
     `;
+
+    // add hover class so that itinerary is also highlighted on hover
+    chartRow.onmouseout = chartRow.onmouseover = event => {
+      qsa(".itinerary")[index].classList.toggle("hover");
+    }
   }
   
   /**
@@ -522,6 +527,7 @@ class SavedItineraries {
    * @param {number} index index of row
    */
   showHistory(index) {
+    qsa(".itinerary")[index].classList.toggle("expanded");
     qsa(".chart")[index].classList.toggle("hide");
     this.updateChart(index);
   }

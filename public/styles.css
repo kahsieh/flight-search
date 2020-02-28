@@ -62,3 +62,20 @@ td, th {
     bottom: 7%;
   }
 }
+
+/* Hide border when saved itineraries table is expanded */
+.expanded {
+  border-bottom: 0;
+}
+
+/* highlight chart when itinerary is selected */
+.itinerary:hover + .chart {
+  background-color: rgba(242,242,242,0.5);
+}
+
+/* highlight itinerary when chart is selected, we add this class in
+ * saved-itineraries.js
+*/
+.hover {
+  background-color: rgba(242,242,242,0.5);
+}
