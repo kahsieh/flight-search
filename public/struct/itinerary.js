@@ -97,7 +97,7 @@ class Itinerary {
     let minified = [];
     // decode itinerary from base64 encoding
     try {
-      minified = minified = JSON.parse(atob(str));
+      minified = JSON.parse(atob(str));
     }
     catch (error) {
       console.error(error);
@@ -195,7 +195,8 @@ function createKeys(length) {
 function escape(str) {
   switch (typeof str) {
     case "string":
-      return str.replace(/./g, c => `&#${c.charCodeAt(0)};`);
+      // Don't escape commas because they're used as delimiters.
+      return str.replace(/[^,]/g, c => `&#${c.charCodeAt(0)};`);
     case "number":
       return str;
     case "boolean":
