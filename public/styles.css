@@ -63,6 +63,23 @@ td, th {
   }
 }
 
+#saved-itineraries .name {
+  display: inline;
+}
+
+#saved-itineraries .truncate {
+  max-width: 16vw;
+  display: table-cell;
+}
+
+#saved-itinerares .no-wrap {
+  white-space: nowrap;
+}
+
+#saved-itineraries tr {
+  cursor: pointer;
+}
+
 /* Hide border when saved itineraries table is expanded */
 #saved-itineraries .expanded {
   border-bottom: 0;
@@ -78,4 +95,21 @@ td, th {
 */
 #saved-itineraries .hover {
   background-color: rgba(242,242,242,0.5);
+}
+
+/* button styling */
+#saved-itineraries .btn-flat.circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+#saved-itineraries .btn-flat.circle i {
+  font-size: 2rem;
+  line-height: 40px;
+}
+
+#saved-itineraries .btn-floating.trash {
+  background-color: #ee6e73;
 }

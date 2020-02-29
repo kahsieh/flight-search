@@ -118,25 +118,24 @@ class SavedItineraries {
 
     let itineraryRow = qs("#saved-itineraries").insertRow();
     itineraryRow.classList.add("itinerary", "clickable");
-    itineraryRow.style = "cursor: pointer;";
     let index = this.length - 1;
 
     // HTML template to be rendered for each row
     itineraryRow.innerHTML = `
-      <td class="truncate" style="max-width: 16vw;">
+      <td class="truncate">
         <b class="row-number">${this.length}&nbsp;|&nbsp;</b><div
-          style="display: inline;" class="name"></div>
+          class="name"></div>
         <br>
         <span class="created note"></span>
       </td>
-      <td class="departure" style="white-space: nowrap;"></td>
-      <td class="arrival" style="white-space: nowrap;"></td>
+      <td class="departure no-wrap"></td>
+      <td class="arrival no-wrap"></td>
       <td class="flight-path"></td>
       <td>
         <div class="price"></div>
-        <span class="retrieved note" style="white-space: nowrap;"></span>
+        <span class="retrieved note no-wrap"></span>
       </td>
-      <td style="white-space: nowrap;">
+      <td class="no-wrap">
         <button class="update btn-floating waves-effect waves-light">
           <i class="material-icons">refresh</i>
         </button>
@@ -144,15 +143,12 @@ class SavedItineraries {
           <i class="material-icons">share</i>
           <input type="hidden" class="share-link">
         </button>
-        <button class="delete btn-floating waves-effect waves-light red">
+        <button class="delete btn-floating waves-effect waves-light trash">
           <i class="material-icons">delete</i>
         </button>
         ${nbsp}
-        <button class="history btn-flat waves-effect waves-light"
-          style="width: 40px; height: 40px;
-          border-radius: 50%; padding: 0;">
-          <i class="small material-icons"
-            style="font-size: 2rem; line-height: 40px;">expand_more</i>
+        <button class="history btn-flat waves-effect waves-light circle">
+          <i class="small material-icons expand_more">expand_more</i>
         </button>
       </td>
     `;
@@ -191,7 +187,6 @@ class SavedItineraries {
 
     let chartRow = qs("#saved-itineraries").insertRow();
     chartRow.classList.add("chart", "clickable", "hide");
-    chartRow.style = "cursor: pointer;";
     let index = this.length - 1;
 
     chartRow.innerHTML = `
@@ -231,14 +226,15 @@ class SavedItineraries {
    */
   getFlightPath(index) {
     let itinerary = this._firebaseData[index].itinerary;
+    let flightPath = qsa(".flight-path")[index];
     // display No results if itinerary is not an object
     if (!Array.isArray(itinerary)) {
-      qsa(".flight-path")[index].textContent = "No results";
+      flightPath.textContent = "No results";
       return;
     }
 
     // clear content of flight path before we proceed
-    qsa(".flight-path")[index].textContent = "";
+    flightPath.textContent = "";
 
     itinerary.forEach(flight => {
       let div = document.createElement("div");
@@ -250,7 +246,7 @@ class SavedItineraries {
 
       div.textContent = `${src}${nbsp}→${nbsp}${dest}`;
 
-      qsa(".flight-path")[index].appendChild(div);
+      flightPath.appendChild(div);
     });
   }
 
@@ -669,7 +665,7 @@ class SavedItineraries {
               },
               backgroundColor: (ctx) => {
                 return this.ifMaxOrMin(ctx, max, min) ?
-                  "rgb(33, 150, 243)" : // blue
+                  "rgb(39, 166, 154)" : // green
                   "rgb(238, 110, 115)"; // red
               },
               borderWidth: (ctx) => {
@@ -677,7 +673,7 @@ class SavedItineraries {
               },
               borderColor: (ctx) => {
                 return this.ifMaxOrMin(ctx, max, min) ?
-                  "rgb(33, 150, 243)" : // blue
+                  "rgb(39, 166, 154)" : // green
                   "rgb(238, 110, 115)"; // red
               },
             }
