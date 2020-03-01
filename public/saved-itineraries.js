@@ -714,6 +714,7 @@ class SavedItineraries {
    * @param {object} context canvas context object, used for data retrieval
    * @param {object} max max value of dataset
    * @param {object} min min value of dataset
+   * @param {boolean} latest true if we care about latest result
    * 
    * @returns {string} "Max: " or "Min: " if true, for use in label
    *                   "" if false, to validate if index is max/min
@@ -736,6 +737,11 @@ class SavedItineraries {
         price: data[length - 1].y,
         index: length - 1,
       };
+    }
+    
+    // If max and min are the same, return empty string, regardless of latest.
+    if (max.index === min.index) {
+      return "";
     }
 
     // Return a string if the index is the index of the max value, or if
