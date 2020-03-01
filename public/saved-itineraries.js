@@ -395,6 +395,10 @@ class SavedItineraries {
         });
 
         let row = this._firebaseData[index];
+        if (!Array.isArray(row.history)) {
+          row.history = [];
+        }
+
         row.history.push({
           price: price,
           retrieved: currentDate,
