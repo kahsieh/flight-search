@@ -72,7 +72,8 @@ class SavedItineraries {
    * @param {object} firebaseData Data pulled from firebase to be stored.
    * 
    * @member {object} firebaseData Firebase data for easy access.
-   * @member {array} docIds Array of firebase doc IDs, indexed based on row
+   * @member {array} docIds Array of firebase doc IDs, indexed based on row.
+   * @member {objects} charts Map of indexes to chart references.
    */
   constructor(firebaseData) {
     this._firebaseData = firebaseData;

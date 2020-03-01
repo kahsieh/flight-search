@@ -151,10 +151,11 @@ function onLoadAuth() {
 /**
  * Returns if the user is currently authenticated or not.
  * 
- * @return {string} UID of authenticated user.
+ * @return {object} UID and name of authenticated user. Returns empty object
+ * if not found.
  */
 function checkAuth() {
-  return JSON.parse(localStorage.getItem("auth"));
+  return JSON.parse(localStorage.getItem("auth") || "{}");
 }
 
 /**
