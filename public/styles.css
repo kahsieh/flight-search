@@ -54,6 +54,11 @@ td, th {
   font-weight: 500;
 }
 
+/* for google sign-in button */
+.abcRioButton {
+  float: right;
+}
+
 .nav-btn {
   font-weight: 500;
 }
