@@ -122,15 +122,20 @@ class SavedItineraries {
 
     // HTML template to be rendered for each row
     itineraryRow.innerHTML = `
-      <td class="truncate">
+      <td class="label no-wrap">
         <b class="row-number">${this.length}&nbsp;|&nbsp;</b><div
-          class="name"></div>
+          class="name truncate"></div>
         <br>
         <span class="created note"></span>
       </td>
       <td class="departure no-wrap"></td>
       <td class="arrival no-wrap"></td>
-      <td class="flight-path"></td>
+      <td class="flight-path">
+        <div class="flight-path-none hide">No results</div>
+        <div class="fly-from flight-path-col truncate"></div>
+        <div class="arrow flight-path-col truncate"></div>
+        <div class="fly-to flight-path-col truncate"></div>
+      </td>
       <td>
         <div class="price"></div>
         <span class="retrieved note no-wrap"></span>
@@ -229,25 +234,28 @@ class SavedItineraries {
     let flightPath = qsa(".flight-path")[index];
     // display No results if itinerary is not an object
     if (!Array.isArray(itinerary)) {
-      flightPath.textContent = "No results";
+      qs(".flight-path-none").classList.remove("hide");
       return;
     }
 
-    // clear content of flight path before we proceed
-    flightPath.textContent = "";
+    let flyFromStr = [];
+    let arrowStr = [];
+    let flyToStr = [];
 
     itinerary.forEach(flight => {
-      let div = document.createElement("div");
-
       let src = (typeof flight.fly_from !== "undefined" && flight.fly_from) ?
         flight.fly_from : "Any";
       let dest = (typeof flight.fly_to !== "undefined" && flight.fly_to) ?
         flight.fly_to : "Any";
 
-      div.textContent = `${src}${nbsp}→${nbsp}${dest}`;
-
-      flightPath.appendChild(div);
+      flyFromStr.push(src);
+      arrowStr.push("→");
+      flyToStr.push(dest);      
     });
+
+    qsa(".fly-from")[index].textContent = flyFromStr.join("\n");
+    qsa(".arrow")[index].textContent = arrowStr.join("\n");
+    qsa(".fly-to")[index].textContent = flyToStr.join("\n");
   }
 
   /**

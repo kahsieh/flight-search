@@ -63,21 +63,56 @@ td, th {
   }
 }
 
-#saved-itineraries .name {
-  display: inline;
+/* saved-itineraries page styling */
+#saved-itineraries td {
+  padding: 5px 10px;
 }
 
-#saved-itineraries .truncate {
-  max-width: 16vw;
+#saved-itineraries .name {
+  max-width: 8.503vw; /* chosen from testing to not expand table width */
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+#saved-itineraries .label {
   display: table-cell;
 }
 
-#saved-itinerares .no-wrap {
+#saved-itineraries .no-wrap {
   white-space: nowrap;
+}
+
+#saved-itineraries .flight-path {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  max-width: 11.667vw; /* number chosen from testing to not expand table width */
+}
+
+/* so that line-breaks are rendered properly between airports/arrows */
+#saved-itineraries .flight-path-col {
+  white-space: pre;
+}
+
+/* take up (50% of space) - (width of arrow column / 2) */
+#saved-itineraries .fly-from {
+  width: calc(50% - (1.5em / 2));
+  text-align: left;
+}
+
+#saved-itineraries .arrow {
+  width: 1.5em;
+  text-align: center;
+}
+
+#saved-itineraries .fly-to {
+  width: calc(50% - (1.5em / 2));
+  text-align: right;
 }
 
 #saved-itineraries tr {
   cursor: pointer;
+  height: 100%;
 }
 
 /* Hide border when saved itineraries table is expanded */
