@@ -50,8 +50,12 @@ td, th {
   margin-bottom: 3px;
 }
 
-.abcRioButton {
-  float: right;
+#greeting {
+  font-weight: 500;
+}
+
+.nav-btn {
+  font-weight: 500;
 }
 
 @media only screen and (min-width: 993px) {
