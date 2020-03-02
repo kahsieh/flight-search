@@ -1,35 +1,34 @@
 /*
 Five Peas Flight Search
-tables.js
+flight-table.js
 
 Copyright (c) 2020 Derek Chu, Kevin Hsieh, Leo Liu, Quentin Truong.
 All Rights Reserved.
 */
 "use strict";
 
-const columns = [
-  ["Flight", "flight_no"],
-  ["Departure", "dTime"],
-  ["Arrival", "aTime"],
-  ["Flight time", "flight_time"],
-  ["Aircraft", "equipment"],
-  ["Fare class/basis", "fare_basis"],
-  ["Checked bag", "hold_weight"],
-  ["Carry-on bag", "hand_weight"],
-  ["Tickets", "pnr_count"],
-  ["Duration", "fly_duration"],
-  ["Stops", "stops"],
-  ["Price", "price"],
-];
+/**
+ * Instances of FlightTable. Should be managed by client code.
+ */
+let ftables = [];
 
 class FlightTable {
   /**
-   * Creates a new tab and table, then re-initializes tabs.
+   * Creates a new tab and table based on the given DOM elements, then
+   * re-initializes tabs.
+   *
+   * @param {!Element} tabs <ul> element for tabs.
+   * @param {!Element} tables <div> element for flight tables.
+   * @param {!Element} book <button> element for booking.
    */
-  constructor() {
+  constructor(tabs, tables, book) {
+    this._tabs = tabs;
+    this._tables = tables;
+    this._book = book;
+
     // Destroy old instance and remove any indicators.
-    if (this.constructor.tabs_instance) {
-      this.constructor.tabs_instance.destroy();
+    if (FlightTable.tabsInstance) {
+      FlightTable.tabsInstance.destroy();
     }
     qsa("#tabs .indicator").forEach(e => e.remove());
 
@@ -50,8 +49,8 @@ class FlightTable {
     this._selected = null;
 
     // Update static fields.
-    this.constructor.tabs_instance = M.Tabs.init(qs("#tabs"), {});
-    this.constructor.tabs_instance.select(`table${active_tab + 1}`);
+    FlightTable.tabsInstance = M.Tabs.init(qs("#tabs"), {});
+    FlightTable.tabsInstance.select(`table${active_tab + 1}`);
     this.constructor.tables.push(this);
   }
 
@@ -87,7 +86,8 @@ class FlightTable {
     table.innerHTML = `
       <table class="highlight">
         <thead><tr>
-          ${columns.map(v => `<th class="${v[1]}">${v[0]}</th>`).join("")}
+          ${Object.entries(FlightTable.DISPLAY_COLUMNS)
+            .map(([k, v]) => `<th class="${k}">${v}</th>`).join("")}
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -114,7 +114,7 @@ class FlightTable {
     }
 
     // Populate cells.
-    let cells = Array(columns.length).fill("");
+    let cells = Array(FlightTable.COLUMNS.length).fill("");
     for (const segment of flight.route) {
       // Flight.
       let airline = segment.airline;
@@ -301,7 +301,7 @@ class FlightTable {
       this.constructor.displayResults();
     };
     for (let [i, cell] of cells.entries()) {
-      row.innerHTML += `<td class="${columns[i][1]}">${cell}</td>`;
+      row.innerHTML += `<td class="${FlightTable.COLUMNS[i]}">${cell}</td>`;
     }
   }
 
@@ -414,10 +414,44 @@ class FlightTable {
   }
 }
 
-// Cached response from server.
+// -----------------------------------------------------------------------------
+// STATIC FIELDS
+// -----------------------------------------------------------------------------
+
+/**
+ * Cached response from Kiwi.
+ */
 FlightTable.res = [];
 FlightTable.single = null;
 
-// State of tables.
+/**
+ * Materialize tabs instance.
+ */
+FlightTable.tabsInstance = null;
+
+// Deprecated.
 FlightTable.tabs_instance = null;
 FlightTable.tables = [];
+
+/**
+ * Dictionary mapping supported column names to their display names.
+ */
+FlightTable.DISPLAY_COLUMNS = {
+  "flight_no": "Flight",
+  "dTime": "Departure",
+  "aTime": "Arrival",
+  "flight_time": "Flight time",
+  "equipment": "Aircraft",
+  "fare_basis": "Fare class/basis",
+  "hold_weight": "Checked bag",
+  "hand_weight": "Carry-on bag",
+  "pnr_count": "Tickets",
+  "fly_duration": "Duration",
+  "stops": "Stops",
+  "price": "Price",
+};
+
+/**
+ * List of supported columns.
+ */
+FlightTable.COLUMNS = Object.keys(FlightTable.DISPLAY_COLUMNS);
