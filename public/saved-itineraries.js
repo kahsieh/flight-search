@@ -18,34 +18,20 @@ addEventListener("load", () => {
     return;
   }
 
-  let data = [];
-
-  firebase.firestore()
-    .collection("itineraries")
-    .where("uid", "==", user.uid)
-    .orderBy("created", "asc")
-    .get()
-    .then(querySnapshot => {
-      querySnapshot.forEach(doc => {
-        data.push({
-          id: doc.id,
-          ...doc.data()
-        });
-      });
-    }).then(() => {
-      if (data.length === 0) {
-        qs("#itineraries-authenticated").classList.add("hide");
-        qs("#itineraries-none").classList.remove("hide");
-      }
-      else {
-        Itineraries = new SavedItineraries(data);
-      }
-    }).catch(error => {
-      console.error(error);
+  getFirebaseItineraries(user.uid).then(data => {
+    if (data.length === 0) {
       qs("#itineraries-authenticated").classList.add("hide");
       qs("#itineraries-none").classList.remove("hide");
-    });
-})
+    }
+    else {
+      Itineraries = new SavedItineraries(data);
+    }
+  }).catch(error => {
+    console.error(error);
+    qs("#itineraries-authenticated").classList.add("hide");
+    qs("#itineraries-none").classList.remove("hide");
+  });
+});
 
 /**
  * Function that sends the itineraries to be deleted if the user unloads the
@@ -82,12 +68,11 @@ class SavedItineraries {
     this.charts = {};
     this.createItineraryTable();
 
-    let user = firebase.auth().currentUser;
-    if (user) {
-      user.getIdToken(/* forceRefresh */ true).then(idToken => {
-        this.idToken = idToken;
-      });
-    }
+    getFirebaseIdToken().then(idToken => {
+      this.idToken = idToken;
+    }).catch(error => {
+      console.error(error);
+    });
   }
 
   /**
@@ -132,7 +117,7 @@ class SavedItineraries {
       <td class="departure no-wrap"></td>
       <td class="arrival no-wrap"></td>
       <td class="flight-path">
-        <div class="flight-path-none hide">No results</div>
+        <div class="flight-path-none no-wrap hide">No results</div>
         <div class="fly-from flight-path-col truncate"></div>
         <div class="arrow flight-path-col truncate"></div>
         <div class="fly-to flight-path-col truncate"></div>
@@ -235,7 +220,7 @@ class SavedItineraries {
     let flightPath = qsa(".flight-path")[index];
     // display No results if itinerary is not an object
     if (!Array.isArray(itinerary)) {
-      qs(".flight-path-none").classList.remove("hide");
+      qsa(".flight-path-none")[index].classList.remove("hide");
       return;
     }
 
@@ -315,7 +300,7 @@ class SavedItineraries {
    * 
    * @param {number} index index of row
    */
-  async updateItinerary(index) {
+  updateItinerary(index) {
     let user = checkAuth();
 
     if (!user || !user.uid) {
@@ -324,95 +309,35 @@ class SavedItineraries {
     }
     qsa(".update")[index].classList.add("disabled");
 
-    let itinerary = this._firebaseData[index].itinerary;
-    if (!Array.isArray(itinerary)) {
-      qsa(".update")[index].classList.remove("disabled");
-      console.error("No itinerary object was found.");
-      return;
-    }
-    
-    // Prepare details, including price.
-    let [res, _] = await kiwiSearch(new Itinerary(itinerary));
-    let price = -1;
-    let dTime = null;
-    let aTime = null;
-    let flyFrom = null;
-    let flyTo = null;
-
-    if (res !== null && typeof res[0] !== "undefined" &&
-      typeof res[0].price !== "undefined") {
-      price = res[0].price;
-      dTime = localeString(res[0].route[0].dTime);
-      aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
-      flyFrom = res[0].route[0].flyFrom;
-      flyTo = res[0].route[res[0].route.length - 1].flyTo;
-    }
-
-    let icon, message, color;
     let docId = this.docIds[index];
-    let currentDate = firebase.firestore.Timestamp.now();
+    let icon, message, color;
 
-    firebase.firestore()
-      .collection("itineraries")
-      .doc(docId)
-      .update({
-        dTime: dTime,
-        aTime: aTime,
-        flyFrom: flyFrom,
-        flyTo: flyTo,
-        history: firebase.firestore.FieldValue.arrayUnion({
-          price: price,
-          retrieved: currentDate,
-        }),
-      }).then(() => {
-        return new Promise((resolve, reject) => {
-          if (price === -1) {
-            reject("Could not update itinerary.");
-          }
-          else {
-            resolve();
-          }
-        });
-      }).then(() => {
-        console.log(`${this._firebaseData[index].name} was succesfully updated`);
+    updateFirebaseItinerary(docId, this._firebaseData[index]).then(() => {
+      console.log(`${this._firebaseData[index].name} was succesfully updated`);
 
-        icon = "done";
-        message = "Itinerary updated!";
-        color = "";
-      }).catch(error => {
-        console.error(error);
+      icon = "done";
+      message = "Itinerary updated!";
+      color = "";
+    }).catch(error => {
+      console.error(error);
 
-        icon = "error";
-        message = "Error: Itinerary could not be updated.";
-        color = "red";
-      }).then(() => {
-        qsa(".update")[index].classList.remove("disabled");
-        
-        // Display message.
-        M.toast({
-          html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
-          displayLength: 1500,
-          classes: color
-        });
-
-        let row = this._firebaseData[index];
-        if (!Array.isArray(row.history)) {
-          row.history = [];
-        }
-
-        row.history.push({
-          price: price,
-          retrieved: currentDate,
-        });
-        row.dTime = dTime;
-        row.aTime = aTime;
-        row.flyFrom = flyFrom;
-        row.flyTo = flyTo;
-
-        this.updateRow(index);
-        // do not create a new chart if none is displayed
-        this.updateChart(index, false);
+      icon = "error";
+      message = "Error: Itinerary could not be updated.";
+      color = "red";
+    }).then(() => {
+      qsa(".update")[index].classList.remove("disabled");
+      
+      // Display message.
+      M.toast({
+        html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
+        displayLength: 1500,
+        classes: color,
       });
+
+      this.updateRow(index);
+      // do not create a new chart if none is displayed
+      this.updateChart(index, false);
+    });
   }
 
   /**
@@ -496,10 +421,10 @@ class SavedItineraries {
     }
     qsa(".delete")[index].classList.remove("disabled");
 
-    let id = this.docIds[index];
-    firebase.firestore().collection("itineraries").doc(id).delete().then(() => {
+    let docId = this.docIds[index];
+    deleteFirebaseItinerary(docId).then(() => {
       console.log(`${this._firebaseData[index].name} was succesfully deleted`);
-      this.deletedProcessing.splice(this.deletedProcessing.indexOf(id), 1);
+      this.deletedProcessing.splice(this.deletedProcessing.indexOf(docId), 1);
     }).catch(error => {
       console.error(error);
     });
@@ -554,6 +479,12 @@ class SavedItineraries {
   updateChart(index, create = true) {
     const data = this._firebaseData[index];
 
+    // Do not display chart if history is not an array.
+    if (!Array.isArray(data.history)) {
+      qsa(".chart-none")[index].classList.remove("hide");
+      return;
+    }
+
     // removes all entries in the array where the price === -1.
     const reduced = data.history.reduce((acc, {price, retrieved}) => {
       if (price !== -1) {
@@ -573,8 +504,8 @@ class SavedItineraries {
       }
     });
 
-    // do not display chart
-    if (!Array.isArray(history) || history.length === 0) {
+    // Do not display chart if we have no data to display.
+    if (history.length === 0) {
       qsa(".chart-none")[index].classList.remove("hide");
       return;
     }

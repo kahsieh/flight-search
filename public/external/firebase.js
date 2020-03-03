@@ -35,6 +35,25 @@ function initFirebase() {
 }
 
 /**
+ * Gets the Firebase id token.
+ */
+function getFirebaseIdToken() {
+  let user = firebase.auth().currentUser;
+  return new Promise((resolve, reject) => {
+    if (user) {
+      user.getIdToken(/* forceRefresh */ true).then(idToken => {
+        resolve(idToken);
+      }).catch(error => {
+        reject(error);
+      })
+    }
+    else {
+      reject("Could not find authenticated Firebase user.");
+    }
+  });
+}
+
+/**
  * Saves the itinerary. Uploads the data to Firebase.
  */
 async function saveItinerary() {
@@ -53,7 +72,7 @@ async function saveItinerary() {
   let aTime = null;
   let flyFrom = null;
   let flyTo = null;
-  let currentDate = new Date();
+  let currentDate = firebase.firestore.Timestamp.now();
 
   if (res !== null && typeof res[0] !== "undefined" &&
     typeof res[0].price !== "undefined") {
@@ -92,4 +111,108 @@ async function saveItinerary() {
   }).catch(error => {
     console.error("Error adding document:", error);
   });
+}
+
+/**
+ * Returns all itineraries saved by the user.
+ * 
+ * @param {string} uid UID of user
+ */
+function getFirebaseItineraries(uid) {
+  return firebase.firestore()
+    .collection("itineraries")
+    .where("uid", "==", uid)
+    .orderBy("created", "asc")
+    .get()
+    .then(querySnapshot => {
+      let data = [];
+      querySnapshot.forEach(doc => {
+        data.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+      return data;
+    });
+}
+
+/**
+ * Updates itinerary in firebase.
+ * 
+ * @param {string} docId Document id to be updated.
+ * @param {array} firebaseData firebase data with itinerary, row to be updated.
+ */
+async function updateFirebaseItinerary(docId, firebaseData) {
+  let itinerary = firebaseData.itinerary;
+  if (!Array.isArray(itinerary)) {
+    itinerary = [];
+    console.error("No itinerary object was found.");
+  }
+
+  // Prepare details, including price.
+  let [res, _] = await kiwiSearch(new Itinerary(itinerary));
+  let dTime = null;
+  let aTime = null;
+  let flyFrom = null;
+  let flyTo = null;
+  let price = -1;
+  let currentDate = firebase.firestore.Timestamp.now();
+
+  if (res !== null && typeof res[0] !== "undefined" &&
+    typeof res[0].price !== "undefined") {
+    price = res[0].price;
+    dTime = localeString(res[0].route[0].dTime);
+    aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
+    flyFrom = res[0].route[0].flyFrom;
+    flyTo = res[0].route[res[0].route.length - 1].flyTo;
+  }
+
+  return firebase.firestore()
+    .collection("itineraries")
+    .doc(docId)
+    .update({
+      dTime: dTime,
+      aTime: aTime,
+      flyFrom: flyFrom,
+      flyTo: flyTo,
+      history: firebase.firestore.FieldValue.arrayUnion({
+        price: price,
+        retrieved: currentDate,
+      }),
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        if (!Array.isArray(firebaseData.history)) {
+          firebaseData.history = [];
+        }
+
+        firebaseData.history.push({
+          price: price,
+          retrieved: currentDate,
+        });
+        firebaseData.dTime = dTime;
+        firebaseData.aTime = aTime;
+        firebaseData.flyFrom = flyFrom;
+        firebaseData.flyTo = flyTo;
+
+        if (price === -1) {
+          reject("Could not update itinerary.");
+        }
+        else {
+          resolve();
+        }
+      });
+    });
+}
+
+/**
+ * Deletes document in firebase.
+ * 
+ * @param {string} docId Document id to be deleted.
+ */
+function deleteFirebaseItinerary(docId) {
+  return firebase.firestore()
+    .collection("itineraries")
+    .doc(docId)
+    .delete();
 }
