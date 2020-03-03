@@ -8,10 +8,10 @@ All Rights Reserved.
 "use strict";
 
 /**
- * KV of airports for autocomplete.
+ * KV of IATA codes for autocomplete.
  */
 const airports = {
-  // City
+  // City codes.
   "Bangkok (all airports), TH - BKK": null,
   "Beijing (all airports), CN - BJS": null,
   "Osaka (all airports), JP - OSA": null,
@@ -47,7 +47,7 @@ const airports = {
   "Buenos Aires (all airports), AR - BUE": null,
   "Rio de Janeiro (all airports), BR - RIO": null,
   "São Paulo (all airports), BR - SAO": null,
-  // Airports
+  // Airport codes.
   "Utirik Airport, Utirik Island, MH - UTK": null,
   "Ocean Reef Club Airport, Key Largo, US - OCA": null,
   "Pilot Station Airport, Pilot Station, US - PQS": null,
