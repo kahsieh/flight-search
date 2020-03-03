@@ -146,7 +146,7 @@ class FlightTable {
         cells[i] += "<br>";
       }
       cells[i] += `
-        ${localeString(segment.dTime)} (${segment.flyFrom})${br_warning}
+        ${localeDate(segment.dTime)} (${segment.flyFrom})${br_warning}
       `;
 
       // Arrival.
@@ -154,7 +154,7 @@ class FlightTable {
       if (cells[i]) {
         cells[i] += "<br>";
       }
-      cells[i] += `${localeString(segment.aTime)} (${segment.flyTo})`;
+      cells[i] += `${localeDate(segment.aTime)} (${segment.flyTo})`;
 
       // Flight Time.
       i = FlightTable.COLUMNS.indexOf("flight_time");
@@ -298,7 +298,7 @@ class FlightTable {
     i = FlightTable.COLUMNS.indexOf("price");
     cells[i] += `
       <div style="line-height: normal">
-        ${localeStringUSD(itinerary.price)}<br>
+        ${localeCurrency(itinerary.price)}<br>
         <span class="note">entire trip</span>
       </div>
     `;
@@ -476,3 +476,27 @@ FlightTable.DISPLAY_COLUMNS = {
  * List of supported columns.
  */
 FlightTable.COLUMNS = Object.keys(FlightTable.DISPLAY_COLUMNS);
+
+// -----------------------------------------------------------------------------
+// HELPERS
+// -----------------------------------------------------------------------------
+
+/**
+ * Converts centimeters to inches.
+ *
+ * @param {number} cm A length in centimeters.
+ * @return {number} A length in inches.
+ */
+function cmToIn(cm) {
+  return cm / 2.54;
+}
+
+/**
+ * Converts kilograms to pounds.
+ *
+ * @param {number} kg A mass in kilograms.
+ * @return {number} A mass in pounds.
+ */
+function kgToLb(kg) {
+  return kg / 0.45359237;
+}

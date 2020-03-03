@@ -11,11 +11,6 @@ All Rights Reserved.
  * Function to run when main page loads.
  */
 addEventListener("load", () => {
-  // If we're not on the main page, immediately break out of the function.
-  if (window.location.pathname !== "/") {
-    return;
-  }
-
   itable = new ItineraryTable(qs("#itinerary-name"),
                               qs("#filters"),
                               qs("#itinerary"),
@@ -85,45 +80,22 @@ async function search() {
 }
 
 /**
- * Shares itinerary by copying URL to clipboard.
- *
- * @param {string} name Name of itinerary.
- * @param {Object} itinerary Itinerary to be shared.
- * @param {string} button DOM element of share button.
- * @param {string} hiddenInput DOM element of input to use with clipboard.
- *   actions, with prepended "#".
+ * Shares itinerary currently in the ItineraryTable by copying URL to clipboard.
  */
-function shareItinerary(name = qs("#itinerary-name").value,
-                        itinerary = itable.get(),
-                        button = qs("#share"),
-                        hiddenInput = qs("#share-link")) {
-  button.classList.add("disabled");
+function share() {
+  shareItinerary(qs("#itinerary-name").value,
+                 table.get(),
+                 qs("#share"),
+                 qs("#share-link"));
+}
 
-  // Copy URL to clipboard if possible and set the message.
-  let url = itinerary.link(name);
-  let icon, message, color;
-  if (url.length > 2048) {
-    icon = "error";
-    message = "Error: Itinerary is too long to share.";
-    color = "red";
+/**
+ * Prevents the triggering block from shrinking.
+ */
+function stick() {
+  const min_height = parseInt(event.currentTarget.style.minHeight);
+  const height = event.currentTarget.getBoundingClientRect().height;
+  if (!min_height || min_height < height) {
+    event.currentTarget.style.minHeight = parseInt(height) + "px";
   }
-  else {
-    icon = "content_copy";
-    message = "Link copied!";
-    color = "";
-
-    hiddenInput.value = url;
-    hiddenInput.type = "text";
-    hiddenInput.select();
-    document.execCommand("copy");
-    hiddenInput.type = "hidden";
-  }
-
-  // Display message.
-  M.toast({
-    html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
-    displayLength: 1500,
-    classes: color,
-  });
-  button.classList.remove("disabled");
 }

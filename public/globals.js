@@ -41,25 +41,13 @@ function qsa(str) {
 }
 
 /**
- * Converts a date from ISO format to en-GB format.
- *
- * @param {string} str An ISO date.
- * @return {string} An en-GB date.
- */
-function kiwiDate(str) {
-  if (!str) {
-    return "";
-  }
-  return new Date(str).toLocaleDateString("en-GB", {timeZone: "UTC"});
-}
-
-/**
- * Converts a UNIX timestamp to a locale string.
+ * Converts a UNIX timestamp to a locale date string.
  *
  * @param {number} unix A UNIX timestamp.
+ * @param {boolean} UTC Whether to treat the timestamp as UTC or local time.
  * @return {string} A locale string.
  */
-function localeString(unix, UTC = true) {
+function localeDate(unix, UTC = true) {
   return new Date(unix * 1000).toLocaleString([], {
     timeZone: UTC ? "UTC" : undefined,
     weekday: "short",
@@ -71,12 +59,12 @@ function localeString(unix, UTC = true) {
 }
 
 /**
- * Formats a numerical dollar amount into a string.
- * 
+ * Formats a numerical dollar amount into a USD currency string.
+ *
  * @param {number} amt Numerical dollar amount.
  * @return {string} Formatted dollar amount.
  */
-function localeStringUSD(amt) {
+function localeCurrency(amt) {
   return amt.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
@@ -86,47 +74,41 @@ function localeStringUSD(amt) {
 }
 
 /**
- * Extracts the time in HH:MM format from a UTC UNIX time stamp.
+ * Shares itinerary by copying URL to clipboard.
  *
- * @param {number} unix A UTC UNIX timestamp.
- * @return {string} A time in HH:MM format.
+ * @param {string} name Name of itinerary.
+ * @param {!Itinerary} itinerary Itinerary to be shared.
+ * @param {string} button <button> element of share button.
+ * @param {string} hiddenInput <input> element for use with clipboard actions.
  */
-function isoTime(unix) {
-  return new Date(unix * 1000).toLocaleString([], {
-    timeZone: "UTC",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
+function shareItinerary(name, itinerary, button, hiddenInput) {
+  button.classList.add("disabled");
 
-/**
- * Converts centimeters to inches.
- *
- * @param {number} cm A length in centimeters.
- * @return {number} A length in inches.
- */
-function cmToIn(cm) {
-  return cm / 2.54;
-}
-
-/**
- * Converts kilograms to pounds.
- *
- * @param {number} kg A mass in kilograms.
- * @return {number} A mass in pounds.
- */
-function kgToLb(kg) {
-  return kg / 0.45359237;
-}
-
-/**
- * Prevents the triggering block from shrinking.
- */
-function stick() {
-  const min_height = parseInt(event.currentTarget.style.minHeight);
-  const height = event.currentTarget.getBoundingClientRect().height;
-  if (!min_height || min_height < height) {
-    event.currentTarget.style.minHeight = parseInt(height) + "px";
+  // Copy URL to clipboard if possible and set the message.
+  let url = itinerary.link(name);
+  let icon, message, color;
+  if (url.length > 2048) {
+    icon = "error";
+    message = "Error: Itinerary is too long to share.";
+    color = "red";
   }
+  else {
+    icon = "content_copy";
+    message = "Link copied!";
+    color = "";
+
+    hiddenInput.value = url;
+    hiddenInput.type = "text";
+    hiddenInput.select();
+    document.execCommand("copy");
+    hiddenInput.type = "hidden";
+  }
+
+  // Display message.
+  M.toast({
+    html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,
+    displayLength: 1500,
+    classes: color,
+  });
+  button.classList.remove("disabled");
 }

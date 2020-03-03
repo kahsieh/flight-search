@@ -58,13 +58,13 @@ async function saveItinerary() {
   if (res !== null && typeof res[0] !== "undefined" &&
     typeof res[0].price !== "undefined") {
     price = res[0].price;
-    dTime = localeString(res[0].route[0].dTime);
-    aTime = localeString(res[0].route[res[0].route.length - 1].aTime);
+    dTime = localeDate(res[0].route[0].dTime);
+    aTime = localeDate(res[0].route[res[0].route.length - 1].aTime);
     flyFrom = res[0].route[0].flyFrom;
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
   }
 
-  
+
   firebase.firestore().collection("itineraries").add({
     uid: user.uid,
     name: qs("#itinerary-name").value || "Untitled",
@@ -82,7 +82,7 @@ async function saveItinerary() {
     console.log(`Document written by ${user.name} with ID: ${docRef.id}`);
   }).then(() => {
     qs("#save").classList.remove("disabled");
-    
+
     // Show that the itinerary was saved.
     M.toast({
       html: `<i class="material-icons left">star</i>
