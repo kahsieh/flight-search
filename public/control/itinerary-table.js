@@ -17,15 +17,20 @@ class ItineraryTable {
    * Constructs an ItineraryTable instance based on the given DOM elements.
    *
    * @param {!Element} name <input> element for name.
-   * @param {!lement} filters <select> element for filters.
+   * @param {!Element} filters <select> element for filters.
    * @param {!Element} table <tbody> element for itinerary body.
-   * @param {!Element} removeFlight <button> element for remove button.
+   * @param {!Element} removeFlight <button> element for remove flight button.
+   * @param {function} addFlightCallback Callback after addFlight.
+   * @param {function} removeFlightCallback Callback after removeFlight.
    */
-  constructor(name, filters, table, removeFlight) {
+  constructor(name, filters, table, removeFlight,
+              addFlightCallback, removeFlightCallback) {
     this._name = name;
     this._filters = filters;
     this._table = table;
     this._removeFlight = removeFlight;
+    this._addFlightCallback = addFlightCallback;
+    this._removeFlightCallback = removeFlightCallback;
   }
 
   get length() { return this._table.childElementCount; }
@@ -54,7 +59,7 @@ class ItineraryTable {
     window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (_, k, v) =>
         urlParams[k] = decodeURIComponent(v));
     if ("n" in urlParams && "i" in urlParams) {
-      // decode name from base64 encoding
+      // Decode name from base64 encoding.
       try {
         this._name.value = atob(urlParams["n"]);
       }
@@ -322,7 +327,7 @@ class ItineraryTable {
     `;
     this.updateFilters();
     this._removeFlight.classList.remove("disabled");
-    new FlightTable();
+    this._addFlightCallback(this.length - 1);
   }
 
   /**
@@ -330,7 +335,7 @@ class ItineraryTable {
    * triggering event.
    */
   removeFlight() {
-    let row = event.currentTarget.nodeName == "BUTTON" ? this.length - 1
+    let row = event.currentTarget.nodeName === "BUTTON" ? this.length - 1
       : [...this._table.children].indexOf(event.target.parentNode.parentNode)
     switch (this.length) {
       case 1:
@@ -340,11 +345,11 @@ class ItineraryTable {
         // fallthrough
       default:
         this._table.querySelectorAll("tr")[row].remove();
-        FlightTable.tables[row].remove();
         for (const [i, e] of
              this._table.querySelectorAll(".flight-index").entries()) {
           e.textContent = i + 1;
         }
+        this._removeFlightCallback(row);
         break;
     }
   }
@@ -393,13 +398,13 @@ class ItineraryTable {
     if (!cell) {
       return;
     }
-    if (cell.nodeName == "SELECT") {
+    if (cell.nodeName === "SELECT") {
       return Array.from(cell)
                   .filter(opt => opt.selected)
                   .map(opt => opt.value)
                   .join();
     }
-    if (cell.type == "checkbox") {
+    if (cell.type === "checkbox") {
       return cell.checked;
     }
     return cell.value;

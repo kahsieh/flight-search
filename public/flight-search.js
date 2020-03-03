@@ -19,7 +19,12 @@ addEventListener("load", () => {
   itable = new ItineraryTable(qs("#itinerary-name"),
                               qs("#filters"),
                               qs("#itinerary"),
-                              qs("#remove-flight"));
+                              qs("#remove-flight"),
+                              _ => new FlightTable(qs("#tabs"),
+                                                   qs("#columns"),
+                                                   qs("#tables"),
+                                                   qs("#book")),
+                              i => ftables[i].remove());
 
   if (!itable.loadFromURL()) {
     let date1 = new Date();
@@ -53,14 +58,14 @@ async function search() {
   qs("#spinner").classList.remove("hide");
   qsa(".results-message").forEach(el => el.classList.add("hide"));
   qsa(".no-results-message").forEach(el => el.classList.add("hide"));
-  FlightTable.tables.forEach(ft => ft.clearSelection());
+  ftables.forEach(ft => ft.clearSelection());
 
   // Execute fetches.
   let [res, single] = await kiwiSearch(itable.get());
 
   if (res) {
     // Display message.
-    qsa(".results-message").forEach(el => el.classList.remove("hide"));  
+    qsa(".results-message").forEach(el => el.classList.remove("hide"));
 
     // Display results.
     console.log("Response:");
@@ -81,7 +86,7 @@ async function search() {
 
 /**
  * Shares itinerary by copying URL to clipboard.
- * 
+ *
  * @param {string} name Name of itinerary.
  * @param {Object} itinerary Itinerary to be shared.
  * @param {string} button DOM element of share button.
