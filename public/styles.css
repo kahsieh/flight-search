@@ -78,7 +78,7 @@ td, th {
 }
 
 #saved-itineraries .name {
-  max-width: 8.503vw; /* chosen from testing to not expand table width */
+  max-width: 8.763vw; /* chosen from testing to not expand table width */
   display: inline-block;
   vertical-align: bottom;
 }
@@ -95,7 +95,7 @@ td, th {
   display: flex;
   align-items: center;
   height: 100%;
-  max-width: 11.667vw; /* number chosen from testing to not expand table width */
+  max-width: 10.286vw; /* chosen from testing to not expand table width */
 }
 
 /* so that line-breaks are rendered properly between airports/arrows */
