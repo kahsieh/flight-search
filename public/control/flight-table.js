@@ -83,7 +83,7 @@ class FlightTable {
    */
   _addTable() {
     let table = document.createElement("div");
-    table.classList.add("col", "s12");
+    table.classList.add("col", "s12", "shrinkable");
     table.id = `table${this._i}`;
     table.innerHTML = `
       <table class="highlight">
@@ -314,7 +314,19 @@ class FlightTable {
       ftables[this._i]._selected =
         ftables[this._i]._selected ? null : flight.id;
       this._book.onclick = () => window.open(itinerary.deep_link);
-      FlightTable.displayResults();
+      let section = document.querySelector(`#table${this._i}`);
+      if (section.getAttribute('data-collapsed') === 'true'){
+        section.setAttribute('data-collapsed', 'false')
+
+        FlightTable.displayResults();
+        expandSection(section)
+      }
+      else{
+        section.setAttribute('data-collapsed', 'true')
+
+        collapseSection(section)
+        FlightTable.displayResults();
+      }
     };
     for (let [i, cell] of cells.entries()) {
       row.innerHTML += `<td class="${FlightTable.COLUMNS[i]}">${cell}</td>`;

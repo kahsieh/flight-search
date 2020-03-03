@@ -202,3 +202,10 @@ td, th {
 #saved-itineraries .btn-floating.trash {
   background-color: #ee6e73;
 }
+
+/* shrinkable tables */
+.shrinkable {
+  overflow:hidden;
+  transition:height 0.5s ease-in-out;
+  height:auto;
+}
