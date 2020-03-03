@@ -201,7 +201,7 @@ class FlightTable {
       metric += flight.baglimit.hold_dimensions_sum + " cm total";
     }
     cells[i] += `
-      <div style="line-height: normal">
+      <div class="contains-note">
         ${customary}<br>
         <span class="note">${metric}</span>
       </div>
@@ -234,7 +234,7 @@ class FlightTable {
       `;
     }
     cells[i] += `
-      <div style="line-height: normal">
+      <div class="contains-note">
         ${customary}<br>
         <span class="note">${metric}</span>
       </div>
@@ -242,12 +242,12 @@ class FlightTable {
 
     // PNR Count.
     i = FlightTable.COLUMNS.indexOf("pnr_count");
-    cells[i] += `<div style="line-height: normal">${flight.pnr_count}</div>`;
+    cells[i] += `<div class="contains-note">${flight.pnr_count}</div>`;
 
     // Duration.
     i = FlightTable.COLUMNS.indexOf("fly_duration");
     cells[i] += `
-      <div style="line-height: normal">
+      <div class="contains-note">
         ${flight.fly_duration}<br>
         <span class="note">${flight.flyFrom}–${flight.flyTo}</span>
       </div>
@@ -277,7 +277,7 @@ class FlightTable {
           ${Math.floor(duration / 3600)}h ${Math.floor(duration % 3600 / 60)}m
         `;
         cells[i] += `
-          <div style="line-height: normal">
+          <div class="contains-note">
             1 stop${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${duration_text} ${flight.route[0].flyTo}</span>
           </div>
@@ -286,7 +286,7 @@ class FlightTable {
       default:
         let stops = flight.route.slice(0, -1).map(segment => segment.flyTo);
         cells[i] += `
-          <div style="line-height: normal">
+          <div class="contains-note">
             ${stops.length} stops${vi_warning}${ac_warning}${ta_warning}<br>
             <span class="note">${stops.join(", ")}</span>
           </div>
@@ -297,7 +297,7 @@ class FlightTable {
     // Price.
     i = FlightTable.COLUMNS.indexOf("price");
     cells[i] += `
-      <div style="line-height: normal">
+      <div class="contains-note">
         ${localeCurrency(itinerary.price)}<br>
         <span class="note">entire trip</span>
       </div>

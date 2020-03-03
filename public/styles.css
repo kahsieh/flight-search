@@ -23,12 +23,19 @@ main {
   padding: 15px 0px;
 }
 
-/* Classes */
+/* Global classes */
 
-.airline-logo {
-  vertical-align: middle;
-  margin: 2px;
-  width: 32px;
+.auth-buttons {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.no-height {
+  height: 0;
+}
+
+.no-margins {
+  margin: 0;
 }
 
 .note {
@@ -36,35 +43,10 @@ main {
   font-size: small;
 }
 
-.selected {
-  background-color: wheat;
-}
-
-.material-tooltip {
-  max-width: 400px;
-}
-
-/* Specific modifications */
+/* Global overrides */
 
 td, th {
-  padding: 5px 5px 5px 5px;
-}
-
-#itinerary div {
-  margin-bottom: 3px;
-}
-
-#profile {
-  font-weight: 500;
-}
-
-/* for google sign-in button */
-.abcRioButton {
-  float: right;
-}
-
-.nav-btn {
-  font-weight: 500;
+  padding: 5px;
 }
 
 @media only screen and (min-width: 993px) {
@@ -76,8 +58,67 @@ td, th {
   }
 }
 
-/* saved-itineraries page styling */
-#saved-itineraries td {
+/* Authentication */
+
+.abcRioButton {
+  float: right;
+}
+
+#profile {
+  font-weight: 500;
+}
+
+/* ItineraryTable */
+
+#itinerary div {
+  margin-bottom: 0;
+}
+
+#itinerary tr > :first-child {
+  padding-right: 20px;
+  white-space: nowrap;
+}
+
+#itinerary .checkbox-label {
+  padding-left: 25px !important;
+}
+
+#itinerary .embedded-checkbox {
+  position: absolute;
+  right: 15px;
+}
+
+#itinerary .material-tooltip {
+  max-width: 400px;
+}
+
+/* FlightTable */
+
+#tabs {
+  margin-bottom: 20px;
+}
+
+#tables {
+  line-height: 36px;
+}
+
+#tables .airline-logo {
+  vertical-align: middle;
+  margin: 2px;
+  width: 32px;
+}
+
+#tables .contains-note {
+  line-height: normal;
+}
+
+#tables .selected {
+  background-color: wheat;
+}
+
+/* SavedItineraries */
+
+#saved-itineraries td, #saved-itineraries th {
   padding: 5px 10px;
 }
 
