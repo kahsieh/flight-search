@@ -49,6 +49,10 @@ td, th {
   padding: 5px;
 }
 
+.material-tooltip {
+  max-width: 400px;
+}
+
 @media only screen and (min-width: 993px) {
   #toast-container {
     top: auto !important;
@@ -86,10 +90,6 @@ td, th {
 #itinerary .embedded-checkbox {
   position: absolute;
   right: 15px;
-}
-
-#itinerary .material-tooltip {
-  max-width: 400px;
 }
 
 /* FlightTable */
