@@ -118,7 +118,7 @@ class ItineraryTable {
         <label class="active">
           Destination
           <i class="material-icons tiny tooltipped" data-position="bottom"
-            data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}<br><br>1
+            data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}<br><br>
             ${ItineraryTable.ORDER_FLEX_TOOLTIP}">info_outline</i>
         </label>
       </div></div></td>
