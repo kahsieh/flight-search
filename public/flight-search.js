@@ -11,16 +11,20 @@ All Rights Reserved.
  * Function to run when main page loads.
  */
 addEventListener("load", () => {
-  itable = new ItineraryTable(qs("#itinerary-name"),
-                              qs("#filters"),
-                              qs("#itinerary"),
-                              qs("#remove-flight"),
-                              _ => new FlightTable(qs("#tabs"),
-                                                   qs("#columns"),
-                                                   qs("#tables"),
-                                                   qs("#book")),
-                              i => ftables[i].remove());
+  // Initialize the ItineraryTable.
+  itable = new ItineraryTable(
+      qs("#itinerary-name"),
+      qs("#filters"),
+      qs("#itinerary"),
+      qs("#remove-flight"),
+      _ => new FlightTable(qs("#tabs"),
+                           qs("#columns"),
+                           qs("#tables"),
+                           qs("#book")),
+      i => ftables[i].remove()
+  );
 
+  // If no itinerary is specified in the URL, then load a default one.
   if (!itable.loadFromURL()) {
     let date1 = new Date();
     date1.setDate(date1.getDate() + 14);
@@ -38,7 +42,7 @@ addEventListener("load", () => {
     ]));
   }
 
-  // Initialize Materialize elements.
+  // Initialize Materialize selects.
   M.FormSelect.init(qsa("select"), {});
 });
 
@@ -60,7 +64,7 @@ async function search() {
 
   if (res) {
     // Display message.
-    qsa(".results-message").forEach(el => el.classList.remove("hide"));
+    qsa(".results-message").forEach(e => e.classList.remove("hide"));
 
     // Display results.
     console.log("Response:");
@@ -69,7 +73,7 @@ async function search() {
   }
   else {
     FlightTable.displayResults([], true);
-    qsa(".no-results-message").forEach(el => el.classList.remove("hide"));
+    qsa(".no-results-message").forEach(e => e.classList.remove("hide"));
   }
 
   // Update UI.
@@ -80,17 +84,16 @@ async function search() {
 }
 
 /**
- * Shares itinerary currently in the ItineraryTable by copying URL to clipboard.
+ * Function to run when share button is pressed.
  */
 function share() {
-  shareItinerary(qs("#itinerary-name").value,
-                 table.get(),
-                 qs("#share"),
+  shareItinerary(qs("#itinerary-name").value, table.get(), qs("#share"),
                  qs("#share-link"));
 }
 
 /**
- * Prevents the triggering block from shrinking.
+ * Function to run when the main container is clicked. Prevents the triggering
+ * block from shrinking.
  */
 function stick() {
   const min_height = parseInt(event.currentTarget.style.minHeight);

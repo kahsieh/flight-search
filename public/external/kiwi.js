@@ -19,7 +19,7 @@ const KIWI_API_URL =
  *     failed.
  */
 async function kiwiSearch(itinerary) {
-  let res = await Promise.all(prepareBitches(itinerary))
+  let res = await Promise.all(prepareFetches(itinerary))
     .then(responses =>
       Promise.all(responses.map(res => {
         // Fail all requests if any one fails.
@@ -59,7 +59,7 @@ async function kiwiSearch(itinerary) {
  * @param {!Itinerary} Itinerary to execute search for.
  * @return {!Array<Pronise>} Array of Promises.
  */
-function prepareBitches(itinerary) {
+function prepareFetches(itinerary) {
   // num_airports is dynamically updated when we discover a pipe-separated
   // airport list.
   let num_airports = 1;
@@ -70,8 +70,10 @@ function prepareBitches(itinerary) {
       let fly_from = itinerary.get(i, "fly_from", false).split("|");
       let fly_to = itinerary.get(i, "fly_to", false).split("|");
 
-      if ((num_airports > 1 && fly_from.length > 1 && num_airports != fly_from.length)
-        || (num_airports > 1 && fly_to.length > 1 && num_airports != fly_to.length)) {
+      if ((num_airports > 1 && fly_from.length > 1 &&
+           num_airports != fly_from.length) ||
+          (num_airports > 1 && fly_to.length > 1 &&
+           num_airports != fly_to.length)) {
         // Error: pipe-separated airport lists have inconsistent length.
         console.error("Pipe-separated airport lists have inconsistent length")
         return [];
