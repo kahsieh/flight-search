@@ -118,7 +118,7 @@ td, th {
 
 /* SavedItineraries */
 
-#saved-itineraries td, #saved-itineraries th {
+#saved-itineraries td, #saved-itineraries-table th {
   padding: 5px 10px;
 }
 
