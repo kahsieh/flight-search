@@ -56,7 +56,7 @@ let Itineraries;
 class SavedItineraries {
   /**
    * @param {object} firebaseData Data pulled from firebase to be stored.
-   * 
+   *
    * @member {object} firebaseData Firebase data for easy access.
    * @member {array} docIds Array of firebase doc IDs, indexed based on row.
    * @member {objects} charts Map of indexes to chart references.
@@ -88,13 +88,13 @@ class SavedItineraries {
       this.createItineraryRow(data);
       this.createChartRow(data.history);
     });
-    
+
     this.createHeader();
   }
 
   /**
    * Creates the row to be displayed in the itinerary table.
-   * 
+   *
    * @param {object} row Row that contains itinerary object, along with name,
    * price, created timestamp, and updated timestamp
    */
@@ -143,7 +143,7 @@ class SavedItineraries {
         </button>
       </td>
     `;
-    
+
     this.updateRow(index);
 
     // add onclick function for the row
@@ -193,7 +193,7 @@ class SavedItineraries {
       qsa(".itinerary")[index].classList.toggle("hover");
     }
   }
-  
+
   /**
    * Create table header to be rendered
    */
@@ -212,7 +212,7 @@ class SavedItineraries {
 
   /**
    * Gets the overall flight path of the itinerary
-   * 
+   *
    * @param {number} index index of row
    */
   getFlightPath(index) {
@@ -236,7 +236,7 @@ class SavedItineraries {
 
       flyFromStr.push(src);
       arrowStr.push("→");
-      flyToStr.push(dest);      
+      flyToStr.push(dest);
     });
 
     qsa(".fly-from")[index].textContent = flyFromStr.join("\n");
@@ -246,7 +246,7 @@ class SavedItineraries {
 
   /**
    * Populates given fields in the saved itineraries table.
-   * 
+   *
    * @param {number} index row number to update.
    * @param {object} update object to update fields, otherwise based on index.
    */
@@ -261,17 +261,17 @@ class SavedItineraries {
     // sets text content for each element to be rendered
     qsa(".name")[index].textContent =
       (typeof update.name !== "undefined") ? update.name : "Untitled";
-    qsa(".created")[index].textContent = 
+    qsa(".created")[index].textContent =
       `Created: ${(typeof update.created !== "undefined" &&
       typeof update.created.seconds === "number") ?
-      localeString(update.created.seconds, false) : ""}`;
+      localeDate(update.created.seconds, false) : ""}`;
     qsa(".price")[index].textContent =
       (typeof price === "number" && price !== -1) ?
-      localeStringUSD(price) : "No results";
+      localeCurrency(price) : "No results";
     qsa(".retrieved")[index].textContent =
       (typeof retrieved !== "undefined" &&
       typeof retrieved.seconds === "number") ?
-      localeString(retrieved.seconds, false) : "";
+      localeDate(retrieved.seconds, false) : "";
     if ((typeof update.dTime === "undefined" || update.dTime === null) &&
       typeof update.flyFrom === "undefined" || update.flyFrom === null) {
       qsa(".departure")[index].textContent = "No results";
@@ -286,7 +286,7 @@ class SavedItineraries {
       typeof update.flyTo === "undefined" || update.flyTo === null) {
         qsa(".arrival")[index].textContent = "No results";
     }
-    else {    
+    else {
       qsa(".arrival")[index].textContent =
         `${(typeof update.aTime !== "undefined") ?
         update.aTime : "None"}${nbsp}(${(typeof update.flyTo !== "undefined") ?
@@ -294,10 +294,10 @@ class SavedItineraries {
     }
     this.getFlightPath(index);
   }
-  
+
   /**
    * Updates the given itinerary in the row
-   * 
+   *
    * @param {number} index index of row
    */
   updateItinerary(index) {
@@ -342,7 +342,7 @@ class SavedItineraries {
 
   /**
    * Loads itinerary by redirecting to the main page.
-   * 
+   *
    * @param {number} index index of row
    */
   loadLink(index) {
@@ -353,7 +353,7 @@ class SavedItineraries {
 
   /**
    * Shares itinerary by copying URL to clipboard.
-   * 
+   *
    * @param {number} index index of row
    */
   shareLink(index) {
@@ -373,7 +373,7 @@ class SavedItineraries {
 
   /**
    * Hides the row from the table.
-   * 
+   *
    * @param {number} index index of row
    */
   deleteRow(index) {
@@ -409,7 +409,7 @@ class SavedItineraries {
 
   /**
    * Deletes the itinerary by sending a post request to the bakend.
-   * 
+   *
    * @param {number} index index of row
    */
   deleteItinerary(index) {
@@ -432,7 +432,7 @@ class SavedItineraries {
 
   /**
    * Unhides the row and cancels the deletion of the Firebase document
-   * 
+   *
    * @param {number} index index of row
    */
   undoDeleteItinerary(index) {
@@ -459,7 +459,7 @@ class SavedItineraries {
 
   /**
    * Shows the price history for the given itinerary.
-   * 
+   *
    * @param {number} index index of row
    */
   showHistory(index) {
@@ -470,7 +470,7 @@ class SavedItineraries {
 
   /**
    * Updates or creates a chart based on firebase data.
-   * 
+   *
    * @param {number} index index of row
    * @param {boolean} create specifies whether to create a new chart or not.
    * this is mainly so that if the itinerary is updated, we do not create a new
@@ -549,8 +549,8 @@ class SavedItineraries {
               type: "time",
               scaleLabel: {
                 display: true,
-                labelString: `${localeString(
-                  reduced[0].retrieved, false)}–${localeString(
+                labelString: `${localeDate(
+                  reduced[0].retrieved, false)}–${localeDate(
                   reduced[reduced.length - 1].retrieved, false)}`,
               },
               offset: true,
@@ -594,7 +594,7 @@ class SavedItineraries {
                   },
                 }, max, min, false);
 
-            		label += localeStringUSD(value);
+            		label += localeCurrency(value);
             		return label;
               },
             },
@@ -632,8 +632,8 @@ class SavedItineraries {
 
       // update the history object displayed
       config.data.datasets[0].data = history;
-      config.options.scales.xAxes[0].scaleLabel.labelString = `${localeString(
-        reduced[0].retrieved, false)}–${localeString(
+      config.options.scales.xAxes[0].scaleLabel.labelString = `${localeDate(
+        reduced[0].retrieved, false)}–${localeDate(
           reduced[reduced.length - 1].retrieved, false)}`;
       chart.update();
     }
@@ -642,12 +642,12 @@ class SavedItineraries {
   /**
    * Updates the max/min price and returns if the index is equal to the new
    * max/min price.
-   * 
+   *
    * @param {object} context canvas context object, used for data retrieval
    * @param {object} max max value of dataset
    * @param {object} min min value of dataset
    * @param {boolean} latest true if we care about latest result
-   * 
+   *
    * @returns {string} "Max: " or "Min: " if true, for use in label
    *                   "" if false, to validate if index is max/min
    */
@@ -670,7 +670,7 @@ class SavedItineraries {
         index: length - 1,
       };
     }
-    
+
     // If max and min are the same, return empty string, regardless of latest.
     if (max.index === min.index) {
       return "";
