@@ -111,8 +111,8 @@ function onLoadAuth() {
   // We assume that the user is authenticated through localStorage here until we
   // authenticate with firebase. 
   if (user) {
-    qs("#greeting").classList.remove("hide");
-    qs("#greeting").innerHTML = user.name;
+    qs("#profile").classList.remove("hide");
+    qs("#profile").innerHTML = user.name;
 
     // Switch statement based on what location the window is currently in.
     switch(window.location.pathname) {
@@ -130,7 +130,7 @@ function onLoadAuth() {
     }
   }
   else { // user is not authenticated
-    qs("#greeting").classList.add("hide");
+    qs("#profile").classList.add("hide");
 
     switch(window.location.pathname) {
       case "/": {

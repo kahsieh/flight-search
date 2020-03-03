@@ -16,14 +16,18 @@ All Rights Reserved.
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-app.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-auth.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-firestore.js" defer></script>
   <script src="globals.js"></script>
-  <script src="profile.js"></script>
+  <script src="external/auth.js"></script>
+  <script src="external/firebase.js"></script>
 </head>
 <body>
 <header><nav>
   <div class="nav-wrapper container"><a href="/" class="brand-logo">
     <i class="material-icons">flight</i>Five Peas Flight Search
-  </a><div id="greeting" class="hide right"></div></div>
+  </a><a id="profile" class="hide right" href="profile.html"></a></div>
 </nav></header>
 
 <main class="container">
