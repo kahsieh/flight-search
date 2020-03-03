@@ -40,6 +40,10 @@ main {
   background-color: wheat;
 }
 
+.material-tooltip {
+  max-width: 400px;
+}
+
 /* Specific modifications */
 
 td, th {

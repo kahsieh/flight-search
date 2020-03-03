@@ -54,18 +54,14 @@ All Rights Reserved.
            onclick="signout()">Sign Out</a>
       </div>
     </div>
-    <p>
-      You may enter multiple airport or airline codes by separating them with
-      commas. To bind the order of airport lists, use a pipe instead of a comma.
-      Selecting a flight that uses an airport from a pipe-separated list will
-      require that all other pipe-separated lists use the airport in the same
-      list position.
-    </p>
     <!-- Itinerary name & Filters -->
     <div class="row">
       <div class="col s12 m6 input-field">
         <input id="itinerary-name" type="text" placeholder="Untitled">
-        <label class="active">Itinerary name</label>
+        <label class="active">Title</label>
+        <span class="helper-text">
+          Helps identify the itinerary when saving/sharing.
+        </span>
       </div>
       <div class="col s12 m6 input-field">
         <select id="filters" onchange="itable.updateFilters()" multiple>
@@ -93,6 +89,9 @@ All Rights Reserved.
           </optgroup>
         </select>
         <label>Filters</label>
+        <span class="helper-text">
+          Specify your flight preferences.
+        </span>
       </div>
     </div>
     <!-- Itinerary -->
@@ -162,6 +161,9 @@ All Rights Reserved.
           <option value="pnr_count">Tickets</option>
         </select>
         <label>Additional columns</label>
+        <span class="helper-text">
+          Shows additional information about each flight option.
+        </span>
       </div>
     </div>
     <!-- Flight tables -->

@@ -105,12 +105,22 @@ class ItineraryTable {
       <td><div class="row"><div class="input-field col s12">
         <input type="text" name="fly_from" class="autocomplete_airport"
           placeholder="Any" value="${itinerary.get(i, "fly_from")}">
-        <label class="active">Origin</label>
+        <label class="active">
+          Origin
+          <i class="material-icons tiny tooltipped" data-position="bottom"
+            data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}<br><br>
+            ${ItineraryTable.ORDER_FLEX_TOOLTIP}">info_outline</i>
+        </label>
       </div></div></td>
       <td><div class="row"><div class="input-field col s12">
         <input type="text" name="fly_to" class="autocomplete_airport"
           placeholder="Any" value="${itinerary.get(i, "fly_to")}">
-        <label class="active">Destination</label>
+        <label class="active">
+          Destination
+          <i class="material-icons tiny tooltipped" data-position="bottom"
+            data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}<br><br>1
+            ${ItineraryTable.ORDER_FLEX_TOOLTIP}">info_outline</i>
+        </label>
       </div></div></td>
 
       <td class="select_airlines">
@@ -126,7 +136,11 @@ class ItineraryTable {
           <input type="text" name="select_airlines"
             class="autocomplete_select_airlines" placeholder="Any"
             value="${itinerary.get(i, "select_airlines")}">
-          <label class="active">Airline</label>
+          <label class="active">
+            Airline
+            <i class="material-icons tiny tooltipped" data-position="bottom"
+            data-tooltip="${ItineraryTable.AIRLINE_TOOLTIP}">info_outline</i>
+          </label>
         </div></div>
       </td>
       <td class="adult_hold_bag">
@@ -219,7 +233,11 @@ class ItineraryTable {
           <input type="text" name="select_stop_airport"
             class="autocomplete_airport" placeholder="Any"
             value="${itinerary.get(i, "select_stop_airport")}">
-          <label class="active">Stop&nbsp;airport</label>
+          <label class="active">
+            Stop&nbsp;airport
+            <i class="material-icons tiny tooltipped" data-position="bottom"
+              data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}">info_outline</i>
+          </label>
         </div></div>
       </td>
       <td class="max_stopovers">
@@ -366,8 +384,9 @@ class ItineraryTable {
                  .forEach(e => e.style.display = filter.selected ? "" : "none");
     }
 
-    // Re-initialize Materialize selects and autocompletes.
+    // Re-initialize Materialize selects, tooltips, and autocompletes.
     M.FormSelect.init(this._table.querySelectorAll("select"), {});
+    M.Tooltip.init(this._table.querySelectorAll(".tooltipped"), {});
     const trim = e =>
       e.value = e.value.includes(" - ") ? e.value.split(" - ")[1] : e.value;
     let autocomplete_select_airlines =
@@ -437,6 +456,22 @@ class ItineraryTable {
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+// STATIC FIELDS
+// -----------------------------------------------------------------------------
+
+ItineraryTable.AIRPORT_TOOLTIP = `You may enter multiple airport codes by
+  separating them with commas.`;
+
+ItineraryTable.ORDER_FLEX_TOOLTIP = `To create a flexible-order itinerary,
+  separate airport codes with a vertical bar (|) instead of a comma. Then,
+  selecting a flight that uses an airport from a vertical bar-separated list
+  will require that all other vertical bar-separated lists use the airport in
+  the same list position.`;
+
+ItineraryTable.AIRLINE_TOOLTIP = `You may enter multiple airline codes by
+  separating them with commas.`;
 
 // -----------------------------------------------------------------------------
 // HELPERS
