@@ -108,14 +108,14 @@ class SavedItineraries {
 
     // HTML template to be rendered for each row
     itineraryRow.innerHTML = `
-      <td class="label no-wrap">
-        <b class="row-number">${this.length}&nbsp;|&nbsp;</b><div
-          class="name truncate"></div>
+      <td class="label">
+        <b class="row-number no-wrap">${this.length}&nbsp;|&nbsp;</b><div
+          class="name truncate no-wrap"></div>
         <br>
         <span class="created note"></span>
       </td>
-      <td class="departure no-wrap"></td>
-      <td class="arrival no-wrap"></td>
+      <td class="departure"></td>
+      <td class="arrival"></td>
       <td class="flight-path">
         <div class="flight-path-none no-wrap hide">No results</div>
         <div class="fly-from flight-path-col truncate"></div>
@@ -124,7 +124,7 @@ class SavedItineraries {
       </td>
       <td>
         <div class="price"></div>
-        <span class="retrieved note no-wrap"></span>
+        <span class="retrieved note"></span>
       </td>
       <td class="no-wrap">
         <button class="update btn-floating waves-effect waves-light">
