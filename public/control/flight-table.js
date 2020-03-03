@@ -83,7 +83,7 @@ class FlightTable {
    */
   _addTable() {
     let table = document.createElement("div");
-    table.classList.add(["col", "s12"]);
+    table.classList.add("col", "s12");
     table.id = `table${this._i}`;
     table.innerHTML = `
       <table class="highlight">
