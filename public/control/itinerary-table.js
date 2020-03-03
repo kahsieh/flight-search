@@ -8,31 +8,36 @@ All Rights Reserved.
 "use strict";
 
 /**
- * Instance of ItineraryTable. Should be initialized by client code.
+ * Instance of ItineraryTable. Should be managed by client code.
  */
 let itable;
 
 class ItineraryTable {
   /**
    * Constructs an ItineraryTable instance based on the given DOM elements.
-   * 
-   * @param {Element} name <input> element for name.
-   * @param {Element} filters <select> element for filters.
-   * @param {Element} table <tbody> element for itinerary body.
-   * @param {Element} removeFlight <button> element for remove button.
+   *
+   * @param {!Element} name <input> element for name.
+   * @param {!Element} filters <select> element for filters.
+   * @param {!Element} table <tbody> element for itinerary body.
+   * @param {!Element} removeFlight <button> element for remove flight button.
+   * @param {function} addFlightCallback Callback after addFlight.
+   * @param {function} removeFlightCallback Callback after removeFlight.
    */
-  constructor(name, filters, table, removeFlight) {
+  constructor(name, filters, table, removeFlight,
+              addFlightCallback, removeFlightCallback) {
     this._name = name;
     this._filters = filters;
     this._table = table;
     this._removeFlight = removeFlight;
+    this._addFlightCallback = addFlightCallback;
+    this._removeFlightCallback = removeFlightCallback;
   }
 
   get length() { return this._table.childElementCount; }
 
   /**
    * Retrieves the entire itinerary.
-   * 
+   *
    * @return {!Itinerary} The contents of the ItineraryTable.
    */
   get() {
@@ -54,7 +59,7 @@ class ItineraryTable {
     window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (_, k, v) =>
         urlParams[k] = decodeURIComponent(v));
     if ("n" in urlParams && "i" in urlParams) {
-      // decode name from base64 encoding
+      // Decode name from base64 encoding.
       try {
         this._name.value = atob(urlParams["n"]);
       }
@@ -73,7 +78,7 @@ class ItineraryTable {
 
   /**
    * Loads the itinerary from an Itinerary object.
-   * 
+   *
    * @param {!Itinerary} itinerary Itinerary object.
    */
   loadFromItinerary(itinerary) {
@@ -322,7 +327,7 @@ class ItineraryTable {
     `;
     this.updateFilters();
     this._removeFlight.classList.remove("disabled");
-    new FlightTable();
+    this._addFlightCallback(this.length - 1);
   }
 
   /**
@@ -330,7 +335,7 @@ class ItineraryTable {
    * triggering event.
    */
   removeFlight() {
-    let row = event.currentTarget.nodeName == "BUTTON" ? this.length - 1
+    let row = event.currentTarget.nodeName === "BUTTON" ? this.length - 1
       : [...this._table.children].indexOf(event.target.parentNode.parentNode)
     switch (this.length) {
       case 1:
@@ -340,11 +345,11 @@ class ItineraryTable {
         // fallthrough
       default:
         this._table.querySelectorAll("tr")[row].remove();
-        FlightTable.tables[row].remove();
         for (const [i, e] of
              this._table.querySelectorAll(".flight-index").entries()) {
           e.textContent = i + 1;
         }
+        this._removeFlightCallback(row);
         break;
     }
   }
@@ -361,21 +366,21 @@ class ItineraryTable {
                  .forEach(e => e.style.display = filter.selected ? "" : "none");
     }
 
-    // Re-initialize Materialize selects and autocompletes. 
+    // Re-initialize Materialize selects and autocompletes.
     M.FormSelect.init(this._table.querySelectorAll("select"), {});
     const trim = e =>
       e.value = e.value.includes(" - ") ? e.value.split(" - ")[1] : e.value;
     let autocomplete_select_airlines =
       this._table.querySelectorAll(".autocomplete_select_airlines")
     M.Autocomplete.init(autocomplete_select_airlines, {
-        data: airlines, 
+        data: airlines,
         onAutocomplete: () => autocomplete_select_airlines.forEach(trim),
         limit: 5
     });
     let autocomplete_airport =
       this._table.querySelectorAll(".autocomplete_airport");
     M.Autocomplete.init(autocomplete_airport, {
-      data: airports, 
+      data: airports,
       onAutocomplete: () => autocomplete_airport.forEach(trim),
       limit: 5
     });
@@ -393,22 +398,22 @@ class ItineraryTable {
     if (!cell) {
       return;
     }
-    if (cell.nodeName == "SELECT") {
+    if (cell.nodeName === "SELECT") {
       return Array.from(cell)
                   .filter(opt => opt.selected)
                   .map(opt => opt.value)
                   .join();
     }
-    if (cell.type == "checkbox") {
+    if (cell.type === "checkbox") {
       return cell.checked;
     }
     return cell.value;
   }
 
   /**
-   * Selects filter options if itinerary uses non-default options. 
-   * 
-   * @param {Itinerary} itinerary Itinerary to check for non-default options.
+   * Selects filter options if itinerary uses non-default options.
+   *
+   * @param {!Itinerary} itinerary Itinerary to check for non-default options.
    */
   _selectFilters(itinerary) {
     // Some fields are shown by selecting a different filtering option. This
@@ -439,7 +444,7 @@ class ItineraryTable {
 
 /**
  * Generates HTML select options.
- * 
+ *
  * @param {!Array<string>|Array<Object<string, string>>} options Array of
  *    possible options. The following formats are acceptable:
  *      ["value1", "value2", ...]
