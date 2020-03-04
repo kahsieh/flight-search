@@ -12,6 +12,7 @@ admin.initializeApp({
   credential: admin.credential.applicationDefault(),
   databaseURL: "https://five-peas-flight-search.firebaseio.com"
 });
+
 const express = require("express");
 const bodyParser = require("body-parser");
 
@@ -20,11 +21,8 @@ app.use(express.static("public"));
 app.use(bodyParser.text());
 
 if (module === require.main) {
-  // [START server]
-  // Start the server
   const server = app.listen(process.env.PORT || 8080, () => {
-    const port = server.address().port;
-    console.log(`App listening on port ${port}`);
+    console.log(`App listening on port ${server.address().port}`);
   });
 
   /**
@@ -32,36 +30,33 @@ if (module === require.main) {
    */
   app.post("/api/delete-itinerary", (req, res) => {
     let response = res.type("application/json");
-
     let body = JSON.parse(req.body);
     let idToken = body.idToken;
     let docIds = body.deletedProcessing;
-    let status = true;
+
     if (typeof docIds === "undefined" || docIds.length === 0) {
       response.status(400);
-      status = false;
-      response.send({ deleted: status });
+      response.send({ deleted: false });
     }
     else {
       // verify the id token so that it is a valid uid
       admin.auth().verifyIdToken(idToken).then(async decodedToken => {
-        let uid = decodedToken.uid;
-
         const querySnapshot = await admin.firestore()
           .collection("itineraries")
-          .where("uid", "==", uid)
+          .where("uid", "==", decodedToken.uid)
           .get();
         let promiseArray = [];
+        let status = true;
         promiseArray.push(new Promise(resolve => {
           querySnapshot.forEach(doc => {
             if (docIds.includes(doc.id)) {
               doc.ref.delete().then(() => {
                 console.log(`${doc.id} was successfully deleted.`);
-              }).catch(error => {
-                console.error(error);
+              }).catch(e => {
+                console.error(e);
                 response.status(400);
                 status = false;
-              }).then(() => { // resolve regardless of error so array resolves
+              }).then(() => {  // resolve regardless of error so array resolves
                 resolve();
               });
             }
@@ -70,18 +65,17 @@ if (module === require.main) {
         Promise.all(promiseArray).then(() => {
           response.send({ deleted: status });
         });
-      }).catch(error => { // if we get an error from verifying or querying
-        console.error(error);
+      }).catch(e => {  // if we get an error from verifying or querying
+        console.error(e);
         response = res.status(401);
-        status = false;
-        response.send({ deleted: status });
+        response.send({ deleted: false });
       });
     }
   });
 
   /**
-   * Listener that redirects user to 404 page when trying to access
-   * an unknown page
+   * Listener that redirects user to 404 page when trying to access an unknown
+   * page.
    */
   app.use(function(req, res) {
     res.sendStatus(404);
