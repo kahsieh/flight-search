@@ -314,17 +314,12 @@ class FlightTable {
       ftables[this._i]._selected =
         ftables[this._i]._selected ? null : flight.id;
       this._book.onclick = () => window.open(itinerary.deep_link);
-      let section = document.querySelector(`#table${this._i}`);
-      if (section.getAttribute('data-collapsed') === 'true'){
-        section.setAttribute('data-collapsed', 'false')
-
+      if (this._table.getAttribute("data-collapsed") === "true") {
         FlightTable.displayResults();
-        expandSection(section)
+        expandSection(this._table);
       }
-      else{
-        section.setAttribute('data-collapsed', 'true')
-
-        collapseSection(section)
+      else {
+        collapseSection(this._table);
         FlightTable.displayResults();
       }
     };
