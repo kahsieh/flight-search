@@ -341,6 +341,11 @@ class FlightTable {
    */
   clearSelection() {
     this._selected = null;
+    // Immediately expand the table if it's collapsed.
+    if (this._table.getAttribute("data-collapsed") === "true") {
+      this._table.style.height = null;
+      this._table.setAttribute("data-collapsed", "false")
+    }
   }
 
   /**
