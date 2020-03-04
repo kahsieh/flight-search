@@ -87,7 +87,7 @@ async function search() {
  * Function to run when share button is pressed.
  */
 function share() {
-  shareItinerary(qs("#itinerary-name").value, table.get(), qs("#share"),
+  shareItinerary(qs("#itinerary-name").value, itable.get(), qs("#share"),
                  qs("#share-link"));
 }
 
