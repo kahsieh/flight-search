@@ -127,6 +127,10 @@ function onLoadAuth() {
         qs("#itineraries-authenticated").classList.remove("hide");
         break;
       }
+      case "/profile.html": {
+        qs("#preferences-authenticated").classList.remove("hide");
+        break;
+      }
     }
   }
   else { // user is not authenticated
@@ -142,6 +146,10 @@ function onLoadAuth() {
       }
       case "/saved-itineraries.html": {
         qs("#itineraries-unauthenticated").classList.remove("hide");
+        break;
+      }
+      case "/profile.html": {
+        qs("#preferences-unauthenticated").classList.remove("hide");
         break;
       }
     }
