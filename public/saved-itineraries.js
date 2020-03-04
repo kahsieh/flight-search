@@ -11,7 +11,7 @@ All Rights Reserved.
  * Function that displays the itinerary table after authentication.
  */
 addEventListener("load", () => {
-  let user = checkAuth();
+  const user = checkAuth();
   if (!user || !user.uid) {
     qs("#itineraries-unauthenticated").classList.remove("hide");
     console.error("User is not authenticated.");
@@ -41,8 +41,8 @@ addEventListener("unload", () => {
   if (sitable) {
     navigator.sendBeacon("/api/delete-itinerary",
       JSON.stringify({
-        idToken: sitable.idToken,
-        deletedProcessing: sitable.deletedProcessing,
+        idToken: sitable._idToken,
+        deletedProcessing: sitable._deletedProcessing,
       })
     );
   }
@@ -60,58 +60,62 @@ let sitable;
  */
 class SavedItinerariesTable {
   /**
-   * @param {object} firebaseData Data pulled from firebase to be stored.
+   * Populates the saved itineraries table based on a user's Firebase data.
    *
-   * @member {object} firebaseData Firebase data for easy access.
-   * @member {array} docIds Array of firebase doc IDs, indexed based on row.
-   * @member {objects} charts Map of indexes to chart references.
+   * @param {object} firebaseData Data pulled from Firebase.
    */
   constructor(firebaseData) {
     this._firebaseData = firebaseData;
-    this.docIds = [];
-    this.deletedProcessing = [];
-    this.charts = {};
-    this.createItineraryTable();
-
+    this._docIds = [];
+    this._deletedProcessing = [];
+    this._charts = {};
     getFirebaseIdToken().then(idToken => {
-      this.idToken = idToken;
-    }).catch(error => {
-      console.error(error);
+      this._idToken = idToken;
+    }).catch(e => {
+      console.error(e);
     });
+    this.createItineraryTable();
   }
 
-  /**
-   * returns the length of the itinerary table
-   */
   get length() { return qsa(".itinerary").length; }
 
   /**
-   * Creates the itinerary rows and header
+   * Creates table header and rows.
    */
   createItineraryTable() {
-    this._firebaseData.forEach(data => {
+    this.createHeader();
+    for (const data of this._firebaseData) {
+      // Keep track of what row corresponds to what docId (used for deletion).
+      this._docIds.push(data.id);
       this.createItineraryRow(data);
       this.createChartRow(data.history);
-    });
-
-    this.createHeader();
+    }
   }
 
   /**
-   * Creates the row to be displayed in the itinerary table.
-   *
-   * @param {object} row Row that contains itinerary object, along with name,
-   * price, created timestamp, and updated timestamp
+   * Creates table header.
    */
-  createItineraryRow(row) {
-    // keep track of what row belongs to what id, used for deletion
-    this.docIds.push(row.id);
+  createHeader() {
+    const headerRow = qs("#saved-itineraries-table").createTHead().insertRow();
+    headerRow.innerHTML = `
+      <th>Itineraries</th>
+      <th>Departure</th>
+      <th>Return</th>
+      <th>Flight&nbsp;Path</th>
+      <th>Latest&nbsp;Price</th>
+      <th></th>
+    `;
+  }
 
-    let itineraryRow = qs("#saved-itineraries").insertRow();
+  /**
+   * Creates the row to be displayed in the saved itineraries table.
+   */
+  createItineraryRow() {
+    const itineraryRow = qs("#saved-itineraries").insertRow();
     itineraryRow.classList.add("itinerary", "clickable");
     let index = this.length - 1;
 
-    // HTML template to be rendered for each row
+    // Write and update HTML template for each row.
     itineraryRow.innerHTML = `
       <td class="label">
         <b class="row-number no-wrap">${this.length}&nbsp;|&nbsp;</b><div
@@ -148,15 +152,14 @@ class SavedItinerariesTable {
         </button>
       </td>
     `;
-
     this.updateRow(index);
 
-    // add onclick function for the row
+    // Add onclick function for the row.
     itineraryRow.onclick = () => {
       this.loadLink(index);
     }
 
-    // add onclick functions for each button
+    // Add onclick functions for each button.
     qsa(".update")[index].onclick = event => {
       event.stopPropagation();
       this.updateItinerary(index);
@@ -179,12 +182,14 @@ class SavedItinerariesTable {
    * Creates the chart history row for use in showHistory().
    */
   createChartRow() {
-    let colSpan = qs("#saved-itineraries tr").children.length;
+    const colSpan = qs("#saved-itineraries tr").children.length;
 
-    let chartRow = qs("#saved-itineraries").insertRow();
+    // Create new row in table.
+    const chartRow = qs("#saved-itineraries").insertRow();
     chartRow.classList.add("chart", "clickable", "hide");
     let index = this.length - 1;
 
+    // HTML template to be rendered for each chart row.
     chartRow.innerHTML = `
       <td colspan="${colSpan}">
         <p class="chart-none hide center-align"
@@ -193,128 +198,125 @@ class SavedItinerariesTable {
       </td>
     `;
 
-    // add hover class so that itinerary is also highlighted on hover
-    chartRow.onmouseout = chartRow.onmouseover = event => {
+    // Add hover class so that itinerary is also highlighted on hover.
+    chartRow.onmouseout = chartRow.onmouseover = _ => {
       qsa(".itinerary")[index].classList.toggle("hover");
     }
   }
 
   /**
-   * Create table header to be rendered
+   * Populates fields in the saved itineraries table.
+   *
+   * @param {number} index Row number to update.
+   * @param {?Object} update Object to update fields with, otherwise used
+   *   Firebase data corresponding to index.
    */
-  createHeader() {
-    let headerRow = qs("#saved-itineraries-table").createTHead().insertRow();
+  updateRow(index, update = this._firebaseData[index]) {
+    let price = -1;
+    let retrieved;
+    if (Array.isArray(update.history) && update.history.length > 0) {
+      price = update.history[update.history.length - 1].price;
+      retrieved = update.history[update.history.length - 1].retrieved;
+    }
 
-    headerRow.innerHTML = `
-      <th>Itineraries</th>
-      <th>Departure</th>
-      <th>Return</th>
-      <th>Flight&nbsp;Path</th>
-      <th>Latest&nbsp;Price</th>
-      <th></th>
-    `;
+    // Set name column.
+    qsa(".name")[index].textContent = update.name || "Untitled";
+    qsa(".created")[index].textContent = "Created: " +
+      typeof update.created !== "undefined" &&
+        typeof update.created.seconds === "number" ?
+      localeDate(update.created.seconds, false) : "Unknown";
+
+    // Set departure column.
+    if ((typeof update.dTime === "undefined" || update.dTime === null) &&
+        (typeof update.flyFrom === "undefined" || update.flyFrom === null)) {
+      qsa(".departure")[index].textContent = "No results";
+    }
+    else {
+      qsa(".departure")[index].textContent =
+        `${typeof update.dTime !== "undefined" ? update.dTime : "None"
+         }${nbsp}(${
+          typeof update.flyFrom !== "undefined" ? update.flyFrom : "None"})`;
+    }
+
+    // Set return column.
+    if ((typeof update.aTime === "undefined" || update.aTime === null) &&
+        (typeof update.flyTo === "undefined" || update.flyTo === null)) {
+      qsa(".arrival")[index].textContent = "No results";
+    }
+    else {
+      qsa(".arrival")[index].textContent =
+        `${typeof update.aTime !== "undefined" ? update.aTime : "None"
+         }${nbsp}(${
+           typeof update.flyTo !== "undefined" ? update.flyTo : "None"})`;
+    }
+
+    // Set flight path column.
+    this.getFlightPath(index);
+
+    // Set price column.
+    qsa(".price")[index].textContent =
+      typeof price === "number" && price !== -1 ?
+      localeCurrency(price) : "No results";
+    qsa(".retrieved")[index].textContent =
+      typeof retrieved !== "undefined" &&
+        typeof retrieved.seconds === "number" ?
+      localeDate(retrieved.seconds, false) : "";
   }
 
   /**
-   * Gets the overall flight path of the itinerary
+   * Populates the overall flight path of the itinerary.
    *
-   * @param {number} index index of row
+   * @param {number} index Row number to update.
    */
   getFlightPath(index) {
     let itinerary = this._firebaseData[index].itinerary;
-    let flightPath = qsa(".flight-path")[index];
-    // display No results if itinerary is not an object
+
+    // Display "No results" if itinerary is invalid.
     if (!Array.isArray(itinerary)) {
       qsa(".flight-path-none")[index].classList.remove("hide");
       return;
     }
 
+    // Arrange strings.
     let flyFromStr = [];
     let arrowStr = [];
     let flyToStr = [];
-
-    itinerary.forEach(flight => {
-      let src = (typeof flight.fly_from !== "undefined" && flight.fly_from) ?
-        flight.fly_from : "Any";
-      let dest = (typeof flight.fly_to !== "undefined" && flight.fly_to) ?
-        flight.fly_to : "Any";
-
-      flyFromStr.push(src);
+    for (const flight of itinerary) {
+      flyFromStr.push(flight.fly_from || "Any");
       arrowStr.push("→");
-      flyToStr.push(dest);
-    });
+      flyToStr.push(flight.fly_to || "Any");
+    }
 
+    // Write to document.
     qsa(".fly-from")[index].textContent = flyFromStr.join("\n");
     qsa(".arrow")[index].textContent = arrowStr.join("\n");
     qsa(".fly-to")[index].textContent = flyToStr.join("\n");
   }
 
   /**
-   * Populates given fields in the saved itineraries table.
+   * Loads itinerary by redirecting to the main page.
    *
-   * @param {number} index row number to update.
-   * @param {object} update object to update fields, otherwise based on index.
+   * @param {number} index Row number to load.
    */
-  updateRow(index, update = this._firebaseData[index]) {
-    let price = -1;
-    let retrieved;
-    if (Array.isArray(update.history) && update.history.length > 0) {
-      retrieved = update.history[update.history.length - 1].retrieved;
-      price = update.history[update.history.length - 1].price;
-    }
-
-    // sets text content for each element to be rendered
-    qsa(".name")[index].textContent =
-      (typeof update.name !== "undefined") ? update.name : "Untitled";
-    qsa(".created")[index].textContent =
-      `Created: ${(typeof update.created !== "undefined" &&
-      typeof update.created.seconds === "number") ?
-      localeDate(update.created.seconds, false) : ""}`;
-    qsa(".price")[index].textContent =
-      (typeof price === "number" && price !== -1) ?
-      localeCurrency(price) : "No results";
-    qsa(".retrieved")[index].textContent =
-      (typeof retrieved !== "undefined" &&
-      typeof retrieved.seconds === "number") ?
-      localeDate(retrieved.seconds, false) : "";
-    if ((typeof update.dTime === "undefined" || update.dTime === null) &&
-      typeof update.flyFrom === "undefined" || update.flyFrom === null) {
-      qsa(".departure")[index].textContent = "No results";
-    }
-    else {
-      qsa(".departure")[index].textContent =
-        `${(typeof update.dTime !== "undefined") ?
-        update.dTime : "None"}${nbsp}(${(typeof update.flyFrom !== "undefined")
-        ? update.flyFrom : "None"})`;
-    }
-    if ((typeof update.aTime === "undefined" || update.aTime === null) &&
-      typeof update.flyTo === "undefined" || update.flyTo === null) {
-        qsa(".arrival")[index].textContent = "No results";
-    }
-    else {
-      qsa(".arrival")[index].textContent =
-        `${(typeof update.aTime !== "undefined") ?
-        update.aTime : "None"}${nbsp}(${(typeof update.flyTo !== "undefined") ?
-        update.flyTo : "None"})`;
-    }
-    this.getFlightPath(index);
+  loadLink(index) {
+    const data = this._firebaseData[index];
+    window.location = new Itinerary(data.itinerary).link(data.name);
   }
 
   /**
-   * Updates the given itinerary in the row
+   * Updates the itinerary in the row.
    *
-   * @param {number} index index of row
+   * @param {number} index Row number to update.
    */
   updateItinerary(index) {
-    let user = checkAuth();
-
+    const user = checkAuth();
     if (!user || !user.uid) {
       console.error("User is not authenticated.");
       return;
     }
-    qsa(".update")[index].classList.add("disabled");
 
-    let docId = this.docIds[index];
+    qsa(".update")[index].classList.add("disabled");
+    let docId = this._docIds[index];
     let icon, message, color;
 
     updateFirebaseItinerary(docId, this._firebaseData[index]).then(() => {
@@ -323,14 +325,17 @@ class SavedItinerariesTable {
       icon = "done";
       message = "Itinerary updated!";
       color = "";
-    }).catch(error => {
-      console.error(error);
+    }).catch(e => {
+      console.error(e);
 
       icon = "error";
       message = "Error: Itinerary could not be updated.";
       color = "red";
     }).then(() => {
+      // Update UI, but don't create a new chart if none is displayed.
       qsa(".update")[index].classList.remove("disabled");
+      this.updateRow(index);
+      this.updateChart(index, false);
 
       // Display message.
       M.toast({
@@ -338,74 +343,59 @@ class SavedItinerariesTable {
         displayLength: 1500,
         classes: color,
       });
-
-      this.updateRow(index);
-      // do not create a new chart if none is displayed
-      this.updateChart(index, false);
     });
-  }
-
-  /**
-   * Loads itinerary by redirecting to the main page.
-   *
-   * @param {number} index index of row
-   */
-  loadLink(index) {
-    let data = this._firebaseData[index];
-
-    window.location = new Itinerary(data.itinerary).link(data.name);
   }
 
   /**
    * Shares itinerary by copying URL to clipboard.
    *
-   * @param {number} index index of row
+   * @param {number} index Row number to load.
    */
   shareLink(index) {
     let data = this._firebaseData[index];
     if (typeof data.name === "undefined") {
       data.name = "Untitled";
     }
-
     if (!Array.isArray(data.itinerary)) {
       console.error("No itinerary object was found.");
       return;
     }
 
-    shareItinerary(data.name, new Itinerary(data.itinerary),
-      qsa(".share")[index], qsa(".share-link")[index]);
+    shareItinerary(data.name,
+                   new Itinerary(data.itinerary),
+                   qsa(".share")[index],
+                   qsa(".share-link")[index]);
   }
 
   /**
-   * Hides the row from the table.
+   * Hides the row from the table and prepares for itinerary deletion.
    *
-   * @param {number} index index of row
+   * @param {number} index Row number to hide.
    */
   deleteRow(index) {
-    qsa(".delete")[index].classList.add("disabled");
     qsa(".itinerary")[index].classList.add("hide");
     qsa(".chart")[index].classList.add("hide");
-    let confirm = true;
     this.updateRowNumbers();
-    this.deletedProcessing.push(this.docIds[index]);
+    this._deletedProcessing.push(this._docIds[index]);
 
-    // dismiss previous toast, if one exists
+    // Dismiss previous toast, if one exists.
     let toastElement = qs(".toast");
     if (toastElement !== null) {
       M.Toast.getInstance(toastElement).dismiss();
     }
 
-    // toast with undo button for deletion
+    // Make toast with undo button for deletion.
+    let confirm = true;
     M.toast({
       html: `<div>Itinerary deleted</div><button class="btn-flat toast-action"
-        id="undoButton${index}">Undo</button>`,
+             id="undoButton${index}">Undo</button>`,
       displayLength: 5000,
-      completeCallback: () => { (confirm) ?
+      completeCallback: () => { confirm ?
         this.deleteItinerary(index) : this.undoDeleteItinerary(index) }
     });
 
     // Reverse deletion if undo button is clicked, also dismiss toast that was
-    // previously generated
+    // previously generated.
     qs(`#undoButton${index}`).onclick = () => {
       confirm = false;
       M.Toast.getInstance(qs(".toast")).dismiss();
@@ -413,41 +403,36 @@ class SavedItinerariesTable {
   }
 
   /**
-   * Deletes the itinerary by sending a post request to the bakend.
+   * Deletes the itinerary by sending a POST request to the backend.
    *
-   * @param {number} index index of row
+   * @param {number} index Row number to delete.
    */
   deleteItinerary(index) {
-    let user = checkAuth();
-
+    const user = checkAuth();
     if (!user || !user.uid) {
       console.error("User is not authenticated.");
       return;
     }
-    qsa(".delete")[index].classList.remove("disabled");
 
-    let docId = this.docIds[index];
+    const docId = this._docIds[index];
     deleteFirebaseItinerary(docId).then(() => {
       console.log(`${this._firebaseData[index].name} was succesfully deleted`);
-      this.deletedProcessing.splice(this.deletedProcessing.indexOf(docId), 1);
-    }).catch(error => {
-      console.error(error);
-    });
+      this._deletedProcessing.splice(this._deletedProcessing.indexOf(docId), 1);
+    }).catch(e => console.error(e));
   }
 
   /**
-   * Unhides the row and cancels the deletion of the Firebase document
+   * Unhides the row and cancels the deletion of the Firebase document.
    *
-   * @param {number} index index of row
+   * @param {number} index Row number to undelete.
    */
   undoDeleteItinerary(index) {
-    this.deletedProcessing.splice(
-      this.deletedProcessing.indexOf(this.docIds[index]), 1);
-    qsa(".delete")[index].classList.remove("disabled");
-    let itineraryClass = qsa(".itinerary")[index].classList;
-    itineraryClass.remove("hide");
-    if (itineraryClass.contains("expanded")) {
-      // show the chart if the itinerary row is expanded
+    this._deletedProcessing.splice(
+      this._deletedProcessing.indexOf(this._docIds[index]), 1);
+    let itineraryClassList = qsa(".itinerary")[index].classList;
+    itineraryClassList.remove("hide");
+    // Show the chart if the itinerary row is expanded.
+    if (itineraryClassList.contains("expanded")) {
       qsa(".chart")[index].classList.remove("hide");
     }
     this.updateRowNumbers();
@@ -457,15 +442,15 @@ class SavedItinerariesTable {
    * Updates all the row numbers if a row was deleted.
    */
   updateRowNumbers() {
-    qsa("tr:not([hidden]).clickable .row-number").forEach((node, index) => {
+    qsa("tr :not([hidden]) .row-number").forEach((node, index) => {
       node.textContent = `${index + 1}${nbsp}|${nbsp}`;
     });
   }
 
   /**
-   * Shows the price history for the given itinerary.
+   * Shows the price history chart for the given itinerary.
    *
-   * @param {number} index index of row
+   * @param {number} index Row number to show chart for.
    */
   showHistory(index) {
     qsa(".itinerary")[index].classList.toggle("expanded");
@@ -476,10 +461,10 @@ class SavedItinerariesTable {
   /**
    * Updates or creates a chart based on firebase data.
    *
-   * @param {number} index index of row
-   * @param {boolean} create specifies whether to create a new chart or not.
-   * this is mainly so that if the itinerary is updated, we do not create a new
-   * chart if one has not been made yet.
+   * @param {number} index Row number to update chart for.
+   * @param {boolean} create Specifies whether to create a new chart or not.
+   *   This is mainly so that if the itinerary is updated, we do not create a
+   *   new chart if one has not been made yet.
    */
   updateChart(index, create = true) {
     const data = this._firebaseData[index];
@@ -490,7 +475,7 @@ class SavedItinerariesTable {
       return;
     }
 
-    // removes all entries in the array where the price === -1.
+    // Removes all entries in the array where the price === -1.
     const reduced = data.history.reduce((acc, {price, retrieved}) => {
       if (price !== -1) {
         acc.push({
@@ -501,12 +486,12 @@ class SavedItinerariesTable {
       return acc;
     }, []);
 
-    // transformed data so that it can be used with Chart.js
+    // Transforms data so that it can be used with Chart.js.
     const history = reduced.map(({price, retrieved}) => {
       return {
         x: new Date(retrieved * 1000),
         y: price,
-      }
+      };
     });
 
     // Do not display chart if we have no data to display.
@@ -518,30 +503,24 @@ class SavedItinerariesTable {
       qsa(".chart-history")[index].classList.remove("hide");
     }
 
-    // looks for the maximum price and returns it as an object, formatted as:
-    // { price, index }.
-    // x is the date, y is the price
+    // Looks for the maximum/minimum price and returns it as an object,
+    // formatted as: { price, index }.
     const max = history.reduce((acc, {y}, index) => {
-      let currentMax = acc.price;
-      return currentMax > y ? acc : { price: y, index: index };
+      return y > acc.price ? { price: y, index: index } : acc ;
     }, {});
-
-    // does same as above, but finds minimum instead
     const min = history.reduce((acc, {y}, index) => {
-      let currentMin = acc.price;
-      return currentMin < y ? acc : { price: y, index: index };
+      return y < acc.price ? { price: y, index: index } : acc;
     }, {});
 
-    // create a new chart
-    if (!(index in this.charts) && create) {
+    // Create a new chart. x is the date, y is the price.
+    if (!(index in this._charts) && create) {
       const context = qsa(".chart-history")[index].getContext("2d");
 
-      this.charts[index] = new Chart(context, {
+      this._charts[index] = new Chart(context, {
         type: "line",
         data: {
           datasets: [{
-            label: (typeof data.name !== "undefined") ?
-              data.name : "Untitled",
+            label: data.name || "Untitled",
             data: history,
             borderColor: "rgb(238, 110, 115)",
             fill: false,
@@ -588,7 +567,7 @@ class SavedItinerariesTable {
             intersect: false,
             mode: "index",
             callbacks: {
-            	label: (tooltip, data) => {
+              label: (tooltip, data) => {
                 let label =  "";
                 let value = parseFloat(tooltip.value);
 
@@ -599,43 +578,43 @@ class SavedItinerariesTable {
                   },
                 }, max, min, false);
 
-            		label += localeCurrency(value);
-            		return label;
+                label += localeCurrency(value);
+                return label;
               },
             },
           },
           elements: {
             point: {
-              radius: (ctx) => {
+              radius: ctx => {
                 return this.ifMaxOrMin(ctx, max, min) ? 5 : 0;
               },
-              hoverRadius: (ctx) => {
+              hoverRadius: ctx => {
                 return this.ifMaxOrMin(ctx, max, min) ? 7 : 0;
               },
-              backgroundColor: (ctx) => {
+              backgroundColor: ctx => {
                 return this.ifMaxOrMin(ctx, max, min) ?
                   "rgb(39, 166, 154)" : // green
                   "rgb(238, 110, 115)"; // red
               },
-              borderWidth: (ctx) => {
+              borderWidth: _ => {
                 return 1;
               },
-              borderColor: (ctx) => {
+              borderColor: ctx => {
                 return this.ifMaxOrMin(ctx, max, min) ?
-                  "rgb(39, 166, 154)" : // green
-                  "rgb(238, 110, 115)"; // red
+                  "rgb(39, 166, 154)" :  // green
+                  "rgb(238, 110, 115)";  // red
               },
             }
           },
         }
       });
     }
-    // update the old chart, if it exists
-    else if (typeof this.charts[index] !== "undefined") {
-      const chart = this.charts[index];
-      const config = this.charts[index].config;
+    // Update the old chart, if it exists.
+    else if (typeof this._charts[index] !== "undefined") {
+      const chart = this._charts[index];
+      const config = this._charts[index].config;
 
-      // update the history object displayed
+      // Update the history object displayed.
       config.data.datasets[0].data = history;
       config.options.scales.xAxes[0].scaleLabel.labelString = `${localeDate(
         reduced[0].retrieved, false)}–${localeDate(
@@ -648,19 +627,19 @@ class SavedItinerariesTable {
    * Updates the max/min price and returns if the index is equal to the new
    * max/min price.
    *
-   * @param {object} context canvas context object, used for data retrieval
-   * @param {object} max max value of dataset
-   * @param {object} min min value of dataset
-   * @param {boolean} latest true if we care about latest result
-   *
-   * @returns {string} "Max: " or "Min: " if true, for use in label
-   *                   "" if false, to validate if index is max/min
+   * @param {!Object} context Canvas context object, used for data retrieval.
+   * @param {!Object} max Max value of dataset.
+   * @param {!Object} min Min value of dataset.
+   * @param {boolean} latest Whether we care about latest result.
+   * @returns {string} "Max: " or "Min: " if true, for use in label.
+   *                   "" if false, to validate if index is max/min.
    */
   ifMaxOrMin(context, max, min, latest = true) {
-    let index = context.dataIndex;
-    let data = context.dataset.data;
-    let length = data.length;
-    // update the current min/max values if needed
+    const index = context.dataIndex;
+    const data = context.dataset.data;
+    const length = data.length;
+
+    // Update the current min/max values if needed.
     if (data[length - 1].y >= max.price) {
       max = {
         retrieved: data[length - 1].x,
@@ -681,9 +660,9 @@ class SavedItinerariesTable {
       return "";
     }
 
-    // Return a string if the index is the index of the max value, or if
-    // we do not care about the latest index, just return if it is equal to the
-    // max price. The same logic applies for min as well.
+    // Return a string if the index is the index of the max value, or if we do
+    // not care about the latest index, just return if it is equal to the max
+    // price. The same logic applies for min as well.
     if (index === max.index || (!latest && data[index].y === max.price)) {
       return "Max: ";
     }
