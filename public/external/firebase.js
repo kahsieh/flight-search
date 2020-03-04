@@ -7,19 +7,8 @@ All Rights Reserved.
 */
 "use strict";
 
-// Runs as soon as the document is loaded.
-addEventListener("DOMContentLoaded", () => {
-  onLoadAuth();
-})
-
-addEventListener("load", () => {
-  initFirebase();
-
-  auth();
-});
-
 /**
- * Initializes the firebase app for use.
+ * Initializes the Firebase app for use.
  */
 function initFirebase() {
   firebase.initializeApp({
@@ -35,16 +24,19 @@ function initFirebase() {
 }
 
 /**
- * Gets the Firebase id token.
+ * Gets the Firebase ID token.
+ *
+ * @return {!Promise<string>} Promise for Firebase ID token.
  */
 function getFirebaseIdToken() {
-  let user = firebase.auth().currentUser;
+  const user = firebase.auth().currentUser;
   return new Promise((resolve, reject) => {
     if (user) {
       user.getIdToken(/* forceRefresh */ true).then(idToken => {
+        console.log(idToken);
         resolve(idToken);
-      }).catch(error => {
-        reject(error);
+      }).catch(e => {
+        reject(e);
       })
     }
     else {
@@ -87,36 +79,38 @@ async function savePreferences() {
 }
 
 /**
- * Saves the itinerary. Uploads the data to Firebase.
+ * Saves itinerary to Firebase.
+ *
+ * Specific to index.html.
  */
 async function saveItinerary() {
-  let user = checkAuth();
-
+  const user = checkAuth();
   if (!user || !user.uid) {
     console.error("User is not authenticated.");
     return;
   }
-  qs("#save").classList.add("disabled");
+  const saveButton = event.currentTarget;
+  saveButton.classList.add("disabled");
 
   // Prepare details, including price.
   let [res, _] = await kiwiSearch(itable.get());
-  let price = -1;
+  let currentDate = firebase.firestore.Timestamp.now();
   let dTime = null;
   let aTime = null;
   let flyFrom = null;
   let flyTo = null;
-  let currentDate = firebase.firestore.Timestamp.now();
-
-  if (res !== null && typeof res[0] !== "undefined" &&
-    typeof res[0].price !== "undefined") {
-    price = res[0].price;
+  let price = -1;
+  if (res !== null &&
+      typeof res[0] !== "undefined" &&
+      typeof res[0].price !== "undefined") {
     dTime = localeDate(res[0].route[0].dTime);
     aTime = localeDate(res[0].route[res[0].route.length - 1].aTime);
     flyFrom = res[0].route[0].flyFrom;
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
+    price = res[0].price;
   }
 
-
+  // Send to Firebase.
   firebase.firestore().collection("itineraries").add({
     uid: user.uid,
     name: qs("#itinerary-name").value || "Untitled",
@@ -131,25 +125,31 @@ async function saveItinerary() {
     flyFrom: flyFrom,
     flyTo: flyTo,
   }).then(docRef => {
-    console.log(`Document written by ${user.name} with ID: ${docRef.id}`);
-  }).then(() => {
-    qs("#save").classList.remove("disabled");
-
     // Show that the itinerary was saved.
+    console.log(`Document written by ${user.name} with ID: ${docRef.id}`);
+    saveButton.classList.remove("disabled");
     M.toast({
       html: `<i class="material-icons left">star</i>
-      <div>Itinerary saved!</div>`,
+             <div>Itinerary saved!</div>`,
       displayLength: 1500
     });
-  }).catch(error => {
-    console.error("Error adding document:", error);
+  }).catch(e => {
+    console.error("Error adding document:", e);
+    saveButton.classList.remove("disabled");
+    M.toast({
+      html: `<i class="material-icons left">error</i>
+             <div>Couldn't save itinerary.</div>`,
+      displayLength: 1500,
+      classes: "red"
+    });
   });
 }
 
 /**
  * Returns all itineraries saved by the user.
  *
- * @param {string} uid UID of user
+ * @param {string} uid UID of user.
+ * @return {!Promise<Array<Object>>} Promise for saved itineraries.
  */
 function getFirebaseItineraries(uid) {
   return firebase.firestore()
@@ -165,42 +165,42 @@ function getFirebaseItineraries(uid) {
           ...doc.data()
         });
       });
-
       return data;
     });
 }
 
 /**
- * Updates itinerary in firebase.
+ * Updates itinerary in Firebase.
  *
- * @param {string} docId Document id to be updated.
- * @param {array} firebaseData firebase data with itinerary, row to be updated.
+ * @param {string} docId Document ID to be updated.
+ * @param {!Array} firebaseData Firebase data with itinerary, row to be updated.
+ * @return {!Promise} Promise indicating success/failure of update action.
  */
 async function updateFirebaseItinerary(docId, firebaseData) {
-  let itinerary = firebaseData.itinerary;
-  if (!Array.isArray(itinerary)) {
-    itinerary = [];
-    console.error("No itinerary object was found.");
+  const itinerary = firebaseData.itinerary;
+  if (!Array.isArray(itinerary) || !Array.isArray(firebaseData.history)) {
+    console.error("Bad input to updateFirebaseItinerary");
   }
 
   // Prepare details, including price.
   let [res, _] = await kiwiSearch(new Itinerary(itinerary));
+  let currentDate = firebase.firestore.Timestamp.now();
   let dTime = null;
   let aTime = null;
   let flyFrom = null;
   let flyTo = null;
   let price = -1;
-  let currentDate = firebase.firestore.Timestamp.now();
-
-  if (res !== null && typeof res[0] !== "undefined" &&
-    typeof res[0].price !== "undefined") {
-    price = res[0].price;
+  if (res !== null &&
+      typeof res[0] !== "undefined" &&
+      typeof res[0].price !== "undefined") {
     dTime = localeDate(res[0].route[0].dTime);
     aTime = localeDate(res[0].route[res[0].route.length - 1].aTime);
     flyFrom = res[0].route[0].flyFrom;
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
+    price = res[0].price;
   }
 
+  // Send to Firebase.
   return firebase.firestore()
     .collection("itineraries")
     .doc(docId)
@@ -215,10 +215,6 @@ async function updateFirebaseItinerary(docId, firebaseData) {
       }),
     }).then(() => {
       return new Promise((resolve, reject) => {
-        if (!Array.isArray(firebaseData.history)) {
-          firebaseData.history = [];
-        }
-
         firebaseData.history.push({
           price: price,
           retrieved: currentDate,
@@ -227,7 +223,6 @@ async function updateFirebaseItinerary(docId, firebaseData) {
         firebaseData.aTime = aTime;
         firebaseData.flyFrom = flyFrom;
         firebaseData.flyTo = flyTo;
-
         if (price === -1) {
           reject("Could not update itinerary.");
         }
@@ -241,7 +236,8 @@ async function updateFirebaseItinerary(docId, firebaseData) {
 /**
  * Deletes document in firebase.
  *
- * @param {string} docId Document id to be deleted.
+ * @param {string} docId Document ID to be deleted.
+ * @return {!Promise} Promise indicating success/failure of deletion action.
  */
 function deleteFirebaseItinerary(docId) {
   return firebase.firestore()
