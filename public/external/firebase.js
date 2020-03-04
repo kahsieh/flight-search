@@ -33,7 +33,6 @@ function getFirebaseIdToken() {
   return new Promise((resolve, reject) => {
     if (user) {
       user.getIdToken(/* forceRefresh */ true).then(idToken => {
-        console.log(idToken);
         resolve(idToken);
       }).catch(e => {
         reject(e);

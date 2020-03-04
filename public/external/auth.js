@@ -116,7 +116,7 @@ function onLoadAuth() {
 
   // We assume that the user is authenticated if the local storage auth item is
   // set.
-  if (user) {
+  if (user && user.uid) {
     qs("#profile").classList.remove("hide");
     qs("#profile").textContent = user.name;
     switch (window.location.pathname) {

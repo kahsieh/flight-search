@@ -24,7 +24,7 @@ addEventListener("load", () => {
       qs("#itineraries-none").classList.remove("hide");
     }
     else {
-      Itineraries = new SavedItineraries(data);
+      sitable = new SavedItinerariesTable(data);
     }
   }).catch(error => {
     console.error(error);
@@ -38,22 +38,27 @@ addEventListener("load", () => {
  * page before the toast is dismissed.
  */
 addEventListener("unload", () => {
-  if (Itineraries) {
+  if (sitable) {
     navigator.sendBeacon("/api/delete-itinerary",
       JSON.stringify({
-        idToken: Itineraries.idToken,
-        deletedProcessing: Itineraries.deletedProcessing,
+        idToken: sitable.idToken,
+        deletedProcessing: sitable.deletedProcessing,
       })
     );
   }
 })
 
-let Itineraries;
+/**
+ * Instance of SavedItinerariesTable. Should be managed by client code.
+ */
+let sitable;
 
 /**
- * SavedItineraries is a class that renders the saved itinerary table.
+ * SavedItinerariesTable is a class that renders the saved itinerary table.
+ *
+ * Specific to saved-itineraries.html.
  */
-class SavedItineraries {
+class SavedItinerariesTable {
   /**
    * @param {object} firebaseData Data pulled from firebase to be stored.
    *
@@ -326,7 +331,7 @@ class SavedItineraries {
       color = "red";
     }).then(() => {
       qsa(".update")[index].classList.remove("disabled");
-      
+
       // Display message.
       M.toast({
         html: `<i class="material-icons left">${icon}</i><div>${message}</div>`,

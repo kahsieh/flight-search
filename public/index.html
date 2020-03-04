@@ -69,6 +69,7 @@ All Rights Reserved.
             <option value="select_airlines">Airline</option>
             <option value="adult_hold_bag">Bags</option>
             <option value="selected_cabins">Cabin</option>
+            <option value="mix_with_cabins">Mixed cabins</option>
             <!--  Doesn't work
             <option value="adults">Passengers</option>
             -->
@@ -169,17 +170,19 @@ All Rights Reserved.
     <!-- Flight tables -->
     <div class="row" id="tables"></div>
     <!-- Book button -->
-    <p class="center-align results-message hide">
-      To book, make a selection for each flight. More specific filters may
-      reveal additional flight options.
-    </p>
-    <p class="center-align no-results-message hide">
-      No results! Did you enter everything correctly?
-    </p>
     <p class="center-align">
       <button id="book" class="btn waves-effect waves-light disabled">
         <i class="material-icons left">send</i>Book
       </button>
+    </p>
+    <p class="center-align results-message hide">
+      To book, make a selection for each flight.<br>
+      <span class="note">
+        More specific filters may reveal additional flight options.
+      </span>
+    </p>
+    <p class="center-align no-results-message hide">
+      No results! Did you enter everything correctly?
     </p>
   </div></div>
 </main>

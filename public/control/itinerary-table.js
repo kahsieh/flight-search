@@ -184,7 +184,7 @@ class ItineraryTable {
           <label>Cabin</label>
         </div></div>
       </td>
-      <td class="selected_cabins">
+      <td class="mix_with_cabins">
         <div class="row"><div class="col s12 input-field">
           <select name="mix_with_cabins">
             ${generateSelectOptions([{
@@ -440,7 +440,6 @@ class ItineraryTable {
     const filterMap = {
       "select_airlines_exclude": "select_airlines",
       "adult_hand_bag": "adult_hold_bag",
-      "mix_with_cabins": "selected_cabins",
       "price_to": "price_from",
       "select_stop_airport_exclude": "select_stop_airport",
       "stopover_to": "stopover_from",

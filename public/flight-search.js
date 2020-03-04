@@ -93,7 +93,7 @@ function share() {
 
 /**
  * Function to collapse a shrinkable section.
- * 
+ *
  * @param {Element} element Expanded element.
  * @param {function} func A function which changes the element's height.
  */
@@ -107,7 +107,7 @@ function collapseSection(element, func) {
   element.style.transition = "";
 
   // On the next frame (as soon as the previous style change has taken effect),
-  // explicitly set the element's height to its current pixel height, so we 
+  // explicitly set the element's height to its current pixel height, so we
   // aren't transitioning out of "auto".
   requestAnimationFrame(() => {
     element.style.height = sectionHeight + "px";
@@ -129,7 +129,7 @@ function collapseSection(element, func) {
 
 /**
  * Function to expand a shrinkable element.
- * 
+ *
  * @param {Element} element Collapsed element.
  */
 function expandSection(element) {
