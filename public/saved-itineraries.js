@@ -148,7 +148,7 @@ class SavedItinerariesTable {
         </button>
         ${nbsp}
         <button class="history btn-flat waves-effect waves-light circle">
-          <i class="small material-icons expand_more">expand_more</i>
+          <i class="small material-icons">expand_more</i>
         </button>
       </td>
     `;
@@ -174,6 +174,14 @@ class SavedItinerariesTable {
     }
     qsa(".history")[index].onclick = event => {
       event.stopPropagation();
+      switch (event.currentTarget.firstElementChild.textContent) {
+        case "expand_more":
+          event.currentTarget.firstElementChild.textContent = "expand_less";
+          break;
+        case "expand_less":
+          event.currentTarget.firstElementChild.textContent = "expand_more";
+          break;
+      }
       this.showHistory(index);
     }
   }
