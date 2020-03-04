@@ -442,7 +442,7 @@ class SavedItinerariesTable {
    * Updates all the row numbers if a row was deleted.
    */
   updateRowNumbers() {
-    qsa("tr :not([hidden]) .row-number").forEach((node, index) => {
+    qsa("tr:not([hidden]) .row-number").forEach((node, index) => {
       node.textContent = `${index + 1}${nbsp}|${nbsp}`;
     });
   }

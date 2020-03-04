@@ -122,16 +122,15 @@ td, th {
   transition: height 0.5s ease-in-out;
 }
 
-/* SavedItineraries */
+/* SavedItinerariesTable */
 
 #saved-itineraries td, #saved-itineraries-table th {
   padding: 5px 10px;
 }
 
-#saved-itineraries .name {
-  max-width: 8.763vw; /* chosen from testing to not expand table width */
-  display: inline-block;
-  vertical-align: bottom;
+#saved-itineraries tr {
+  cursor: pointer;
+  height: 100%;
 }
 
 #saved-itineraries .label {
@@ -142,19 +141,25 @@ td, th {
   white-space: nowrap;
 }
 
+#saved-itineraries .name {
+  display: inline-block;
+  max-width: 8.763vw;  /* chosen from testing to not expand table width */
+  vertical-align: bottom;
+}
+
 #saved-itineraries .flight-path {
   display: flex;
   align-items: center;
   height: 100%;
-  max-width: 10.286vw; /* chosen from testing to not expand table width */
+  max-width: 10.286vw;  /* chosen from testing to not expand table width */
 }
 
-/* so that line-breaks are rendered properly between airports/arrows */
+/* So that line-breaks are rendered properly between airports/arrows. */
 #saved-itineraries .flight-path-col {
   white-space: pre;
 }
 
-/* take up (50% of space) - (width of arrow column / 2) */
+/* Take up (50% of space) - (width of arrow column / 2). */
 #saved-itineraries .fly-from {
   width: calc(50% - (1.5em / 2));
   text-align: left;
@@ -170,29 +175,27 @@ td, th {
   text-align: right;
 }
 
-#saved-itineraries tr {
-  cursor: pointer;
-  height: 100%;
-}
-
-/* Hide border when saved itineraries table is expanded */
+/* Hide border when row is expanded. */
 #saved-itineraries .expanded {
   border-bottom: 0;
 }
 
-/* highlight chart when itinerary is selected */
+/* Highlight chart when itinerary is selected. */
 #saved-itineraries .itinerary:hover + .chart {
-  background-color: rgba(242,242,242,0.5);
+  background-color: rgba(242, 242, 242, 0.5);
 }
 
-/* highlight itinerary when chart is selected, we add this class in
- * saved-itineraries.js
-*/
+/* Highlight itinerary when chart is selected (we add this class in
+ * saved-itineraries.js). */
 #saved-itineraries .hover {
-  background-color: rgba(242,242,242,0.5);
+  background-color: rgba(242, 242, 242, 0.5);
 }
 
-/* button styling */
+/* Button styling. */
+#saved-itineraries .btn-floating.trash {
+  background-color: #ee6e73;
+}
+
 #saved-itineraries .btn-flat.circle {
   width: 40px;
   height: 40px;
@@ -203,8 +206,4 @@ td, th {
 #saved-itineraries .btn-flat.circle i {
   font-size: 2rem;
   line-height: 40px;
-}
-
-#saved-itineraries .btn-floating.trash {
-  background-color: #ee6e73;
 }
