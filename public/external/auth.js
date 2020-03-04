@@ -8,7 +8,7 @@ All Rights Reserved.
 "use strict";
 
 /**
- * Function to run when Google Sign-in library loads.
+ * Function to run when Google OAuth library loads.
  */
 function gapiInit() {
   gapi.load("auth2", () => {
@@ -18,17 +18,17 @@ function gapiInit() {
     });
     gapi.signin2.render("sign-in", {
       "theme": "dark",
-      "onsuccess": signup,
+      "onsuccess": signUp,
     });
   });
 }
   
 /**
- * Registers a Google User and Firebase User with the backend.
+ * Registers a Google user with the backend.
  * 
  * @param {GoogleUser} googleUser Information about the signed-in user.
  */
-function signup(googleUser) {
+function signUp(googleUser) {
   qs("#sign-out").classList.remove("disabled");
 
   // We need to register an Observer on Firebase Auth to make sure auth
@@ -36,36 +36,34 @@ function signup(googleUser) {
   let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
     unsubscribe();
 
-    // Check if we are already signed-in Firebase with the correct user.
+    // Check if we are already signed into Firebase with the correct user.
     if (!isUserEqual(googleUser, firebaseUser)) {
       // Build Firebase credential with the Google ID token.
       let credential = firebase.auth.GoogleAuthProvider.credential(
-        googleUser.getAuthResponse().id_token);
+          googleUser.getAuthResponse().id_token);
       
       // Sign in with credential from the Google user.
-      firebase.auth().signInWithCredential(credential).catch(error => {
-        console.error(error);
-      });
+      firebase.auth().signInWithCredential(credential)
+                     .catch(e => console.error(e));
     }
   });
 }
 
 /**
- * Checks if the google user and the firebase user are equal.
+ * Checks if the Google user and the Firebase user are equal.
  * 
  * @param {GoogleUser} googleUser Google user to be signed in.
  * @param {FirebaseUser} firebaseUser Firebase user to be signed in.
  */
 function isUserEqual(googleUser, firebaseUser) {
-  if (firebaseUser) {
-    var providerData = firebaseUser.providerData;
-    for (var i = 0; i < providerData.length; i++) {
-      if (providerData[i].providerId ===
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
-        providerData[i].uid === googleUser.getBasicProfile().getId()) {
-        // We don't need to reauth the Firebase connection.
-        return true;
-      }
+  if (!googleUser || !firebaseUser) {
+    return false;
+  }
+  for (const profile of firebaseUser.providerData) {
+    if (profile.providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+        profile.uid === googleUser.getBasicProfile().getId()) {
+      // We don't need to reauth the Firebase connection.
+      return true;
     }
   }
   return false;
@@ -74,7 +72,6 @@ function isUserEqual(googleUser, firebaseUser) {
 /**
  * Creates an event listener that returns if the user is authenticated or not.
  * Also sets the local storage property to the user's display name/email.
- * 
  */
 function auth() {
   // Event listener that fires when the authentication state changes.
@@ -168,18 +165,15 @@ function checkAuth() {
 }
 
 /**
- * Signs out the user from both the Google client API and the Firebase auth API
+ * Signs out the user from both the Google OAuth API and the Firebase Auth API.
  */
-function signout() {
-  let user = checkAuth();
-
+function signOut() {
+  const user = checkAuth();
   gapi.auth2.getAuthInstance().signOut().then(() => {
-    return firebase.auth().signOut().then(() => {
-      console.log(`${user.name} signed out successfully.`);
+    firebase.auth().signOut().then(() => {
       localStorage.removeItem("auth");
+      console.log(`${user.name} signed out successfully.`);
       onLoadAuth();
     });
-  }).catch(error => {
-    console.error(error);
-  });
+  }).catch(e => console.error(e));
 }
