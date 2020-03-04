@@ -22,6 +22,7 @@ All Rights Reserved.
   <script src="globals.js"></script>
   <script src="external/auth.js"></script>
   <script src="external/firebase.js"></script>
+  <script src="profile.js"></script>
 </head>
 <body>
 <header><nav>
@@ -33,9 +34,43 @@ All Rights Reserved.
 <main class="container">
   <div class="row"><div class="col s12">
     <div class="row">
-      <div class="col s12 m6"><h5>Profile</h5></div>
+      <div class="col s12 m6"><h5>Preferences</h5></div>
       <div class="col s12 m6 right-align" style="margin-top: 10px">
         <a href="/" class="waves-effect waves-light btn">Back</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m6 input-field">
+        <input id="airport" type="text" placeholder="Any">
+        <label class="active">Preferred airport for departures</label>
+      </div>
+      <div class="col s12 m6 input-field">
+        <input id="airline" type="text" placeholder="Any">
+        <label class="active">Preferred airline</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m6 input-field">
+        <select id="cabin">
+          <option selected value="M">Economy</option>
+          <option value="W">Premium Economy</option>
+          <option value="C">Business</option>
+          <option value="F">First</option>
+        </select>
+        <label>Preferred cabin</label>
+      </div>
+      <div class="col s12 m6 input-field">
+        <input id="time" type="time" placeholder="" step="3600">
+        <label class="active">Preferred departure time</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 center-align">
+        <button id="save"
+                class="btn waves-effect waves-light"
+                onclick="savePreferences()">   
+          <i class="material-icons left">save</i>Save Preferences
+        </button>
       </div>
     </div>
   </div></div>

@@ -53,6 +53,44 @@ function getFirebaseIdToken() {
   });
 }
 
+async function savePreferences() {
+  let user = checkAuth();
+
+  if (!user || !user.uid) {
+    console.error("User is not authenticated.");
+    return;
+  }
+  qs("#save").classList.add("disabled");
+
+  console.log(qs("#airport").value);
+  console.log(qs("#airline").value);
+  console.log(qs("#cabin").value);
+  console.log(qs("#time").value);
+
+  firebase.firestore().collection("preferences").doc(user.uid).set({
+    dAirport: qs("#airport").value || "",
+    airline: qs("#airline").value || "",
+    cabin: qs("#cabin").value || "",
+    dTime: qs("#time").value || "",
+  }).then(() => {
+    qs("#save").classList.remove("disabled");
+    qs("#airport").value = "";
+    qs("#airline").value = "";
+    qs("#cabin").children[0].selected = true;
+    M.FormSelect.init(qsa("select"), {});
+    qs("#time").value = "";
+
+    // Show that the itinerary was saved.
+    M.toast({
+      html: `<i class="material-icons left">star</i>
+      <div>Preferences saved!</div>`,
+      displayLength: 1500
+    });
+  }).catch(error => {
+    console.error("Error saving preferences:", error);
+  });
+}
+
 /**
  * Saves the itinerary. Uploads the data to Firebase.
  */
