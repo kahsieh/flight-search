@@ -95,8 +95,9 @@ function share() {
  * Function to collapse a shrinkable section.
  * 
  * @param {Element} element Expanded element.
+ * @param {function} func A function which changes the element's height.
  */
-function collapseSection(element) {
+function collapseSection(element, func) {
   // Get the height of the element's inner content, regardless of its actual
   // size.
   const sectionHeight = element.scrollHeight;
@@ -115,6 +116,7 @@ function collapseSection(element) {
     // On the next frame (as soon as the previous style change has taken
     // effect), have the element transition to the smaller height.
     requestAnimationFrame(() => {
+      func();
       element.style.height =
         element.querySelector("thead").scrollHeight +
         element.querySelector("tbody").scrollHeight + "px";

@@ -319,8 +319,7 @@ class FlightTable {
         expandSection(this._table);
       }
       else {
-        collapseSection(this._table);
-        FlightTable.displayResults();
+        collapseSection(this._table, () => FlightTable.displayResults());
       }
     };
     for (let [i, cell] of cells.entries()) {
