@@ -116,6 +116,12 @@ td, th {
   background-color: wheat;
 }
 
+#tables .shrinkable {
+  height: auto;
+  overflow: hidden;
+  transition: height 0.5s ease-in-out;
+}
+
 /* SavedItineraries */
 
 #saved-itineraries td, #saved-itineraries-table th {
@@ -201,11 +207,4 @@ td, th {
 
 #saved-itineraries .btn-floating.trash {
   background-color: #ee6e73;
-}
-
-/* shrinkable tables */
-.shrinkable {
-  overflow:hidden;
-  transition:height 0.5s ease-in-out;
-  height:auto;
 }
