@@ -7,6 +7,10 @@ All Rights Reserved.
 */
 "use strict";
 
+// -----------------------------------------------------------------------------
+// SIGN-IN FLOW
+// -----------------------------------------------------------------------------
+
 /**
  * Function to run when Google OAuth library loads.
  */
@@ -22,10 +26,10 @@ function gapiInit() {
     });
   });
 }
-  
+
 /**
  * Registers a Google user with the backend.
- * 
+ *
  * @param {GoogleUser} googleUser Information about the signed-in user.
  */
 function signUp(googleUser) {
@@ -35,23 +39,23 @@ function signUp(googleUser) {
   // is initialized.
   let unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
     unsubscribe();
-
-    // Check if we are already signed into Firebase with the correct user.
-    if (!isUserEqual(googleUser, firebaseUser)) {
-      // Build Firebase credential with the Google ID token.
-      let credential = firebase.auth.GoogleAuthProvider.credential(
-          googleUser.getAuthResponse().id_token);
-      
-      // Sign in with credential from the Google user.
-      firebase.auth().signInWithCredential(credential)
-                     .catch(e => console.error(e));
+    // If we're already signed into Firebase with the correct user, stop.
+    if (isUserEqual(googleUser, firebaseUser)) {
+      return;
     }
+
+    // Build Firebase credential with the Google ID token.
+    let credential = firebase.auth.GoogleAuthProvider.credential(
+        googleUser.getAuthResponse().id_token);
+    // Sign in with credential from the Google user.
+    firebase.auth().signInWithCredential(credential)
+                   .catch(e => console.error(e));
   });
 }
 
 /**
  * Checks if the Google user and the Firebase user are equal.
- * 
+ *
  * @param {GoogleUser} googleUser Google user to be signed in.
  * @param {FirebaseUser} firebaseUser Firebase user to be signed in.
  */
@@ -69,100 +73,97 @@ function isUserEqual(googleUser, firebaseUser) {
   return false;
 }
 
+// -----------------------------------------------------------------------------
+// REAUTH FLOW
+// -----------------------------------------------------------------------------
+
 /**
- * Creates an event listener that returns if the user is authenticated or not.
- * Also sets the local storage property to the user's display name/email.
+ * Creates an event listener that sets the local storage auth item when the
+ * Firebase auth state changes.
  */
 function auth() {
-  // Event listener that fires when the authentication state changes.
   firebase.auth().onAuthStateChanged(firebaseUser => {
-    // if the user was authenticated
+    // If the user is authenticated, upload the local storage item.
     if (firebaseUser) {
-      let name = (firebaseUser.displayName !== null) ?
-        firebaseUser.displayName : firebaseUser.email;
-
+      let name = firebaseUser.displayName || firebaseUser.email;
       console.log(`${name} signed in successfully.`);
-
       localStorage.setItem("auth", JSON.stringify({
         uid: firebaseUser.uid,
         name: name,
       }));
     }
+    // Otherwise, remove the authentication state from local storage.
     else {
-      // remove the authentication state from local storage
       localStorage.removeItem("auth");
     }
+    // Update UI.
     onLoadAuth();
   });
 }
 
 /**
- * Calls page specific functions after authentication.
- * onLoadAuth() runs either when:
- *  1) on DOMContentLoaded, right after the document is parsed
- *  2) after signing in, to update the index page
+ * Makes page-specific UI changes after authentication. This function runs:
+ *   1) On DOMContentLoaded, right after the document is parsed, and
+ *   2) After signing in.
  */
 function onLoadAuth() {
-  let user = checkAuth();
+  const user = checkAuth();
 
-  // We assume that the user is authenticated through localStorage here until we
-  // authenticate with firebase. 
+  // We assume that the user is authenticated if the local storage auth item is
+  // set.
   if (user) {
     qs("#profile").classList.remove("hide");
-    qs("#profile").innerHTML = user.name;
-
-    // Switch statement based on what location the window is currently in.
-    switch(window.location.pathname) {
-      case "/": {
+    qs("#profile").textContent = user.name;
+    switch (window.location.pathname) {
+      case "/":
+      case "/index.html":
         qs("#sign-in").classList.add("hide");
         qs("#saved-itineraries").classList.remove("hide");
         qs("#sign-out").classList.remove("hide");
         qs("#save").classList.remove("disabled");
         break;
-      }
-      case "/saved-itineraries.html": {
+      case "/saved-itineraries.html":
         qs("#itineraries-authenticated").classList.remove("hide");
         break;
-      }
-      case "/profile.html": {
+      case "/profile.html":
         qs("#preferences-authenticated").classList.remove("hide");
         break;
-      }
     }
   }
-  else { // user is not authenticated
+  else {  // user not authenticated
     qs("#profile").classList.add("hide");
-
-    switch(window.location.pathname) {
-      case "/": {
+    switch (window.location.pathname) {
+      case "/":
+      case "/index.html":
         qs("#sign-in").classList.remove("hide");
         qs("#saved-itineraries").classList.add("hide");
         qs("#sign-out").classList.add("hide");
         qs("#save").classList.add("disabled");
         break;
-      }
-      case "/saved-itineraries.html": {
+      case "/saved-itineraries.html":
         qs("#itineraries-unauthenticated").classList.remove("hide");
         break;
-      }
-      case "/profile.html": {
+      case "/profile.html":
         qs("#preferences-unauthenticated").classList.remove("hide");
         break;
-      }
     }
   }
 }
 
 /**
- * Returns if the user is currently authenticated or not.
- * 
- * @return {object} UID and name of authenticated user. Returns null if not
- * found.
+ * Returns the local storage auth item.
+ *
+ * @return {?Object<string, string>} Local storage auth item containing UID and
+ *   name of authenticated user. Returns null if not found.
  */
 function checkAuth() {
   const localAuth = localStorage.getItem("auth");
   return localAuth ? JSON.parse(localAuth) : null;
 }
+
+// -----------------------------------------------------------------------------
+// SIGN-OUT FLOW
+// -----------------------------------------------------------------------------
 
 /**
  * Signs out the user from both the Google OAuth API and the Firebase Auth API.

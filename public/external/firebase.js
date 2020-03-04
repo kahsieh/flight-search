@@ -148,7 +148,7 @@ async function saveItinerary() {
 
 /**
  * Returns all itineraries saved by the user.
- * 
+ *
  * @param {string} uid UID of user
  */
 function getFirebaseItineraries(uid) {
@@ -172,7 +172,7 @@ function getFirebaseItineraries(uid) {
 
 /**
  * Updates itinerary in firebase.
- * 
+ *
  * @param {string} docId Document id to be updated.
  * @param {array} firebaseData firebase data with itinerary, row to be updated.
  */
@@ -240,7 +240,7 @@ async function updateFirebaseItinerary(docId, firebaseData) {
 
 /**
  * Deletes document in firebase.
- * 
+ *
  * @param {string} docId Document id to be deleted.
  */
 function deleteFirebaseItinerary(docId) {
