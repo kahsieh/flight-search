@@ -353,11 +353,17 @@ class ItineraryTable {
    * triggering event.
    */
   removeFlight() {
-    let row = event.currentTarget.nodeName === "BUTTON" ? this.length - 1
-      : [...this._table.children].indexOf(event.target.parentNode.parentNode)
+    let row = 
+      !event 
+      || event.type !== "click" 
+      || event.currentTarget.nodeName === "BUTTON" 
+        ? this.length - 1
+        : [...this._table.children].indexOf(event.target.parentNode.parentNode)
     switch (this.length) {
       case 1:
-        return;
+        if (event && event.type === "click") {
+          return;
+        }
       case 2:
         this._removeFlight.classList.add("disabled");
         // fallthrough

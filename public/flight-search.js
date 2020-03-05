@@ -24,27 +24,83 @@ addEventListener("load", () => {
       i => ftables[i].remove()
   );
 
-  // If no itinerary is specified in the URL, then load a default one.
+  let user = checkAuth();
+  loadPreferences(user);
+
+  // Initialize Materialize selects.
+  M.FormSelect.init(qsa("select"), {});
+});
+
+/**
+ * Adds flight based on user preference
+ */
+function addFlightWithPreferences() {
+  let user = checkAuth();
+  if (user) {
+    itable.addFlight(new Itinerary([
+      {
+        "select_airlines": user.airline,
+        "selected_cabins": user.cabin,
+        "max_stopovers": 2,
+        "dtime_from": user.dTime,
+      },
+    ]));
+  } else {
+    itable.addFlight();
+  }
+}
+
+/**
+ * Loads flight table based on user preferences
+ * 
+ * @param {FirebaseUser} firebaseUser Firebase user
+ */
+function loadPreferences(user) {
+  if (!itable) {
+    return;
+  }
+
+  while (itable.length != 0) {
+    itable.removeFlight();
+  }
+
   if (!itable.loadFromURL()) {
     let date1 = new Date();
     date1.setDate(date1.getDate() + 14);
     let date2 = new Date();
     date2.setDate(date2.getDate() + 21);
-    itable.loadFromItinerary(new Itinerary([
-      {
-        "max_stopovers": 2,
-        "date_from": date1.toISOString().substring(0, 10)
-      },
-      {
-        "max_stopovers": 2,
-        "date_from": date2.toISOString().substring(0, 10)
-      },
-    ]));
+    if (user) {
+      itable.loadFromItinerary(new Itinerary([
+        {
+          "fly_from": user.dAirport,
+          "select_airlines": user.airline,
+          "selected_cabins": user.cabin,
+          "max_stopovers": 2,
+          "dtime_from": user.dTime,
+          "date_from": date1.toISOString().substring(0, 10),
+        },
+        {
+          "select_airlines": user.airline,
+          "selected_cabins": user.cabin,
+          "max_stopovers": 2,
+          "dtime_from": user.dTime,
+          "date_from": date2.toISOString().substring(0, 10),
+        },
+      ]));
+    } else {
+      itable.loadFromItinerary(new Itinerary([
+        {
+          "max_stopovers": 2,
+          "date_from": date1.toISOString().substring(0, 10),
+        },
+        {
+          "max_stopovers": 2,
+          "date_from": date2.toISOString().substring(0, 10),
+        },
+      ]));
+    }
   }
-
-  // Initialize Materialize selects.
-  M.FormSelect.init(qsa("select"), {});
-});
+}
 
 /**
  * Function to run when search button is pressed.

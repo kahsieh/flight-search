@@ -145,6 +145,7 @@ function onLoadAuth() {
         qs("#saved-itineraries").classList.remove("hide");
         qs("#sign-out").classList.remove("hide");
         qs("#save").classList.remove("disabled");
+        loadPreferences(user);
         break;
       case "/saved-itineraries.html":
         qs("#itineraries-authenticated").classList.remove("hide");
@@ -163,6 +164,7 @@ function onLoadAuth() {
         qs("#saved-itineraries").classList.add("hide");
         qs("#sign-out").classList.add("hide");
         qs("#save").classList.add("disabled");
+        loadPreferences(user);
         break;
       case "/saved-itineraries.html":
         qs("#itineraries-unauthenticated").classList.remove("hide");
@@ -196,9 +198,7 @@ function signOut() {
   const user = checkAuth();
   gapi.auth2.getAuthInstance().signOut().then(() => {
     firebase.auth().signOut().then(() => {
-      localStorage.removeItem("auth");
       console.log(`${user.name} signed out successfully.`);
-      onLoadAuth();
     });
   }).catch(e => console.error(e));
 }
