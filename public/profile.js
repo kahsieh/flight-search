@@ -31,4 +31,7 @@ addEventListener("load", () => {
     onAutocomplete: () => trim(autocomplete_airport),
     limit: 5
   });
+
+  //load fields based on pre-existing user preferences
+  loadPreferencePage();
 });

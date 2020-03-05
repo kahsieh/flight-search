@@ -61,6 +61,34 @@ async function addPreferences(uid) {
 }
 
 /**
+ * Loads preference fields based on user's previous preferences
+ */
+function loadPreferencePage() {
+  let user = checkAuth();
+
+  if (user) {
+    qs("#airport").value = user.dAirport;
+    qs("#airline").value = user.airline;
+    qs("#time").value = user.dTime;
+    switch (user.cabin) {
+      case "M":
+        qs("#cabin").children[0].selected = true;
+        break;
+      case "W":
+        qs("#cabin").children[1].selected = true;
+        break;
+      case "C":
+        qs("#cabin").children[2].selected = true;
+        break;
+      case "F":
+        qs("#cabin").children[3].selected = true;
+        break;
+    }
+    M.FormSelect.init(qsa("select"), {});
+  }
+}
+
+/**
  * Updates user's preferences
  */
 async function savePreferences() {
@@ -86,13 +114,7 @@ async function savePreferences() {
       cabin: qs("#cabin").value,
       dTime: qs("#time").value || "",
     }));
-
     qs("#save").classList.remove("disabled");
-    qs("#airport").value = "";
-    qs("#airline").value = "";
-    qs("#cabin").children[0].selected = true;
-    M.FormSelect.init(qsa("select"), {});
-    qs("#time").value = "";
 
     // Show that the preferences were saved.
     M.toast({
