@@ -129,7 +129,7 @@ function onLoadAuth() {
   if (user && user.uid) {
     qs("#profile").classList.remove("hide");
     qs("#profile").textContent = user.name;
-    switch (window.location.pathname) {
+    switch (window.location.pathname.replace(/\/{2,}/g, s => { return '/'; })) {
       case "/":
       case "/index.html":
         qs("#sign-in").classList.add("hide");
