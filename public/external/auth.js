@@ -7,6 +7,16 @@ All Rights Reserved.
 */
 "use strict";
 
+/**
+ * We run onLoadAuth() and assume the user is still authenticated from
+ * localStorage. This is to prevent buggy behavior with the Google SignIn
+ * button showing up and then the authenticated buttons appearing, by just
+ * having the authenticated buttons appearing instead.
+ */
+addEventListener("DOMContentLoaded", () => {
+  onLoadAuth();
+});
+
 addEventListener("load", () => {
   initFirebase();
   auth();
@@ -108,7 +118,8 @@ function auth() {
 
 /**
  * Makes page-specific UI changes after authentication. This function runs:
- *  After sign in/sign out in.
+ *  1) After sign in/sign out in.
+ *  2) Right after DOMContentLoaded fires.
  */
 function onLoadAuth() {
   const user = checkAuth();
