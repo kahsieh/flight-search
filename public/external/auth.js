@@ -64,7 +64,12 @@ function signUp(googleUser) {
         googleUser.getAuthResponse().id_token);
     // Sign in with credential from the Google user.
     firebase.auth().signInWithCredential(credential)
-                   .catch(e => console.error(e));
+                  .then((userCredential) => {
+                    if (userCredential.additionalUserInfo.isNewUser) {
+                      addPreferences(userCredential.user.uid);
+                    }
+                  })
+                  .catch(e => console.error(e));
   });
 }
 
@@ -102,17 +107,24 @@ function auth() {
     if (firebaseUser) {
       let name = firebaseUser.displayName || firebaseUser.email;
       console.log(`${name} signed in successfully.`);
-      localStorage.setItem("auth", JSON.stringify({
-        uid: firebaseUser.uid,
-        name: name,
-      }));
+      
+      getFirebasePreferences(firebaseUser.uid).then(data => {
+        localStorage.setItem("auth", JSON.stringify({
+          uid: firebaseUser.uid,
+          name: name,
+          dAirport: data.dAirport,
+          airline: data.airline,
+          cabin: data.cabin,
+          dtime: data.dTime,
+        }));
+        onLoadAuth();
+      });
     }
     // Otherwise, remove the authentication state from local storage.
     else {
       localStorage.removeItem("auth");
+      onLoadAuth();
     }
-    // Update UI.
-    onLoadAuth();
   });
 }
 
