@@ -44,6 +44,25 @@ function getFirebaseIdToken() {
   });
 }
 
+/**
+ * Creates preferences document in Firestore for new user
+ */
+async function addPreferences(uid) {
+  firebase
+    .firestore()
+    .collection("preferences")
+    .doc(uid)
+    .set({
+      dAirport: "",
+      airline: "",
+      cabin: "M",
+      dTime: "",
+    });
+}
+
+/**
+ * Updates user's preferences
+ */
 async function savePreferences() {
   let user = checkAuth();
 
@@ -59,6 +78,15 @@ async function savePreferences() {
     cabin: qs("#cabin").value,
     dTime: qs("#time").value || "",
   }).then(() => {
+    localStorage.setItem("auth", JSON.stringify({
+      uid: user.uid,
+      name: user.name,
+      dAirport: qs("#airport").value || "",
+      airline: qs("#airline").value || "",
+      cabin: qs("#cabin").value,
+      dTime: qs("#time").value || "",
+    }));
+
     qs("#save").classList.remove("disabled");
     qs("#airport").value = "";
     qs("#airline").value = "";
@@ -142,6 +170,21 @@ async function saveItinerary() {
       classes: "red"
     });
   });
+}
+
+/**
+ * Returns a user's preferences
+ * 
+ * @param {string} uid UID of user
+ */
+function getFirebasePreferences(uid) {
+  return firebase.firestore()
+    .collection("preferences")
+    .doc(uid)
+    .get()
+    .then(doc => {
+      return doc.data();
+    });
 }
 
 /**
