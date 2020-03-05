@@ -112,10 +112,7 @@ function auth() {
         localStorage.setItem("auth", JSON.stringify({
           uid: firebaseUser.uid,
           name: name,
-          dAirport: data.dAirport,
-          airline: data.airline,
-          cabin: data.cabin,
-          dtime: data.dTime,
+          ...data,
         }));
         onLoadAuth();
       });
