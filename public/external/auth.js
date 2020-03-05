@@ -108,8 +108,7 @@ function auth() {
 
 /**
  * Makes page-specific UI changes after authentication. This function runs:
- *   1) On DOMContentLoaded, right after the document is parsed, and
- *   2) After signing in.
+ *  After sign in/sign out in.
  */
 function onLoadAuth() {
   const user = checkAuth();
