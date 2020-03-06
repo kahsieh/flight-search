@@ -70,7 +70,7 @@ function loadPreferences(user) {
     let date2 = new Date();
     date2.setDate(date2.getDate() + 21);
     if (user) {
-      itable.addFlight(new Itinerary([
+      itable.loadFromItinerary(new Itinerary([
         {
           "fly_from": user.dAirport,
           "select_airlines": user.airline,
@@ -78,29 +78,26 @@ function loadPreferences(user) {
           "max_stopovers": 2,
           "dtime_from": user.dTime,
           "date_from": date1.toISOString().substring(0, 10),
-        }
-      ]));
-      itable.addFlight(new Itinerary([
+        },
         {
           "select_airlines": user.airline,
           "selected_cabins": user.cabin,
           "max_stopovers": 2,
           "dtime_from": user.dTime,
           "date_from": date2.toISOString().substring(0, 10),
-        }
+        },
       ]));
+      M.FormSelect.init(qsa("select"), {});
     } else {
-      itable.addFlight(new Itinerary([
+      itable.loadFromItinerary(new Itinerary([
         {
           "max_stopovers": 2,
           "date_from": date1.toISOString().substring(0, 10),
-        }
-      ]));
-      itable.addFlight(new Itinerary([
+        },
         {
           "max_stopovers": 2,
           "date_from": date2.toISOString().substring(0, 10),
-        }
+        },
       ]));
     }
   }
