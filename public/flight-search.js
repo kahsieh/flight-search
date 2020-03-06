@@ -70,6 +70,7 @@ function loadPreferences(user) {
     let date2 = new Date();
     date2.setDate(date2.getDate() + 21);
     if (user) {
+      qs("#filters option[value='date_to']").selected = false;
       itable.loadFromItinerary(new Itinerary([
         {
           "fly_from": user.dAirport,
@@ -87,8 +88,8 @@ function loadPreferences(user) {
           "date_from": date2.toISOString().substring(0, 10),
         },
       ]));
-      M.FormSelect.init(qsa("select"), {});
     } else {
+      qs("#filters option[value='date_to']").selected = true;
       itable.loadFromItinerary(new Itinerary([
         {
           "max_stopovers": 2,
@@ -100,6 +101,7 @@ function loadPreferences(user) {
         },
       ]));
     }
+    M.FormSelect.init(qsa("select"), {});
   }
 }
 
