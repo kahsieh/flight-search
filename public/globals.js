@@ -38,7 +38,6 @@ function fixResponsiveTh() {
       for (const cell of table.querySelectorAll("th")) {
         cell.style.minHeight = "";
       }
-      console.log("<th> minHeights unset");
     }
     // On medium and small screens, try to set the minHeight of <th> elements.
     else {
@@ -56,7 +55,6 @@ function fixResponsiveTh() {
           break;
         }
       }
-      console.log("<th> minHeights set");
     }
   }
 }

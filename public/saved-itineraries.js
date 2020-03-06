@@ -46,7 +46,23 @@ addEventListener("unload", () => {
       })
     );
   }
-})
+});
+
+/**
+ * This only fires once if screen width < 992 and it is not horizontal, or if
+ * screen width > 992 and it is horizontal.
+ */
+addEventListener("resize", () => {
+  if (sitable) {
+    if ((innerWidth <= 992 && !sitable._horizontal) ||
+      (innerWidth > 992 && sitable._horizontal)) {
+      sitable._horizontal = !sitable._horizontal;
+
+      sitable.resizeFlightPath();
+      sitable.resizeChart();
+    }
+  }
+});
 
 /**
  * Instance of SavedItinerariesTable. Should be managed by client code.
@@ -69,6 +85,7 @@ class SavedItinerariesTable {
     this._docIds = [];
     this._deletedProcessing = [];
     this._charts = {};
+    this._horizontal = innerWidth <= 992;
     getFirebaseIdToken().then(idToken => {
       this._idToken = idToken;
     }).catch(e => {
@@ -204,7 +221,9 @@ class SavedItinerariesTable {
       <td colspan="${colSpan}">
         <p class="chart-none hide center-align"
           >Price history could not be created.</p>
-        <canvas class="chart-history hide"></canvas>
+        <div class="chart-history hide">
+          <canvas class="chart-canvas"></canvas>
+        </div>
       </td>
     `;
 
@@ -288,12 +307,20 @@ class SavedItinerariesTable {
     }
 
     // Arrange strings.
-    let flyFromStr = [];
-    let arrowStr = [];
-    let flyToStr = [];
-    for (const flight of itinerary) {
+    const flyFromStr = [];
+    const arrowStr = [];
+    const flyToStr = [];
+
+    // If _horizontal, we take the longestFlightPath instead
+    const length = (this._horizontal) ? this.longestFlightPath :
+      itinerary.length;
+    for (let i = 0; i < length; i++) {
+      // populate with blanks if _horizontal = true;
+      let flight = (typeof itinerary[i] !== "undefined") ? itinerary[i] :
+        { fly_from: ' ', fly_to: ' ' };
+
       flyFromStr.push(flight.fly_from || "Any");
-      arrowStr.push("→");
+      arrowStr.push((typeof itinerary[i] !== "undefined") ? "→" : ' ');
       flyToStr.push(flight.fly_to || "Any");
     }
 
@@ -301,6 +328,21 @@ class SavedItinerariesTable {
     qsa(".fly-from")[index].textContent = flyFromStr.join("\n");
     qsa(".arrow")[index].textContent = arrowStr.join("\n");
     qsa(".fly-to")[index].textContent = flyToStr.join("\n");
+  }
+
+  get longestFlightPath() {
+    return this._firebaseData.reduce((acc, {itinerary}, index) => {
+      return itinerary.length > acc ? itinerary.length : acc;
+    }, 0);
+  }
+
+  /**
+   * Resizes the flight path table cell. 
+   */
+  resizeFlightPath() {
+    for (let i = 0; i < this.length; i++) {
+      this.getFlightPath(i);
+    }
   }
 
   /**
@@ -524,7 +566,9 @@ class SavedItinerariesTable {
 
     // Create a new chart. x is the date, y is the price.
     if (!(index in this._charts) && create) {
-      const context = qsa(".chart-history")[index].getContext("2d");
+      this.resizeChart(index);
+
+      const context = qsa(".chart-canvas")[index].getContext("2d");
 
       this._charts[index] = new Chart(context, {
         type: "line",
@@ -680,5 +724,45 @@ class SavedItinerariesTable {
       return "Min: ";
     }
     return "";
+  }
+
+  /**
+   * If index is defined, we only resize one chart. Otherwise, we resize all
+   * charts.
+   * 
+   * @param {number} index index to resize chart
+   */
+  resizeChart(index) {
+    // 10 comes from padding around chart td
+    const height = (qsa(".itinerary")[0].offsetHeight - 10) || 0;
+
+    // resize only one row
+    if (typeof index === "number") {
+      let chart = qsa(".chart-history")[index];
+
+      if (this._horizontal) {
+        chart.style.height = `${height}px`;
+        chart.style.width = `${height * 2}px`;
+      }
+      else {
+        chart.style = "";
+      }
+    }
+    // resize all charts
+    else {
+      let charts = qsa(".chart-history:not(.hide)");
+
+      if (this._horizontal) {
+        charts.forEach(chart => {
+          chart.style.height = `${height}px`;
+          chart.style.width = `${height * 2}px`;
+        });
+      }
+      else {
+        charts.forEach(chart => {
+          chart.style = "";
+        })
+      }
+    }
   }
 }

@@ -154,6 +154,24 @@ td, th {
   max-width: 10.286vw;  /* chosen from testing to not expand table width */
 }
 
+/* When the table is horizontal */
+@media only screen and (max-width: 992px) {
+  #saved-itineraries .name {
+    max-width: calc(199.18px - 20.34px); /* 20.34px is width of number */
+  }
+
+  #saved-itineraries .flight-path {
+    max-width: 199.18px;
+  }
+
+  #saved-itineraries .chart-none {
+    margin: 0;
+    height: 339.2px;
+    display: flex;
+    align-items: center;
+  }
+}
+
 /* So that line-breaks are rendered properly between airports/arrows. */
 #saved-itineraries .flight-path-col {
   white-space: pre;
@@ -183,6 +201,17 @@ td, th {
 /* Highlight chart when itinerary is selected. */
 #saved-itineraries .itinerary:hover + .chart {
   background-color: rgba(242, 242, 242, 0.5);
+}
+
+#saved-itineraries .chart-history {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* necessary for the chart to shrink when resizing window */
+#saved-itineraries .chart-canvas {
+  width: 100% !important;
 }
 
 /* Highlight itinerary when chart is selected (we add this class in
