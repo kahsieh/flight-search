@@ -86,7 +86,7 @@ class FlightTable {
     table.classList.add("col", "s12", "shrinkable");
     table.id = `table${this._i}`;
     table.innerHTML = `
-      <table class="highlight">
+      <table class="highlight responsive-table">
         <thead><tr>
           ${Object.entries(FlightTable.DISPLAY_COLUMNS)
             .map(([k, v]) => `<th class="${k}">${v}</th>`).join("")}
@@ -431,6 +431,9 @@ class FlightTable {
     else {
       ftables[0]._book.classList.add("disabled");
     }
+
+    // Reponsive table fix.
+    fixResponsiveTh();
   }
 
   /**
@@ -470,8 +473,8 @@ FlightTable.tabsInstance = null;
  */
 FlightTable.DISPLAY_COLUMNS = {
   "flight_no": "Flight",
-  "dTime": "Departure",
-  "aTime": "Arrival",
+  "dTime": "Departures",
+  "aTime": "Arrivals",
   "flight_time": "Flight time",
   "equipment": "Aircraft",
   "fare_basis": "Fare class/basis",

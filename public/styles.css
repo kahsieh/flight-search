@@ -98,7 +98,7 @@ td, th {
   margin-bottom: 20px;
 }
 
-#tables {
+#tables tbody {
   line-height: 36px;
 }
 

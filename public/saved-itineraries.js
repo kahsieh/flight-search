@@ -90,6 +90,8 @@ class SavedItinerariesTable {
       this.createItineraryRow(data);
       this.createChartRow(data.history);
     }
+    // Responsive table fix.
+    fixResponsiveTh();
   }
 
   /**

@@ -21,6 +21,47 @@ addEventListener("load", () => {
 });
 
 /**
+ * Function to run when any application page is resized.
+ */
+addEventListener("resize", () => {
+  fixResponsiveTh();
+});
+
+/**
+ * Fixes the issue where the header row of responsive tables doesn't space
+ * properly.
+ */
+function fixResponsiveTh() {
+  for (const table of qsa(".responsive-table")) {
+    // On large screens, unset the minHeight of <th> elements.
+    if (innerWidth > 992) {
+      for (const cell of table.querySelectorAll("th")) {
+        cell.style.minHeight = "";
+      }
+      console.log("<th> minHeights unset");
+    }
+    // On medium and small screens, try to set the minHeight of <th> elements.
+    else {
+      const ths = Array.from(table.querySelectorAll("th"));
+      // Find a row with the same number of children as there are <th> elements.
+      for (const row of table.querySelectorAll("tbody tr")) {
+        if (row.childElementCount === ths.length) {
+          // Set the minHeight of each cell to be the same as the actual height
+          // of the corresponding cell in the row.
+          const maxHeights = Array.from(row.children)
+                                  .map(e => e.getBoundingClientRect().height);
+          for (const [i, e] of ths.entries()) {
+            e.style.minHeight = maxHeights[i] + "px";
+          }
+          break;
+        }
+      }
+      console.log("<th> minHeights set");
+    }
+  }
+}
+
+/**
  * Alias of document.querySelector(...).
  *
  * @param {string} str A query string.
