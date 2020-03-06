@@ -431,9 +431,6 @@ class FlightTable {
     else {
       ftables[0]._book.classList.add("disabled");
     }
-
-    // Reponsive table fix.
-    fixResponsiveTh();
   }
 
   /**
@@ -450,6 +447,9 @@ class FlightTable {
       ftables[0]._tables.querySelectorAll(`.${column.value}`)
           .forEach(e => e.style.display = column.selected ? "" : "none");
     }
+
+    // Reponsive table fix.
+    fixResponsiveTh();
   }
 }
 
@@ -473,8 +473,8 @@ FlightTable.tabsInstance = null;
  */
 FlightTable.DISPLAY_COLUMNS = {
   "flight_no": "Flight",
-  "dTime": "Departures",
-  "aTime": "Arrivals",
+  "dTime": "Departure",
+  "aTime": "Arrival",
   "flight_time": "Flight time",
   "equipment": "Aircraft",
   "fare_basis": "Fare class/basis",
