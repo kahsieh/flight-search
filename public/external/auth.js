@@ -8,10 +8,10 @@ All Rights Reserved.
 "use strict";
 
 /**
- * We run onLoadAuth() and assume the user is still authenticated from
- * localStorage. This is to prevent buggy behavior with the Google SignIn
- * button showing up and then the authenticated buttons appearing, by just
- * having the authenticated buttons appearing instead.
+ * We run onLoadAuth() as soon as possible, which assumes the user is still
+ * authenticated as long as auth is present in localStorage. This is to prevent
+ * the behavior where the Google  sign-in button from shows up on page load and
+ * then immediately changes to the authenticated buttons.
  */
 addEventListener("DOMContentLoaded", () => {
   onLoadAuth();
@@ -64,12 +64,12 @@ function signUp(googleUser) {
         googleUser.getAuthResponse().id_token);
     // Sign in with credential from the Google user.
     firebase.auth().signInWithCredential(credential)
-                  .then((userCredential) => {
-                    if (userCredential.additionalUserInfo.isNewUser) {
-                      addPreferences(userCredential.user.uid);
-                    }
-                  })
-                  .catch(e => console.error(e));
+                   .then(userCredential => {
+                     if (userCredential.additionalUserInfo.isNewUser) {
+                       addPreferences(userCredential.user.uid);
+                     }
+                   })
+                   .catch(e => console.error(e));
   });
 }
 
@@ -99,15 +99,15 @@ function isUserEqual(googleUser, firebaseUser) {
 
 /**
  * Creates an event listener that sets the local storage auth item when the
- * Firebase auth state changes.
+ * Firebase auth state changes, then updates the UI.
  */
 function auth() {
   firebase.auth().onAuthStateChanged(firebaseUser => {
-    // If the user is authenticated, upload the local storage item.
+    // If the user is authenticated, update the local storage item.
     if (firebaseUser) {
       let name = firebaseUser.displayName || firebaseUser.email;
       console.log(`${name} signed in successfully.`);
-      
+
       getFirebasePreferences(firebaseUser.uid).then(data => {
         localStorage.setItem("auth", JSON.stringify({
           uid: firebaseUser.uid,
@@ -127,8 +127,8 @@ function auth() {
 
 /**
  * Makes page-specific UI changes after authentication. This function runs:
- *  1) After sign in/sign out in.
- *  2) Right after DOMContentLoaded fires.
+ *  1) On DOMContentLoaded, and
+ *  2) On sign in/sign out.
  */
 function onLoadAuth() {
   const user = checkAuth();
@@ -138,14 +138,14 @@ function onLoadAuth() {
   if (user && user.uid) {
     qs("#profile").classList.remove("hide");
     qs("#profile").textContent = user.name;
-    switch (window.location.pathname.replace(/\/{2,}/g, s => { return '/'; })) {
+    switch (window.location.pathname.replace(/\/{2,}/g, _ => "/")) {
       case "/":
       case "/index.html":
         qs("#sign-in").classList.add("hide");
         qs("#saved-itineraries").classList.remove("hide");
         qs("#sign-out").classList.remove("hide");
         qs("#save").classList.remove("disabled");
-        loadPreferences(user);
+        loadFlights();
         break;
       case "/saved-itineraries.html":
         qs("#itineraries-authenticated").classList.remove("hide");
@@ -164,7 +164,7 @@ function onLoadAuth() {
         qs("#saved-itineraries").classList.add("hide");
         qs("#sign-out").classList.add("hide");
         qs("#save").classList.add("disabled");
-        loadPreferences(user);
+        loadFlights();
         break;
       case "/saved-itineraries.html":
         qs("#itineraries-unauthenticated").classList.remove("hide");

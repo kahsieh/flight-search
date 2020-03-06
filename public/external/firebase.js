@@ -45,7 +45,9 @@ function getFirebaseIdToken() {
 }
 
 /**
- * Creates preferences document in Firestore for new user
+ * Creates preferences document in Firestore for new user.
+ *
+ * @param {string} uid Firebase user's ID.
  */
 async function addPreferences(uid) {
   firebase
@@ -61,35 +63,9 @@ async function addPreferences(uid) {
 }
 
 /**
- * Loads preference fields based on user's previous preferences
- */
-function loadPreferencePage() {
-  let user = checkAuth();
-
-  if (user) {
-    qs("#airport").value = user.dAirport;
-    qs("#airline").value = user.airline;
-    qs("#time").value = user.dTime;
-    switch (user.cabin) {
-      case "M":
-        qs("#cabin").children[0].selected = true;
-        break;
-      case "W":
-        qs("#cabin").children[1].selected = true;
-        break;
-      case "C":
-        qs("#cabin").children[2].selected = true;
-        break;
-      case "F":
-        qs("#cabin").children[3].selected = true;
-        break;
-    }
-    M.FormSelect.init(qsa("select"), {});
-  }
-}
-
-/**
- * Updates user's preferences
+ * Saves preferences to Firebase.
+ *
+ * Specific to profile.html.
  */
 async function savePreferences() {
   let user = checkAuth();
@@ -195,9 +171,9 @@ async function saveItinerary() {
 }
 
 /**
- * Returns a user's preferences
- * 
- * @param {string} uid UID of user
+ * Returns preferences saved by the user.
+ *
+ * @param {string} uid UID of user.
  */
 function getFirebasePreferences(uid) {
   return firebase.firestore()

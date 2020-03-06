@@ -24,19 +24,84 @@ addEventListener("load", () => {
       i => ftables[i].remove()
   );
 
-  let user = checkAuth();
-  loadPreferences(user);
-
   // Initialize Materialize selects.
   M.FormSelect.init(qsa("select"), {});
+
+  // Load flights into the ItineraryTable.
+  loadFlights();
 });
 
 /**
- * Adds flight based on user preference
+ * Loads the ItineraryTable based on user preferences.
+ */
+function loadFlights() {
+  // Stop if the ItineraryTable isn't initialized yet.
+  if (!itable) {
+    return;
+  }
+  // Remove all flights.
+  while (itable.length != 0) {
+    itable.removeFlight();
+  }
+  // Try to populate the ItineraryTable from the URL.
+  if (itable.loadFromURL()) {
+    return;
+  }
+
+  // Create some dates for default flights.
+  let date1 = new Date();
+  date1.setDate(date1.getDate() + 14);
+  let date2 = new Date();
+  date2.setDate(date2.getDate() + 21);
+
+  // Use user preferences if available.
+  const user = checkAuth();
+  if (user && user.uid) {
+    // Hide the latest date column to save screen space if we're going to show
+    // the airline, cabin, or earliest departure time columns.
+    if (user.airline !== Itinerary.DEFAULTS["select_airlines"] ||
+        user.cabin !== Itinerary.DEFAULTS["selected_cabins"]  ||
+        user.dTime !== Itinerary.DEFAULTS["dtime_from"]) {
+      qs("#filters option[value='date_to']").selected = false;
+    }
+    itable.loadFromItinerary(new Itinerary([
+      {
+        "fly_from": user.dAirport,
+        "select_airlines": user.airline,
+        "selected_cabins": user.cabin,
+        "max_stopovers": 2,
+        "dtime_from": user.dTime,
+        "date_from": date1.toISOString().substring(0, 10),
+      },
+      {
+        "select_airlines": user.airline,
+        "selected_cabins": user.cabin,
+        "max_stopovers": 2,
+        "dtime_from": user.dTime,
+        "date_from": date2.toISOString().substring(0, 10),
+      },
+    ]));
+  }
+  else {
+    itable.loadFromItinerary(new Itinerary([
+      {
+        "max_stopovers": 2,
+        "date_from": date1.toISOString().substring(0, 10),
+      },
+      {
+        "max_stopovers": 2,
+        "date_from": date2.toISOString().substring(0, 10),
+      },
+    ]));
+  }
+}
+
+/**
+ * Adds flight based on user preference.
  */
 function addFlightWithPreferences() {
   let user = checkAuth();
-  if (user) {
+  if (user && user.uid) {
     itable.addFlight(new Itinerary([
       {
         "select_airlines": user.airline,
@@ -45,63 +110,9 @@ function addFlightWithPreferences() {
         "dtime_from": user.dTime,
       },
     ]));
-  } else {
+  }
+  else {
     itable.addFlight();
-  }
-}
-
-/**
- * Loads flight table based on user preferences
- * 
- * @param {FirebaseUser} firebaseUser Firebase user
- */
-function loadPreferences(user) {
-  if (!itable) {
-    return;
-  }
-
-  while (itable.length != 0) {
-    itable.removeFlight();
-  }
-
-  if (!itable.loadFromURL()) {
-    let date1 = new Date();
-    date1.setDate(date1.getDate() + 14);
-    let date2 = new Date();
-    date2.setDate(date2.getDate() + 21);
-    if (user) {
-      qs("#filters option[value='date_to']").selected = false;
-      itable.loadFromItinerary(new Itinerary([
-        {
-          "fly_from": user.dAirport,
-          "select_airlines": user.airline,
-          "selected_cabins": user.cabin,
-          "max_stopovers": 2,
-          "dtime_from": user.dTime,
-          "date_from": date1.toISOString().substring(0, 10),
-        },
-        {
-          "select_airlines": user.airline,
-          "selected_cabins": user.cabin,
-          "max_stopovers": 2,
-          "dtime_from": user.dTime,
-          "date_from": date2.toISOString().substring(0, 10),
-        },
-      ]));
-    } else {
-      qs("#filters option[value='date_to']").selected = true;
-      itable.loadFromItinerary(new Itinerary([
-        {
-          "max_stopovers": 2,
-          "date_from": date1.toISOString().substring(0, 10),
-        },
-        {
-          "max_stopovers": 2,
-          "date_from": date2.toISOString().substring(0, 10),
-        },
-      ]));
-    }
-    M.FormSelect.init(qsa("select"), {});
   }
 }
 
@@ -121,7 +132,7 @@ async function search() {
   // Execute fetches.
   let [res, single] = await kiwiSearch(itable.get());
 
-  if (res) {
+  if (res && res.length > 0) {
     // Display message.
     qsa(".results-message").forEach(e => e.classList.remove("hide"));
 

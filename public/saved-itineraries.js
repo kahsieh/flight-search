@@ -514,11 +514,11 @@ class SavedItinerariesTable {
     // Looks for the maximum/minimum price and returns it as an object,
     // formatted as: { price, index }.
     const max = history.reduce((acc, {y}, index) => {
-      return acc.price > y ? acc : { price: y, index: index };
-    }, {});
+      return y > acc.price ? { price: y, index: index } : acc;
+    }, {price: -Infinity});
     const min = history.reduce((acc, {y}, index) => {
-      return acc.price < y ? acc : { price: y, index: index };
-    }, {});
+      return y < acc.price ? { price: y, index: index } : acc;
+    }, {price: Infinity});
 
     // Create a new chart. x is the date, y is the price.
     if (!(index in this._charts) && create) {

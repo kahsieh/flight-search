@@ -8,7 +8,7 @@ All Rights Reserved.
 "use strict";
 
 const app = {
-  version: "v0.1.0",
+  version: "v0.2.69",
 };
 
 const nbsp = "\u00a0";
