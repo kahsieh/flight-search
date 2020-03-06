@@ -188,7 +188,7 @@ function collapseSection(element, func) {
     requestAnimationFrame(() => {
       func();
       element.style.height =
-        element.querySelector("thead").scrollHeight +
+        (window.innerWidth < 993 ? 0 : element.querySelector("thead").scrollHeight) +
         element.querySelector("tbody").scrollHeight + "px";
     });
   });
