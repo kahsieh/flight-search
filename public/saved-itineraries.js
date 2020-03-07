@@ -58,6 +58,7 @@ addEventListener("resize", () => {
       (innerWidth > 992 && sitable._horizontal)) {
       sitable._horizontal = !sitable._horizontal;
 
+      sitable.toggleHistoryButton();
       sitable.resizeFlightPath();
       sitable.resizeChart();
     }
@@ -167,7 +168,8 @@ class SavedItinerariesTable {
         </button>
         ${nbsp}
         <button class="history btn-flat waves-effect waves-light circle">
-          <i class="small material-icons">expand_more</i>
+          <i class="small material-icons">${this._horizontal ? "chevron_right" :
+            "expand_more"}</i>
         </button>
       </td>
     `;
@@ -193,16 +195,48 @@ class SavedItinerariesTable {
     }
     qsa(".history")[index].onclick = event => {
       event.stopPropagation();
-      switch (event.currentTarget.firstElementChild.textContent) {
+
+      const icon = event.currentTarget.firstElementChild;
+      switch (icon.textContent) {
         case "expand_more":
-          event.currentTarget.firstElementChild.textContent = "expand_less";
+          icon.textContent = "expand_less";
           break;
         case "expand_less":
-          event.currentTarget.firstElementChild.textContent = "expand_more";
+          icon.textContent = "expand_more";
+          break;
+        case "chevron_right":
+          icon.textContent = "chevron_left";
+          break;
+        case "chevron_left":
+          icon.textContent = "chevron_right";
           break;
       }
       this.showHistory(index);
     }
+  }
+
+  /**
+   * Toggles history button icon based on if the table is horizontal or not
+   */
+  toggleHistoryButton() {
+    qsa(".history").forEach(button => {
+      const icon = button.firstElementChild;
+
+      switch(icon.textContent) {
+        case "expand_more":
+          icon.textContent = "chevron_right";
+          break;
+        case "expand_less":
+          icon.textContent = "chevron_left";
+          break;
+        case "chevron_right":
+          icon.textContent = "expand_more";
+          break;
+        case "chevron_left":
+          icon.textContent = "expand_less";
+          break;
+      }
+    });
   }
 
   /**
