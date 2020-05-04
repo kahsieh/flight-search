@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/cs188-software-design-security-w20/project-5-peas-in-a-pod#readme",
   "dependencies": {
-    "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "firebase-admin": "^8.9.2"
   },
