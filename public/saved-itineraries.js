@@ -296,8 +296,8 @@ class SavedItinerariesTable {
     }
     else {
       qsa(".departure")[index].textContent =
-        `${typeof update.dTime !== "undefined" ? update.dTime : "None"
-         }${nbsp}(${
+        `${typeof update.dTime !== "undefined" ? localeDate(update.dTime)
+                                               : "None"}${nbsp}(${
           typeof update.flyFrom !== "undefined" ? update.flyFrom : "None"})`;
     }
 
@@ -308,8 +308,8 @@ class SavedItinerariesTable {
     }
     else {
       qsa(".arrival")[index].textContent =
-        `${typeof update.aTime !== "undefined" ? update.aTime : "None"
-         }${nbsp}(${
+        `${typeof update.aTime !== "undefined" ? localeDate(update.aTime)
+                                               : "None"}${nbsp}(${
            typeof update.flyTo !== "undefined" ? update.flyTo : "None"})`;
     }
 
@@ -371,7 +371,7 @@ class SavedItinerariesTable {
   }
 
   /**
-   * Resizes the flight path table cell. 
+   * Resizes the flight path table cell.
    */
   resizeFlightPath() {
     for (let i = 0; i < this.length; i++) {
@@ -763,7 +763,7 @@ class SavedItinerariesTable {
   /**
    * If index is defined, we only resize one chart. Otherwise, we resize all
    * charts.
-   * 
+   *
    * @param {number} index index to resize chart
    */
   resizeChart(index) {

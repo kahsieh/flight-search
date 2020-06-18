@@ -128,8 +128,8 @@ async function saveItinerary() {
   if (res !== null &&
       typeof res[0] !== "undefined" &&
       typeof res[0].price !== "undefined") {
-    dTime = localeDate(res[0].route[0].dTime);
-    aTime = localeDate(res[0].route[res[0].route.length - 1].aTime);
+    dTime = res[0].route[0].dTime;
+    aTime = res[0].route[res[0].route.length - 1].aTime;
     flyFrom = res[0].route[0].flyFrom;
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
     price = res[0].price;
@@ -233,8 +233,8 @@ async function updateFirebaseItinerary(docId, firebaseData) {
   if (res !== null &&
       typeof res[0] !== "undefined" &&
       typeof res[0].price !== "undefined") {
-    dTime = localeDate(res[0].route[0].dTime);
-    aTime = localeDate(res[0].route[res[0].route.length - 1].aTime);
+    dTime = res[0].route[0].dTime;
+    aTime = res[0].route[res[0].route.length - 1].aTime;
     flyFrom = res[0].route[0].flyFrom;
     flyTo = res[0].route[res[0].route.length - 1].flyTo;
     price = res[0].price;

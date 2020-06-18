@@ -87,6 +87,10 @@ function qsa(str) {
  * @return {string} A locale string.
  */
 function localeDate(unix, UTC = true) {
+  // Pass strings through for backwards compatibility.
+  if (typeof unix === "string") {
+    return unix;
+  }
   return new Date(unix * 1000).toLocaleString([], {
     timeZone: UTC ? "UTC" : undefined,
     weekday: "short",
