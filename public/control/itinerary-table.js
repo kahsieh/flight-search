@@ -104,7 +104,8 @@ class ItineraryTable {
       </td>
       <td><div class="row"><div class="input-field col s12">
         <input type="text" name="fly_from" class="autocomplete_airport"
-          placeholder="Any" value="${itinerary.get(i, "fly_from")}">
+          placeholder="Any" value="${itinerary.get(i, "fly_from")}"
+          maxlength="100" onblur="autocorrect['airports']()">
         <label class="active">
           Origin
           <i class="material-icons tiny tooltipped" data-position="bottom"
@@ -114,7 +115,8 @@ class ItineraryTable {
       </div></div></td>
       <td><div class="row"><div class="input-field col s12">
         <input type="text" name="fly_to" class="autocomplete_airport"
-          placeholder="Any" value="${itinerary.get(i, "fly_to")}">
+          placeholder="Any" value="${itinerary.get(i, "fly_to")}"
+          maxlength="100" onblur="autocorrect['airports']()">
         <label class="active">
           Destination
           <i class="material-icons tiny tooltipped" data-position="bottom"
@@ -135,7 +137,8 @@ class ItineraryTable {
           </div>
           <input type="text" name="select_airlines"
             class="autocomplete_select_airlines" placeholder="Any"
-            value="${itinerary.get(i, "select_airlines")}">
+            value="${itinerary.get(i, "select_airlines")}"
+            maxlength="100" onblur="autocorrect['airlines']()">
           <label class="active">
             Airline
             <i class="material-icons tiny tooltipped" data-position="bottom"
@@ -212,12 +215,12 @@ class ItineraryTable {
       </td>
       <td class="price_from"><div class="row"><div class="input-field col s12">
         <input type="number" name="price_from" placeholder="0" min="0"
-          value="${itinerary.get(i, "price_from")}">
+          max="999999" value="${itinerary.get(i, "price_from")}">
         <label class="active">Min&nbsp;price&nbsp;($)</label>
       </div></div></td>
       <td class="price_from"><div class="row"><div class="input-field col s12">
         <input type="number" name="price_to" placeholder="∞" min="0"
-          value="${itinerary.get(i, "price_to")}">
+          max="999999" value="${itinerary.get(i, "price_to")}">
         <label class="active">Max&nbsp;price&nbsp;($)</label>
       </div></div></td>
       <td class="select_stop_airport">
@@ -232,7 +235,8 @@ class ItineraryTable {
           </div>
           <input type="text" name="select_stop_airport"
             class="autocomplete_airport" placeholder="Any"
-            value="${itinerary.get(i, "select_stop_airport")}">
+            value="${itinerary.get(i, "select_stop_airport")}"
+            maxlength="100" onblur="autocorrect['airports']()">
           <label class="active">
             Stop&nbsp;airport
             <i class="material-icons tiny tooltipped" data-position="bottom"
@@ -243,21 +247,21 @@ class ItineraryTable {
       <td class="max_stopovers">
         <div class="row"><div class="input-field col s12">
           <input type="number" name="max_stopovers" placeholder="∞" min="0"
-            value="${itinerary.get(i, "max_stopovers")}">
+            max="999999" value="${itinerary.get(i, "max_stopovers")}">
           <label class="active">Max&nbsp;stops</label>
         </div></div>
       </td>
       <td class="stopover_from">
         <div class="row"><div class="input-field col s12">
           <input type="number" name="stopover_from" placeholder="0" min="0"
-            value="${itinerary.get(i, "stopover_from")}">
+            max="999999" value="${itinerary.get(i, "stopover_from")}">
           <label class="active">Min&nbsp;stop&nbsp;dur.&nbsp;(hrs)</label>
         </div></div>
       </td>
       <td class="stopover_from">
         <div class="row"><div class="input-field col s12">
           <input type="number" name="stopover_to" placeholder="∞" min="0"
-            value="${itinerary.get(i, "stopover_to")}">
+            max="999999" value="${itinerary.get(i, "stopover_to")}">
           <label class="active">Max&nbsp;stop&nbsp;dur.&nbsp;(hrs)</label>
         </div></div>
       </td>
@@ -338,7 +342,7 @@ class ItineraryTable {
       <td class="max_fly_duration">
         <div class="row"><div class="input-field col s12">
           <input type="number" name="max_fly_duration" placeholder="∞" min="0"
-            value="${itinerary.get(i, "max_fly_duration")}">
+            max="999999" value="${itinerary.get(i, "max_fly_duration")}">
           <label class="active">Max&nbsp;duration&nbsp;(hrs)</label>
         </div></div>
       </td>
@@ -515,3 +519,131 @@ function generateSelectOptions(options, value) {
       option.display : option.value}</option>
   `).join("");
 }
+
+/**
+ * Autocorrect functions for use with the onblur event of form fields.
+ */
+const autocorrect = {
+  "itinerary-name": () => {
+    event.target.value = event.target.value.trim();
+  },
+  "airports": () => {
+    // Use a DFA. The state represents how many letters of the current airport
+    // code have been seen. -1 represents an error state. count indicates how
+    // many airport codes have been seen.
+    let corrected = "", tentative = "";
+    let state = 0, count = 0;
+    // Remove whitespace from the string and convert it to uppercase.
+    for (const c of event.target.value.replace(/\s+/g, "").toUpperCase()) {
+      switch (state) {
+        // Error state. Don't do anything.
+        case -1:
+          break;
+        // Expecting letter states. If a letter is found, append it to
+        // tentative and increment the state. Otherwise, go to the error state.
+        case 0:
+        case 1:
+        case 2:
+          if (c.match(/[A-Z]/)) {
+            tentative += c;
+            state++;
+          }
+          else {
+            state = -1;  // error: unexpected character
+          }
+          break;
+        // Complete state. Append tentative to corrected and clear tentative.
+        // If a pipe or comma is found, append it to tentative and expect 3
+        // more letters. Otherwise, go to the error state.
+        case 3:
+          corrected += tentative;
+          tentative = "";
+          count++;
+          if (count == 100) {
+            state = -1;  // error: too many codes
+          }
+          else if (c == "|") {
+            tentative += " | ";
+            state = 0;
+          }
+          else if (c == ",") {
+            tentative += ",";
+            state = 0;
+          }
+          else {
+            state = -1;  // error: unexpected character
+          }
+          break;
+      }
+    }
+
+    // When ending on the complete state, append tentative to corrected and
+    // clear tentative.
+    if (state == 3) {
+      corrected += tentative;
+      tentative = "";
+      count++;
+    }
+
+    // Update the value to corrected. Ignore tentative characters that didn't
+    // lead to the complete state.
+    event.target.value = corrected;
+  },
+  "airlines": () => {
+    // Use a DFA. The state represents how many letters of the current airline
+    // code have been seen. -1 represents an error state. count indicates how
+    // many airline codes have been seen.
+    let corrected = "", tentative = "";
+    let state = 0, count = 0;
+    // Remove whitespace from the string and convert it to uppercase.
+    for (const c of event.target.value.replace(/\s+/g, "").toUpperCase()) {
+      switch (state) {
+        // Error state. Don't do anything.
+        case -1:
+          break;
+        // Expecting letter states. If a letter is found, append it to
+        // tentative and increment the state. Otherwise, go to the error state.
+        case 0:
+        case 1:
+          if (c.match(/[A-Z]/)) {
+            tentative += c;
+            state++;
+          }
+          else {
+            state = -1;  // error: unexpected character
+          }
+          break;
+        // Complete state. Append tentative to corrected and clear tentative.
+        // If a comma is found, append it to tentative and expect 2 more
+        // letters. Otherwise, go to the error state.
+        case 2:
+          corrected += tentative;
+          tentative = "";
+          count++;
+          if (count == 100) {
+            state = -1;  // error: too many codes
+          }
+          else if (c == ",") {
+            tentative += ",";
+            state = 0;
+          }
+          else {
+            state = -1;  // error: unexpected character
+          }
+          break;
+      }
+    }
+
+    // When ending on the complete state, append tentative to corrected and
+    // clear tentative.
+    if (state == 2) {
+      corrected += tentative;
+      tentative = "";
+      count++;
+    }
+
+    // Update the value to corrected. Ignore tentative characters that didn't
+    // lead to the complete state.
+    event.target.value = corrected;
+  }
+};

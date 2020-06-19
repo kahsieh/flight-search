@@ -57,7 +57,8 @@ All Rights Reserved.
     <!-- Itinerary name & Filters -->
     <div class="row">
       <div class="col s12 m6 input-field">
-        <input id="itinerary-name" type="text" placeholder="Untitled">
+        <input id="itinerary-name" type="text" placeholder="Untitled"
+               maxlength="100" onblur="autocorrect['itinerary-name']()">
         <label class="active">Title</label>
         <span class="helper-text">
           Helps identify the itinerary when saving/sharing.

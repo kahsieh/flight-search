@@ -67,8 +67,11 @@ function prepareFetches(itinerary) {
   for (let a = 0; a < num_airports; a++) {
     let body = {"requests": []};
     for (let i = 0; i < itinerary.length; i++) {
-      let fly_from = itinerary.get(i, "fly_from", false).split("|");
-      let fly_to = itinerary.get(i, "fly_to", false).split("|");
+      // Remove whitespace and parse pipes.
+      let fly_from = itinerary.get(i, "fly_from", false)
+                              .replace(/\s+/g, "").split("|");
+      let fly_to = itinerary.get(i, "fly_to", false)
+                            .replace(/\s+/g, "").split("|");
 
       if ((num_airports > 1 && fly_from.length > 1 &&
            num_airports != fly_from.length) ||
