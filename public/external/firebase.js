@@ -114,6 +114,21 @@ async function saveItinerary() {
     console.error("User is not authenticated.");
     return;
   }
+
+  // Prohibit excessively large itineraries (not encodable as a URL of ≤ 2,048
+  // characters).
+  const name = qs("#itinerary-name").value || "Untitled";
+  if (itable.get().link(name).length > 2048) {
+    M.toast({
+      html: `<i class="material-icons left">error</i>
+             <div>Error: Itinerary is too long to save.</div>`,
+      displayLength: 1500,
+      classes: "red"
+    });
+    return;
+  }
+
+  // Disable save button.
   const saveButton = event.currentTarget;
   saveButton.classList.add("disabled");
 
