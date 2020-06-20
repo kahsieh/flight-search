@@ -117,7 +117,7 @@ class ItineraryTable {
           maxlength="100" onblur="autocorrect['airports']()">
         <label class="active">
           Origin
-          <i class="material-icons tiny tooltipped" data-position="bottom"
+          <i class="material-icons tiny tooltipped" data-position="top"
             data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}<br><br>
             ${ItineraryTable.ORDER_FLEX_TOOLTIP}">info_outline</i>
         </label>
@@ -128,7 +128,7 @@ class ItineraryTable {
           maxlength="100" onblur="autocorrect['airports']()">
         <label class="active">
           Destination
-          <i class="material-icons tiny tooltipped" data-position="bottom"
+          <i class="material-icons tiny tooltipped" data-position="top"
             data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}<br><br>
             ${ItineraryTable.ORDER_FLEX_TOOLTIP}">info_outline</i>
         </label>
@@ -150,7 +150,7 @@ class ItineraryTable {
             maxlength="100" onblur="autocorrect['airlines']()">
           <label class="active">
             Airline
-            <i class="material-icons tiny tooltipped" data-position="bottom"
+            <i class="material-icons tiny tooltipped" data-position="top"
             data-tooltip="${ItineraryTable.AIRLINE_TOOLTIP}">info_outline</i>
           </label>
         </div></div>
@@ -248,7 +248,7 @@ class ItineraryTable {
             maxlength="100" onblur="autocorrect['airports']()">
           <label class="active">
             Stop&nbsp;airport
-            <i class="material-icons tiny tooltipped" data-position="bottom"
+            <i class="material-icons tiny tooltipped" data-position="top"
               data-tooltip="${ItineraryTable.AIRPORT_TOOLTIP}">info_outline</i>
           </label>
         </div></div>
@@ -480,17 +480,16 @@ class ItineraryTable {
 // STATIC FIELDS
 // -----------------------------------------------------------------------------
 
-ItineraryTable.AIRPORT_TOOLTIP = `You may enter multiple airport codes by
-  separating them with commas.`;
+ItineraryTable.AIRPORT_TOOLTIP = `Enter multiple airport codes by separating
+  them with commas.`;
 
-ItineraryTable.ORDER_FLEX_TOOLTIP = `To create a flexible-order itinerary,
-  separate airport codes with a vertical bar (|) instead of a comma. Then,
-  selecting a flight that uses an airport from a vertical bar-separated list
-  will require that all other vertical bar-separated lists use the airport in
-  the same list position.`;
+ItineraryTable.ORDER_FLEX_TOOLTIP = `Or, create a flexible-order itinerary by
+  separating airport codes with a | (vertical bar). Then, selecting a flight
+  that uses an airport from a |-separated list will require that all other
+  |-separated lists use the airport in the same list position.`;
 
-ItineraryTable.AIRLINE_TOOLTIP = `You may enter multiple airline codes by
-  separating them with commas.`;
+ItineraryTable.AIRLINE_TOOLTIP = `Enter multiple airline codes by separating
+  them with commas.`;
 
 // -----------------------------------------------------------------------------
 // HELPERS

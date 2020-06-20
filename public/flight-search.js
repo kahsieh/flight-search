@@ -26,6 +26,7 @@ addEventListener("load", () => {
 
   // Initialize Materialize selects.
   M.FormSelect.init(qsa("select"), {});
+  M.Tooltip.init(qsa("#title-tooltip"), {});
 
   // Load flights into the ItineraryTable.
   loadFlights();

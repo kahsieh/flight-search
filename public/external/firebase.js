@@ -8,6 +8,19 @@ All Rights Reserved.
 "use strict";
 
 /**
+ * Node-specific behaviors.
+ */
+if (typeof process !== "undefined" && process.release.name === "node") {
+  global.Itinerary = require("../struct/itinerary.js");
+  global.kiwiSearch = require("./kiwi.js").kiwiSearch;
+  module.exports = {
+    getFirebase: () => global.firebase,
+    setFirebase: arg => { global.firebase = arg; },
+    updateFirebaseItinerary: updateFirebaseItinerary,
+  };
+}
+
+/**
  * Initializes the Firebase app for use.
  */
 function initFirebase() {

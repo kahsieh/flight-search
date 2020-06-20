@@ -188,6 +188,13 @@ Itinerary.VERIFIERS = {
  */
 Itinerary.FIELDS = Object.keys(Itinerary.DEFAULTS);
 
+/**
+ * Node-specific behaviors.
+ */
+if (typeof process !== "undefined" && process.release.name === "node") {
+  module.exports = Itinerary;
+}
+
 // -----------------------------------------------------------------------------
 // HELPERS
 // -----------------------------------------------------------------------------

@@ -11,6 +11,14 @@ const KIWI_API_URL =
   "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky";
 
 /**
+ * Node-specific behaviors.
+ */
+if (typeof process !== "undefined" && process.release.name === "node") {
+  global.fetch = require("node-fetch");
+  module.exports = { kiwiSearch };
+}
+
+/**
  * Executes a search via Kiwi.
  *
  * @param {!Itinerary} itinerary Itinerary to execute search for.
@@ -100,8 +108,10 @@ function prepareFetches(itinerary) {
       }
       body["requests"].push(flight);
     }
-    console.log(`Request ${a}:`);
-    console.log(body);
+    if (typeof process === "undefined" || process.release.name !== "node") {
+      console.log(`Request ${a}:`);
+      console.log(body);
+    }
 
     promises.push(fetch(KIWI_API_URL, {
       method: "POST",

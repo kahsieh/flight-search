@@ -13,6 +13,9 @@ admin.initializeApp({
   databaseURL: "https://five-peas-flight-search.firebaseio.com"
 });
 
+const CronJob = require("cron").CronJob;
+const firebase = require("./public/external/firebase.js");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 
@@ -23,6 +26,23 @@ app.use(bodyParser.text());
 if (module === require.main) {
   const server = app.listen(process.env.PORT || 8080, () => {
     console.log(`App listening on port ${server.address().port}`);
+
+    // Set up cron job for refreshing saved itineraries.
+    firebase.setFirebase(admin);
+    new CronJob("0 0 0,12 * * *", async () => {
+      // Query for all itineraries having names starting with *.
+      const querySnapshot = await firebase.getFirebase().firestore()
+        .collection("itineraries")
+        .where("name", ">=", "*")
+        .where("name", "<", String.fromCharCode("*".charCodeAt(0) + 1))
+        .get();
+      // Call updateFirebaseItinerary on each match.
+      querySnapshot.forEach(doc => {
+        firebase.updateFirebaseItinerary(doc.id, doc.data())
+                .then(() => console.log(doc.id + " was successfully updated."))
+                .catch(e => console.error(e));
+      });
+    }).start();
   });
 
   /**

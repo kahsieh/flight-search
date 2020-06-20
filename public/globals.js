@@ -8,7 +8,7 @@ All Rights Reserved.
 "use strict";
 
 const app = {
-  version: "v0.2.69",
+  version: "v0.2.7",
 };
 
 const MAX_URL_SIZE = 2048;
