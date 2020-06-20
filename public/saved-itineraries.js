@@ -105,8 +105,8 @@ class SavedItinerariesTable {
     for (const data of this._firebaseData) {
       // Keep track of what row corresponds to what docId (used for deletion).
       this._docIds.push(data.id);
-      this.createItineraryRow(data);
-      this.createChartRow(data.history);
+      this.createItineraryRow();
+      this.createChartRow();
     }
     // Responsive table fix.
     fixResponsiveTh();
