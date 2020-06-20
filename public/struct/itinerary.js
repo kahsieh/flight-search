@@ -10,8 +10,8 @@ All Rights Reserved.
 class Itinerary {
   /**
    * Constructs an Itinerary from a matrix representation.
-   * 
-   * @param {!Array<Object<string, *>>|string} raw Matrix representation of 
+   *
+   * @param {!Array<Object<string, *>>|string} raw Matrix representation of
    *     itinerary with rows indexed by flight index and columns indexed by
    *     field name. The representation may be in base64-encoded form.
    */
@@ -19,15 +19,24 @@ class Itinerary {
     if (typeof raw === "string") {
       raw = Itinerary._decoded(raw);
     }
-    this._raw = filterEntries(raw, ([k, v]) =>
-        k in Itinerary.DEFAULTS && v !== Itinerary.DEFAULTS[k]);
+    this._raw = filterEntries(raw, ([k, v]) => {
+      if (!k in Itinerary.DEFAULTS) {
+        console.warn("Raw itinerary contains unknown key");
+        return false;
+      }
+      if (!Itinerary.VERIFIERS[k](v)) {
+        console.warn(`Raw itinerary contains invalid ${k}`);
+        return false;
+      }
+      return v !== Itinerary.DEFAULTS[k];
+    });
   }
 
   get length() { return this._raw.length; }
 
   /**
    * Retrieves a value from the itinerary.
-   * 
+   *
    * @param {number} i Flight index.
    * @param {string} field Field name.
    * @param {boolean=} escaped Escape non-default values.
@@ -42,7 +51,7 @@ class Itinerary {
 
   /**
    * Finds names of fields containing non-default values in this Itinerary.
-   * 
+   *
    * @return {!Set<string>} Set of fields with non-default values.
    */
   usedFields() {
@@ -57,7 +66,7 @@ class Itinerary {
 
   /**
    * Returns the Itinerary's matrix representation.
-   * 
+   *
    * @return {!Array<Object<string, *>>} Matrix representation as Object.
    */
   raw() {
@@ -66,7 +75,7 @@ class Itinerary {
 
   /**
    * Encodes the Itinerary's matrix representation in base64 with minified keys.
-   * 
+   *
    * @return {string} Matrix representation in base64.
    */
   encoded() {
@@ -78,7 +87,7 @@ class Itinerary {
 
   /**
    * Gets a sharable URL for the itinerary.
-   * 
+   *
    * @param {string} name Name for this Itinerary.
    */
   link(name) {
@@ -143,6 +152,38 @@ Itinerary.DEFAULTS = {
 };
 
 /**
+ * Dictionary mapping supported field names to lambda functions for verifying
+ * the validity of those fields.
+ */
+Itinerary.VERIFIERS = {
+  "fly_from": v => /^([A-Z]{3}(( \| |,)[A-Z]{3}){0,99})?$/.test(v),
+  "fly_to": v => /^([A-Z]{3}(( \| |,)[A-Z]{3}){0,99})?$/.test(v),
+  "date_from": v => v === "" || !isNaN(new Date(v)),
+  "date_to": v => v === "" || !isNaN(new Date(v)),
+  "select_airlines": v => /^([A-Z]{2}(,[A-Z]{2}){0,99})?$/.test(v),
+  "select_airlines_exclude": v => typeof v === "boolean",
+  "adult_hold_bag": v => /^[0-2]$/.test(v),
+  "adult_hand_bag": v => /^[0-1]$/.test(v),
+  "selected_cabins": v => /^(M|W|C|F)$/.test(v),
+  "mix_with_cabins": v => /^(M|W|C|F)?$/.test(v),
+  "price_from": v => /^\d{0,6}$/.test(v),
+  "price_to": v => /^\d{0,6}$/.test(v),
+  "select_stop_airport": v => /^([A-Z]{3}(( \| |,)[A-Z]{3}){0,99})?$/.test(v),
+  "select_stop_airport_exclude": v => typeof v === "boolean",
+  "max_stopovers": v => /^\d{0,6}$/.test(v),
+  "stopover_from": v => /^\d{0,6}$/.test(v),
+  "stopover_to": v => /^\d{0,6}$/.test(v),
+  "conn_on_diff_airport": v => typeof v === "boolean",
+  "fly_days": v => !hasDuplicates(v.split(",")) &&
+                   v.split(",").every(e => /^[0-6]$/.test(e)),
+  "dtime_from": v => /^(([0-1][0-9]|2[0-4]):[0-5][0-9])?$/.test(v),
+  "dtime_to": v => /^(([0-1][0-9]|2[0-4]):[0-5][0-9])?$/.test(v),
+  "atime_from": v => /^(([0-1][0-9]|2[0-4]):[0-5][0-9])?$/.test(v),
+  "atime_to": v => /^(([0-1][0-9]|2[0-4]):[0-5][0-9])?$/.test(v),
+  "max_fly_duration": v => /^\d{0,6}$/.test(v),
+}
+
+/**
  * List of supported fields.
  */
 Itinerary.FIELDS = Object.keys(Itinerary.DEFAULTS);
@@ -153,7 +194,7 @@ Itinerary.FIELDS = Object.keys(Itinerary.DEFAULTS);
 
 /**
  * Generates an array of lexicographically increasing strings.
- * 
+ *
  * @param {number} length The number of strings to be generated.
  * @return {Array<string>} Array of lexicographically increasing strings:
  *     ["a", "b", ..., "A", "B", ..., "aa", "ab", ...]
@@ -188,7 +229,7 @@ function createKeys(length) {
 
 /**
  * Escapes a string so that it can be used as HTML attribute content.
- * 
+ *
  * @param {string} str An untrusted string.
  * @return {string} A string suitable for use as HTML attribute content.
  */
@@ -226,4 +267,14 @@ function filterEntries(arr, f) {
  */
 function mapEntries(arr, f) {
   return arr.map(obj => Object.fromEntries(Object.entries(obj).map(f)));
+}
+
+/**
+ * Checks whether an array contains duplicate elements.
+ *
+ * @param {!Array<*>} array Array to check.
+ * @return {boolean} Whether the array contains duplicate eleemnts.
+ */
+function hasDuplicates(arr) {
+  return (new Set(arr)).size !== arr.length;
 }

@@ -82,7 +82,7 @@ class SavedItinerariesTable {
    * @param {object} firebaseData Data pulled from Firebase.
    */
   constructor(firebaseData) {
-    this._firebaseData = firebaseData;
+    this._firebaseData = firebaseData.filter(this.verifyDocument);
     this._docIds = [];
     this._deletedProcessing = [];
     this._charts = {};
@@ -125,6 +125,69 @@ class SavedItinerariesTable {
       <th>Latest&nbsp;Price</th>
       <th></th>
     `;
+  }
+
+  /**
+   * Verifies that the Firebase document represents a usable itinerary.
+   *
+   * @param {!Object<string, *>} doc A Firebase document.
+   * @return {boolean} Whether the document represents a usable itinerary.
+   */
+  verifyDocument(doc) {
+    const knownKeys = new Set(["id", "uid", "name", "created",
+                               "dTime", "aTime", "flyFrom", "flyTo",
+                               "history", "itinerary"]);
+    // Prohibit unknown keys.
+    if (typeof doc !== "object" ||
+        Object.keys(doc).filter(k => !knownKeys.has(k)).length > 0) {
+      console.warn("Firebase document contains unknown key");
+      return false;
+    }
+    // name: must be trimmed string of size [1, 100].
+    if (typeof doc.name !== "string" || doc.name.length > 100 ||
+        !/^\S.*$/.test(doc.name) || !/^.*\S$/.test(doc.name)) {
+      console.warn("Firebase document contains corrupt name");
+      return false;
+    }
+    // created: must be Firebase timestamp.
+    if (!isFirebaseTimestamp(doc.created)) {
+      console.warn("Firebase document contains corrupt created");
+      return false;
+    }
+    // dTime, aTime: must be null or UNIX timestamp (number).
+    if (doc.dTime !== null && typeof doc.dTime !== "number"  ||
+        doc.aTime !== null && typeof doc.aTime !== "number") {
+      console.warn("Firebase document contains corrupt dTime or aTime");
+      return false;
+    }
+    // flyFrom, flyTo: must be null or string matching [A-Z]{3}.
+    if (doc.flyFrom !== null && !/[A-Z]{3}/.test(doc.flyFrom) ||
+        doc.flyTo !== null && !/[A-Z]{3}/.test(doc.flyTo)) {
+      console.warn("Firebase document contains corrupt flyFrom or flyTo");
+      return false;
+    }
+    // history: must be array of objects mapping "price" to a number and
+    // "retrieved" to a Firebase timestamp.
+    if (!Array.isArray(doc.history)) {
+      console.warn("Firebase document contains corrupt history");
+      return false;
+    }
+    for (const record of doc.history) {
+      if (typeof record !== "object" || Object.keys(record).length !== 2 ||
+          typeof record.price !== "number" ||
+          !isFirebaseTimestamp(record.retrieved)) {
+        console.warn("Firebase document contains corrupt history");
+        return false;
+      }
+    }
+    // Prohibit excessively large itineraries (not encodable as a URL of
+    // ≤ 2,048 characters). Invalid values within the itinerary field may cause
+    // subfields to be discarded, but the document is still usable.
+    if (new Itinerary(doc.itinerary).link(doc.name).length > MAX_URL_SIZE) {
+      console.warn("Firebase document contains oversized itinerary");
+      return false;
+    }
+    return true;
   }
 
   /**

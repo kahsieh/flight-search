@@ -118,7 +118,7 @@ async function saveItinerary() {
   // Prohibit excessively large itineraries (not encodable as a URL of ≤ 2,048
   // characters).
   const name = qs("#itinerary-name").value || "Untitled";
-  if (itable.get().link(name).length > 2048) {
+  if (itable.get().link(name).length > MAX_URL_SIZE) {
     M.toast({
       html: `<i class="material-icons left">error</i>
              <div>Error: Itinerary is too long to save.</div>`,
@@ -299,4 +299,17 @@ function deleteFirebaseItinerary(docId) {
     .collection("itineraries")
     .doc(docId)
     .delete();
+}
+
+/**
+ * Identifies whether an object is a Firebase timestamp.
+ *
+ * @param {*} obj A JavaScript object.
+ * @return {boolean} Whether the object is a Firebase timestamp.
+ */
+function isFirebaseTimestamp(obj) {
+  return typeof obj === "object" &&
+         Object.keys(obj).length === 2 &&
+         typeof obj.nanoseconds === "number" &&
+         typeof obj.seconds === "number";
 }

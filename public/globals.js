@@ -11,6 +11,7 @@ const app = {
   version: "v0.2.69",
 };
 
+const MAX_URL_SIZE = 2048;
 const nbsp = "\u00a0";
 
 /**

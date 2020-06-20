@@ -56,12 +56,21 @@ class ItineraryTable {
    */
   loadFromURL() {
     let urlParams = {};
+    if (window.location.toString().length > MAX_URL_SIZE) {
+      M.toast({
+        html: `<i class="material-icons left">error</i>
+               <div>Error: Itinerary is too long to load.</div>`,
+        displayLength: 1500,
+        classes: "red"
+      });
+      return false;
+    }
     window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, (_, k, v) =>
         urlParams[k] = decodeURIComponent(v));
     if ("n" in urlParams && "i" in urlParams) {
       // Decode name from base64 encoding.
       try {
-        this._name.value = atob(urlParams["n"]);
+        this._name.value = atob(urlParams["n"]).trim().substring(0, 100);
       }
       catch (error) {
         console.error(error);
