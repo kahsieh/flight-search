@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Friendly tabular flight search powered by kiwi.com.",
   "main": "app.js",
+  "engines": {
+    "node": "12.x.x"
+  },
   "scripts": {
     "start": "node --icu-data-dir=node_modules/full-icu app.js",
     "e2e": "repo-tools test deploy",
