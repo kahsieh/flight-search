@@ -67,7 +67,7 @@ class FlightTable {
     let tab = document.createElement("li");
     tab.classList.add("tab");
     tab.innerHTML = `
-      <a href="#table${this._i}">
+      <a href="#table${this._i}" onclick="setTimeout(fixResponsiveTh, 0)">
         Flight <span class="flight-index">${this._i + 1}</span>
         <span class="check hide">✓</span>
       </a>
