@@ -160,7 +160,7 @@ Itinerary.VERIFIERS = {
   "fly_to": v => /^([A-Z]{3}(( \| |,)[A-Z]{3}){0,99})?$/.test(v),
   "date_from": v => v === "" || !isNaN(new Date(v)),
   "date_to": v => v === "" || !isNaN(new Date(v)),
-  "select_airlines": v => /^([A-Z]{2}(,[A-Z]{2}){0,99})?$/.test(v),
+  "select_airlines": v => /^([A-Z\d]{2}(,[A-Z\d]{2}){0,99})?$/.test(v),
   "select_airlines_exclude": v => typeof v === "boolean",
   "adult_hold_bag": v => /^[0-2]$/.test(v),
   "adult_hand_bag": v => /^[0-1]$/.test(v),

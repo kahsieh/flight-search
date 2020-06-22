@@ -112,7 +112,14 @@ function auth() {
         localStorage.setItem("auth", JSON.stringify({
           uid: firebaseUser.uid,
           name: name,
-          ...data,
+          airline: Itinerary.VERIFIERS.select_airlines(data.airline)
+                   ? data.airline : "",
+          cabin: Itinerary.VERIFIERS.selected_cabins(data.cabin)
+                 ? data.cabin : "M",
+          dAirport: Itinerary.VERIFIERS.fly_from(data.dAirport)
+                    ? data.dAirport : "",
+          dTime: Itinerary.VERIFIERS.dtime_from(data.dTime)
+                 ? data.dTime : "",
         }));
         onLoadAuth();
       });

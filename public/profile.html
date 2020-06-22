@@ -20,10 +20,12 @@ All Rights Reserved.
   <script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-auth.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-firestore.js" defer></script>
   <script src="globals.js"></script>
+  <script src="control/itinerary-table.js"></script>
   <script src="external/auth.js"></script>
   <script src="external/firebase.js"></script>
   <script src="struct/airlines.js"></script>
   <script src="struct/airports.js"></script>
+  <script src="struct/itinerary.js"></script>
   <script src="profile.js"></script>
 </head>
 <body>
@@ -47,11 +49,13 @@ All Rights Reserved.
     <div id="preferences-authenticated" class="hide">
       <div class="row no-margins">
         <div class="col s12 m6 input-field">
-          <input id="airport" type="text" placeholder="Any">
+          <input id="airport" type="text" placeholder="Any"
+                 onblur="autocorrect['airports']()">
           <label class="active">Preferred departure airport</label>
         </div>
         <div class="col s12 m6 input-field">
-          <input id="airline" type="text" placeholder="Any">
+          <input id="airline" type="text" placeholder="Any"
+                 onblur="autocorrect['airlines']()">
           <label class="active">Preferred airline</label>
         </div>
       </div>
