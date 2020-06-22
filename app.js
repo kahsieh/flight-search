@@ -7,18 +7,18 @@ All Rights Reserved.
 */
 "use strict";
 
+// Import Firebase Admin library and FPFS Firebase library.
 const admin = require("firebase-admin");
+const firebase = require("./public/external/firebase.js");
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
   databaseURL: "https://five-peas-flight-search.firebaseio.com"
 });
+firebase.setFirebase(admin);
 
-const CronJob = require("cron").CronJob;
-const firebase = require("./public/external/firebase.js");
-
+// Set up Express server.
 const express = require("express");
 const bodyParser = require("body-parser");
-
 const app = express();
 app.use(express.static("public"));
 app.use(bodyParser.text());
@@ -26,23 +26,6 @@ app.use(bodyParser.text());
 if (module === require.main) {
   const server = app.listen(process.env.PORT || 8080, () => {
     console.log(`App listening on port ${server.address().port}`);
-
-    // Set up cron job for refreshing saved itineraries.
-    firebase.setFirebase(admin);
-    new CronJob("0 0 0,12 * * *", async () => {
-      // Query for all itineraries having names starting with *.
-      const querySnapshot = await firebase.getFirebase().firestore()
-        .collection("itineraries")
-        .where("name", ">=", "*")
-        .where("name", "<", String.fromCharCode("*".charCodeAt(0) + 1))
-        .get();
-      // Call updateFirebaseItinerary on each match.
-      querySnapshot.forEach(doc => {
-        firebase.updateFirebaseItinerary(doc.id, doc.data())
-                .then(() => console.log(doc.id + " was successfully updated."))
-                .catch(e => console.error(e));
-      });
-    }).start();
   });
 
   /**
@@ -91,6 +74,27 @@ if (module === require.main) {
         response.send({ deleted: false });
       });
     }
+  });
+
+  /**
+   * Listener that handles the cron job for refreshing saved itineraries.
+   */
+  app.get("/api/refresh-saved-itineraries", async (req, res) => {
+    if (!req.header("X-Appengine-Cron")) {
+      return res.sendStatus(403);
+    }
+    const querySnapshot = await firebase.getFirebase().firestore()
+      .collection("itineraries")
+      .where("name", ">=", "*")
+      .where("name", "<", String.fromCharCode("*".charCodeAt(0) + 1))
+      .get();
+    // Call updateFirebaseItinerary on each match.
+    querySnapshot.forEach(doc => {
+      firebase.updateFirebaseItinerary(doc.id, doc.data())
+              .then(() => console.log(doc.id + " was successfully updated."))
+              .catch(e => console.error(e));
+    });
+    res.sendStatus(200);
   });
 
   /**

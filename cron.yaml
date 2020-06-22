@@ -1,0 +1,5 @@
+cron:
+- description: "refresh saved itineraries"
+  url: /api/refresh-saved-itineraries
+  schedule: every 12 hours
+  timezone: America/Los_Angeles
