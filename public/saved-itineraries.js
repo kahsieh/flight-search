@@ -57,10 +57,16 @@ addEventListener("resize", () => {
     if ((innerWidth <= 992 && !sitable._horizontal) ||
       (innerWidth > 992 && sitable._horizontal)) {
       sitable._horizontal = !sitable._horizontal;
-
-      sitable.toggleHistoryButton();
       sitable.resizeFlightPath();
-      sitable.resizeChart();
+
+      // Hide all charts, then re-show the first one that was expanded, if
+      // one was expanded.
+      const index = Array.from(qsa(".itinerary")).findIndex(
+                        div => div.classList.contains("expanded"));
+      sitable.hideAllCharts();
+      if (index !== -1) {
+        sitable.showHistory(index);
+      }
     }
   }
 });
@@ -231,8 +237,7 @@ class SavedItinerariesTable {
         </button>
         ${nbsp}
         <button class="history btn-flat waves-effect waves-light circle">
-          <i class="small material-icons">${this._horizontal ? "chevron_right" :
-            "expand_more"}</i>
+          <i class="small material-icons">expand_more</i>
         </button>
       </td>
     `;
@@ -258,48 +263,8 @@ class SavedItinerariesTable {
     }
     qsa(".history")[index].onclick = event => {
       event.stopPropagation();
-
-      const icon = event.currentTarget.firstElementChild;
-      switch (icon.textContent) {
-        case "expand_more":
-          icon.textContent = "expand_less";
-          break;
-        case "expand_less":
-          icon.textContent = "expand_more";
-          break;
-        case "chevron_right":
-          icon.textContent = "chevron_left";
-          break;
-        case "chevron_left":
-          icon.textContent = "chevron_right";
-          break;
-      }
       this.showHistory(index);
     }
-  }
-
-  /**
-   * Toggles history button icon based on if the table is horizontal or not
-   */
-  toggleHistoryButton() {
-    qsa(".history").forEach(button => {
-      const icon = button.firstElementChild;
-
-      switch(icon.textContent) {
-        case "expand_more":
-          icon.textContent = "chevron_right";
-          break;
-        case "expand_less":
-          icon.textContent = "chevron_left";
-          break;
-        case "chevron_right":
-          icon.textContent = "expand_more";
-          break;
-        case "chevron_left":
-          icon.textContent = "expand_less";
-          break;
-      }
-    });
   }
 
   /**
@@ -602,9 +567,42 @@ class SavedItinerariesTable {
    * @param {number} index Row number to show chart for.
    */
   showHistory(index) {
+    // In the horizontal layout, only one chart can be viewed at once, so
+    // unless the current chart is expanded (i.e., it's the one we want to
+    // toggle), hide any chart that might be on the screen.
+    if (this._horizontal &&
+        !qsa(".itinerary")[index].classList.contains("expanded")) {
+      this.hideAllCharts(index);
+    }
+
+    // In the horizontal layout, divert update to external chart.
+    const physicalIndex = this._horizontal ? this._docIds.length : index;
     qsa(".itinerary")[index].classList.toggle("expanded");
-    qsa(".chart")[index].classList.toggle("hide");
+    qsa(".chart")[physicalIndex].classList.toggle("hide");
     this.updateChart(index);
+
+    // Update button icon.
+    const icon = qsa(".history")[index].firstElementChild;
+    switch (icon.textContent) {
+      case "expand_more":
+        icon.textContent = "expand_less";
+        break;
+      case "expand_less":
+        icon.textContent = "expand_more";
+        break;
+    }
+  }
+
+  /**
+   * Hides all charts and restores "show history" buttons.
+   */
+  hideAllCharts() {
+    qsa(".itinerary").forEach(div => div.classList.remove("expanded"));
+    qsa(".history").forEach(
+        button => button.firstElementChild.innerText = "expand_more");
+    qsa(".chart").forEach(div => div.classList.add("hide"));
+    qsa(".chart-none").forEach(div => div.classList.add("hide"));
+    qsa(".chart-history").forEach(div => div.classList.add("hide"));
   }
 
   /**
@@ -618,9 +616,12 @@ class SavedItinerariesTable {
   updateChart(index, create = true) {
     const data = this._firebaseData[index];
 
+    // Divert update to external chart in horizontal layout.
+    const physicalIndex = this._horizontal ? this._docIds.length : index;
+
     // Do not display chart if history is not an array.
     if (!Array.isArray(data.history)) {
-      qsa(".chart-none")[index].classList.remove("hide");
+      qsa(".chart-none")[physicalIndex].classList.remove("hide");
       return;
     }
 
@@ -645,11 +646,11 @@ class SavedItinerariesTable {
 
     // Do not display chart if we have no data to display.
     if (history.length === 0) {
-      qsa(".chart-none")[index].classList.remove("hide");
+      qsa(".chart-none")[physicalIndex].classList.remove("hide");
       return;
     }
     else {
-      qsa(".chart-history")[index].classList.remove("hide");
+      qsa(".chart-history")[physicalIndex].classList.remove("hide");
     }
 
     // Looks for the maximum/minimum price and returns it as an object,
@@ -662,12 +663,10 @@ class SavedItinerariesTable {
     }, {price: Infinity});
 
     // Create a new chart. x is the date, y is the price.
-    if (!(index in this._charts) && create) {
-      this.resizeChart(index);
+    if (!(physicalIndex in this._charts) && create) {
+      const context = qsa(".chart-canvas")[physicalIndex].getContext("2d");
 
-      const context = qsa(".chart-canvas")[index].getContext("2d");
-
-      this._charts[index] = new Chart(context, {
+      this._charts[physicalIndex] = new Chart(context, {
         type: "line",
         data: {
           datasets: [{
@@ -761,9 +760,9 @@ class SavedItinerariesTable {
       });
     }
     // Update the old chart, if it exists.
-    else if (typeof this._charts[index] !== "undefined") {
-      const chart = this._charts[index];
-      const config = this._charts[index].config;
+    else if (typeof this._charts[physicalIndex] !== "undefined") {
+      const chart = this._charts[physicalIndex];
+      const config = this._charts[physicalIndex].config;
 
       // Update the history object displayed.
       config.data.datasets[0].data = history;
@@ -821,45 +820,5 @@ class SavedItinerariesTable {
       return "Min: ";
     }
     return "";
-  }
-
-  /**
-   * If index is defined, we only resize one chart. Otherwise, we resize all
-   * charts.
-   *
-   * @param {number} index index to resize chart
-   */
-  resizeChart(index) {
-    // 10 comes from padding around chart td
-    const height = (qsa(".itinerary")[0].offsetHeight - 10) || 0;
-
-    // resize only one row
-    if (typeof index === "number") {
-      let chart = qsa(".chart-history")[index];
-
-      if (this._horizontal) {
-        chart.style.height = `${height}px`;
-        chart.style.width = `${height * 2}px`;
-      }
-      else {
-        chart.style = "";
-      }
-    }
-    // resize all charts
-    else {
-      let charts = qsa(".chart-history:not(.hide)");
-
-      if (this._horizontal) {
-        charts.forEach(chart => {
-          chart.style.height = `${height}px`;
-          chart.style.width = `${height * 2}px`;
-        });
-      }
-      else {
-        charts.forEach(chart => {
-          chart.style = "";
-        })
-      }
-    }
   }
 }
