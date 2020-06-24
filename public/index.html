@@ -34,7 +34,8 @@ All Rights Reserved.
 <body>
 <header><nav>
   <div class="nav-wrapper container"><a href="/" class="brand-logo">
-    <i class="material-icons">flight</i>Five Peas Flight Search
+    <i class="material-icons">flight</i>Five Peas
+      <span class="hide-on-med-and-down">Flight Search</span>
   </a><a id="profile" class="hide right" href="profile.html"></a></div>
 </nav></header>
 
@@ -43,8 +44,8 @@ All Rights Reserved.
   <div class="row"><div class="col s12">
     <!-- Header & Authentication -->
     <div class="row">
-      <div class="col s12 m6"><h5>Itinerary</h5></div>
-      <div class="col s12 m6 auth-buttons">
+      <div class="col s12 m4 hide-on-small-only"><h5>Itinerary</h5></div>
+      <div class="col s12 m8 auth-buttons">
         <div id="sign-in"></div>
         <a id="saved-itineraries"
            class="nav-btn waves-effect waves-light btn hide"
@@ -53,6 +54,7 @@ All Rights Reserved.
            class="nav-btn waves-effect btn-flat hide disabled"
            onclick="signOut()">Sign Out</a>
       </div>
+      <div class="col s12 m4 hide-on-med-and-up"><h5>Itinerary</h5></div>
     </div>
     <!-- Itinerary name & Filters -->
     <div class="row">
@@ -120,7 +122,8 @@ All Rights Reserved.
             onclick="itable.removeFlight()">
       <i class="material-icons left">remove</i>
     </button>
-    &emsp;
+    <span class="hide-on-small-only">&emsp;</span>
+    <div class="hide-on-med-and-up"><br></div>
     <button id="search"
             class="btn waves-effect waves-light"
             onclick="search()">

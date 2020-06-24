@@ -32,16 +32,22 @@ All Rights Reserved.
 <body>
 <header><nav>
   <div class="nav-wrapper container"><a href="/" class="brand-logo">
-    <i class="material-icons">flight</i>Five Peas Flight Search
+    <i class="material-icons">flight</i>Five Peas
+      <span class="hide-on-med-and-down">Flight Search</span>
   </a><a id="profile" class="hide right" href="profile.html"></a></div>
 </nav></header>
 
 <main class="container">
   <div class="row"><div class="col s12">
     <div class="row">
-      <div class="col s12 m6"><h5>Saved Itineraries</h5></div>
+      <div class="col s12 m6 hide-on-small-only">
+        <h5>Saved Itineraries</h5>
+      </div>
       <div class="col s12 m6 auth-buttons">
         <a href="/" class="nav-btn waves-effect waves-light btn">Back</a>
+      </div>
+      <div class="col s12 m6 hide-on-med-and-up">
+        <h5>Saved Itineraries</h5>
       </div>
     </div>
     <p id="itineraries-unauthenticated" class="hide">
