@@ -62,7 +62,8 @@ addEventListener("resize", () => {
       // Hide all charts, then re-show the first one that was expanded, if
       // one was expanded.
       const index = Array.from(qsa(".itinerary")).findIndex(
-                        div => div.classList.contains("expanded"));
+                        div => !div.classList.contains("hide") &&
+                                div.classList.contains("expanded"));
       sitable.hideAllCharts();
       if (index !== -1) {
         sitable.showHistory(index);
@@ -449,7 +450,12 @@ class SavedItinerariesTable {
       // Update UI, but don't create a new chart if none is displayed.
       qsa(".update")[index].classList.remove("disabled");
       this.updateRow(index);
-      this.updateChart(index, false);
+      if (this._horizontal) {
+        this.showHistory(index, false);
+      }
+      else {
+        this.updateChart(index, false);
+      }
 
       // Display message.
       M.toast({
@@ -487,8 +493,9 @@ class SavedItinerariesTable {
    * @param {number} index Row number to hide.
    */
   deleteRow(index) {
+    const physicalIndex = this._horizontal ? this._docIds.length : index;
     qsa(".itinerary")[index].classList.add("hide");
-    qsa(".chart")[index].classList.add("hide");
+    qsa(".chart")[physicalIndex].classList.add("hide");
     this.updateRowNumbers();
     this._deletedProcessing.push(this._docIds[index]);
 
@@ -547,7 +554,8 @@ class SavedItinerariesTable {
     itineraryClassList.remove("hide");
     // Show the chart if the itinerary row is expanded.
     if (itineraryClassList.contains("expanded")) {
-      qsa(".chart")[index].classList.remove("hide");
+      const physicalIndex = this._horizontal ? this._docIds.length : index;
+      qsa(".chart")[physicalIndex].classList.remove("hide");
     }
     this.updateRowNumbers();
   }
@@ -565,20 +573,27 @@ class SavedItinerariesTable {
    * Shows the price history chart for the given itinerary.
    *
    * @param {number} index Row number to show chart for.
+   * @param {boolean=} toggle If already shown, hide the history instead.
    */
-  showHistory(index) {
+  showHistory(index, toggle = true) {
     // In the horizontal layout, only one chart can be viewed at once, so
-    // unless the current chart is expanded (i.e., it's the one we want to
-    // toggle), hide any chart that might be on the screen.
+    // unless we're trying to toggle the current chart, hide any chart that
+    // might be on the screen.
     if (this._horizontal &&
-        !qsa(".itinerary")[index].classList.contains("expanded")) {
+        !(toggle && qsa(".itinerary")[index].classList.contains("expanded"))) {
       this.hideAllCharts(index);
     }
 
     // In the horizontal layout, divert update to external chart.
     const physicalIndex = this._horizontal ? this._docIds.length : index;
-    qsa(".itinerary")[index].classList.toggle("expanded");
-    qsa(".chart")[physicalIndex].classList.toggle("hide");
+    if (toggle) {
+      qsa(".itinerary")[index].classList.toggle("expanded");
+      qsa(".chart")[physicalIndex].classList.toggle("hide");
+    }
+    else {
+      qsa(".itinerary")[index].classList.add("expanded");
+      qsa(".chart")[physicalIndex].classList.remove("hide");
+    }
     this.updateChart(index);
 
     // Update button icon.
@@ -662,6 +677,29 @@ class SavedItinerariesTable {
       return y < acc.price ? { price: y, index: index } : acc;
     }, {price: Infinity});
 
+    // Specify properties of points on the chart.
+    const pointProps = {
+      radius: ctx => {
+        return this.ifMaxOrMin(ctx, max, min) ? 5 : 0;
+      },
+      hoverRadius: ctx => {
+        return this.ifMaxOrMin(ctx, max, min) ? 7 : 0;
+      },
+      backgroundColor: ctx => {
+        return this.ifMaxOrMin(ctx, max, min) ?
+          "rgb(39, 166, 154)" : // green
+          "rgb(238, 110, 115)"; // red
+      },
+      borderWidth: _ => {
+        return 1;
+      },
+      borderColor: ctx => {
+        return this.ifMaxOrMin(ctx, max, min) ?
+          "rgb(39, 166, 154)" :  // green
+          "rgb(238, 110, 115)";  // red
+      },
+    };
+
     // Create a new chart. x is the date, y is the price.
     if (!(physicalIndex in this._charts) && create) {
       const context = qsa(".chart-canvas")[physicalIndex].getContext("2d");
@@ -734,27 +772,7 @@ class SavedItinerariesTable {
             },
           },
           elements: {
-            point: {
-              radius: ctx => {
-                return this.ifMaxOrMin(ctx, max, min) ? 5 : 0;
-              },
-              hoverRadius: ctx => {
-                return this.ifMaxOrMin(ctx, max, min) ? 7 : 0;
-              },
-              backgroundColor: ctx => {
-                return this.ifMaxOrMin(ctx, max, min) ?
-                  "rgb(39, 166, 154)" : // green
-                  "rgb(238, 110, 115)"; // red
-              },
-              borderWidth: _ => {
-                return 1;
-              },
-              borderColor: ctx => {
-                return this.ifMaxOrMin(ctx, max, min) ?
-                  "rgb(39, 166, 154)" :  // green
-                  "rgb(238, 110, 115)";  // red
-              },
-            }
+            point: pointProps,
           },
         }
       });
@@ -765,10 +783,12 @@ class SavedItinerariesTable {
       const config = this._charts[physicalIndex].config;
 
       // Update the history object displayed.
+      config.data.datasets[0].label = data.name || "Untitled";
       config.data.datasets[0].data = history;
       config.options.scales.xAxes[0].scaleLabel.labelString = `${localeDate(
         reduced[0].retrieved, false)}–${localeDate(
           reduced[reduced.length - 1].retrieved, false)}`;
+      config.options.elements.point = pointProps;
       chart.update();
     }
   }
