@@ -34,15 +34,6 @@ class FlightTable {
     }
     this._tabs.querySelectorAll(".indicator").forEach(e => e.remove());
 
-    // Save active tab.
-    let active_tab = null;
-    for (const [i, ft] of ftables.entries()) {
-      if (ft._tab.firstElementChild.classList.contains("active")) {
-        active_tab = i;
-        break;
-      }
-    }
-
     // Set fields.
     this._i = ftables.length;
     this._tab = this._addTab();
@@ -52,7 +43,6 @@ class FlightTable {
 
     // Update tabs instance.
     FlightTable.tabsInstance = M.Tabs.init(this._tabs, {});
-    FlightTable.tabsInstance.select(`table${active_tab}`);
     ftables.push(this);
   }
 
