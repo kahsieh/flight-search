@@ -109,7 +109,7 @@ function auth() {
       console.log(`${name} signed in successfully.`);
 
       getFirebasePreferences(firebaseUser.uid).then(data => {
-        localStorage.setItem("auth", JSON.stringify({
+        const latestPrefs = JSON.stringify({
           uid: firebaseUser.uid,
           name: name,
           airline: Itinerary.VERIFIERS.select_airlines(data.airline)
@@ -120,8 +120,11 @@ function auth() {
                     ? data.dAirport : "",
           dTime: Itinerary.VERIFIERS.dtime_from(data.dTime)
                  ? data.dTime : "",
-        }));
-        onLoadAuth();
+        });
+        if (latestPrefs !== localStorage.getItem("auth")) {
+          localStorage.setItem("auth", latestPrefs);
+          onLoadAuth();
+        }
       });
     }
     // Otherwise, remove the authentication state from local storage.
