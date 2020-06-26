@@ -156,3 +156,22 @@ function shareItinerary(name, itinerary, button, hiddenInput) {
   });
   button.classList.remove("disabled");
 }
+
+/**
+ * Converts a Materialize autocomplete data object to a datalist and appends it
+ * to the current document body.
+ *
+ * @param {string} id id of the datalist.
+ * @param {!Object<string, string>} autocomplete Materialize autocomplete data
+ *     object.
+ */
+function addDatalist(id, obj) {
+  let datalist = document.createElement("DATALIST");
+  datalist.id = id;
+  for (const key of Object.keys(obj)) {
+    let option = document.createElement("OPTION");
+    option.value = key;
+    datalist.appendChild(option);
+  }
+  qs("body").appendChild(datalist);
+}

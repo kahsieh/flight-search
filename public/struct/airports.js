@@ -3985,13 +3985,4 @@ const metros = {
 }
 
 // Append to document as a datalist.
-addEventListener("load", () => {
-  let datalist = document.createElement("DATALIST");
-  datalist.id = "airports";
-  for (const key of Object.keys(airports)) {
-    let option = document.createElement("OPTION");
-    option.value = key;
-    datalist.appendChild(option);
-  }
-  qs("body").appendChild(datalist);
-});
+addEventListener("DOMContentLoaded", () => addDatalist("airports", airports));
