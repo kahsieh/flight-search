@@ -19,7 +19,7 @@ All Rights Reserved.
  * KV of airports for autocomplete.
  */
 let airports = {'
-curl -s https://ourairports.com/data/airports.csv |
+(cat airports.csv 2>/dev/null || curl -s https://ourairports.com/data/airports.csv) |
   # (1) Convert all but the last column to TSV.
   # (2) Convert the last column to TSV.
   # (3) Replace "" with \".
@@ -83,4 +83,16 @@ for (const key of Object.keys(exceptions)) {
   else {
     airports[key] = exceptions[key];
   }
-}'
+}
+
+// Append to document as a datalist.
+addEventListener("load", () => {
+  let datalist = document.createElement("DATALIST");
+  datalist.id = "airports";
+  for (const key of Object.keys(airports)) {
+    let option = document.createElement("OPTION");
+    option.value = key;
+    datalist.appendChild(option);
+  }
+  qs("body").appendChild(datalist);
+});'

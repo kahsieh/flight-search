@@ -112,7 +112,7 @@ class ItineraryTable {
         Flight <span class="flight-index">${this.length}</span>
       </td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_from" class="autocomplete_airport"
+        <input type="text" name="fly_from" list="airports"
           placeholder="Any" value="${itinerary.get(i, "fly_from")}"
           onblur="autocorrect['airports']()">
         <label class="active">
@@ -123,7 +123,7 @@ class ItineraryTable {
         </label>
       </div></div></td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_to" class="autocomplete_airport"
+        <input type="text" name="fly_to" list="airports"
           placeholder="Any" value="${itinerary.get(i, "fly_to")}"
           onblur="autocorrect['airports']()">
         <label class="active">
@@ -242,9 +242,8 @@ class ItineraryTable {
               <span class="checkbox-label">Not</span>
             </label></p>
           </div>
-          <input type="text" name="select_stop_airport"
-            class="autocomplete_airport" placeholder="Any"
-            value="${itinerary.get(i, "select_stop_airport")}"
+          <input type="text" name="select_stop_airport" list="airports"
+            placeholder="Any" value="${itinerary.get(i, "select_stop_airport")}"
             onblur="autocorrect['airports']()">
           <label class="active">
             Stop&nbsp;airport
@@ -416,13 +415,6 @@ class ItineraryTable {
       onAutocomplete: () => autocomplete_select_airlines.forEach(trim),
       limit: 5
     });
-    let autocomplete_airport =
-      this._table.querySelectorAll(".autocomplete_airport");
-    M.Autocomplete.init(autocomplete_airport, {
-      data: airports,
-      onAutocomplete: () => autocomplete_airport.forEach(trim),
-      limit: 5
-    });
   }
 
   /**
@@ -536,6 +528,11 @@ const autocorrect = {
     event.target.value = event.target.value.trim();
   },
   "airports": () => {
+    // Remove autocomplete phrase.
+    if (event.target.value.includes(" - ")) {
+      event.target.value = event.target.value.split(" - ")[1];
+    }
+
     // Use a DFA. The state represents how many letters of the current airport
     // code have been seen. -1 represents an error state. count indicates how
     // many airport codes have been seen.

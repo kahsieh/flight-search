@@ -3880,3 +3880,15 @@ for (const key of Object.keys(exceptions)) {
     airports[key] = exceptions[key];
   }
 }
+
+// Append to document as a datalist.
+addEventListener("load", () => {
+  let datalist = document.createElement("DATALIST");
+  datalist.id = "airports";
+  for (const key of Object.keys(airports)) {
+    let option = document.createElement("OPTION");
+    option.value = key;
+    datalist.appendChild(option);
+  }
+  qs("body").appendChild(datalist);
+});

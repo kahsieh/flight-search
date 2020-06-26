@@ -23,12 +23,6 @@ addEventListener("load", () => {
     onAutocomplete: () => trim(autocomplete_airline),
     limit: 5
   });
-  let autocomplete_airport = qs("#airport");
-  M.Autocomplete.init(autocomplete_airport, {
-    data: airports,
-    onAutocomplete: () => trim(autocomplete_airport),
-    limit: 5
-  });
 
   // Load field values based on pre-existing user preferences.
   loadPreferencePage();
