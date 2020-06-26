@@ -530,7 +530,7 @@ const autocorrect = {
   "airports": () => {
     // Remove autocomplete phrase.
     if (event.target.value.includes(" - ")) {
-      event.target.value = event.target.value.split(" - ")[1];
+      event.target.value = event.target.value.split(" - ")[0].replace("↳", "");
     }
 
     // Use a DFA. The state represents how many letters of the current airport
