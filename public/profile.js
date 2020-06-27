@@ -50,5 +50,7 @@ function loadPreferencePage() {
   qs("#time").value = user.dTime;
   if (["M", "W", "C", "F"].includes(user.cabin)) {
     qs(`#cabin [value=${user.cabin}]`).selected = true;
+    // Re-initialize Materialize selects.
+    M.FormSelect.init(qsa("select"), {});
   }
 }
