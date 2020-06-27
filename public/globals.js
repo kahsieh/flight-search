@@ -34,26 +34,24 @@ addEventListener("resize", () => {
  */
 function fixResponsiveTh() {
   for (const table of qsa(".responsive-table")) {
-    // On large screens, unset the minHeight of <th> elements.
-    if (innerWidth > 992) {
-      for (const cell of table.querySelectorAll("th")) {
-        cell.style.minHeight = "";
-      }
+    // Unset the minHeight of <th> and <td> elements.
+    for (const cell of table.querySelectorAll("th, td")) {
+      cell.style.minHeight = "";
     }
-    // On medium and small screens, try to set the minHeight of <th> elements.
-    else {
-      const ths = Array.from(table.querySelectorAll("th"));
-      // Find a row with the same number of children as there are <th> elements.
-      for (const row of table.querySelectorAll("tbody tr")) {
-        if (row.childElementCount === ths.length) {
-          // Set the minHeight of each cell to be the same as the actual height
-          // of the corresponding cell in the row.
-          const maxHeights = Array.from(row.children)
-                                  .map(e => e.getBoundingClientRect().height);
-          for (const [i, e] of ths.entries()) {
-            e.style.minHeight = maxHeights[i] + "px";
-          }
-          break;
+    // On medium and small screens, set the minHeight of <th> and <td> elements.
+    if (innerWidth <= 992) {
+      let maxHeights = {};
+      // First traversal: collect height from all rows.
+      for (const row of table.querySelectorAll("tr")) {
+        for (let c = 0; c < row.childElementCount; c++) {
+          maxHeights[c] = Math.max((maxHeights[c] || 0),
+              row.children[c].getBoundingClientRect().height);
+        }
+      }
+      // Second traversal: set minHeight on all rows.
+      for (const row of table.querySelectorAll("tr")) {
+        for (let c = 0; c < row.childElementCount; c++) {
+          row.children[c].style.minHeight = maxHeights[c] + "px";
         }
       }
     }
