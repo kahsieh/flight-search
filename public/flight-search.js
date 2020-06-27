@@ -28,6 +28,10 @@ addEventListener("load", () => {
   M.FormSelect.init(qsa("select"), {});
   M.Tooltip.init(qsa("#title-tooltip"), {});
 
+  // Add autocorrect event listener.
+  qs("#itinerary-name").addEventListener("blur",
+      () => autocorrect["itinerary-name"]());
+
   // Load flights into the ItineraryTable.
   loadFlights();
 });

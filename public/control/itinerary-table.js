@@ -112,9 +112,9 @@ class ItineraryTable {
         Flight <span class="flight-index">${this.length}</span>
       </td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_from" list="airports"
-          placeholder="Any" value="${itinerary.get(i, "fly_from")}"
-          onblur="autocorrect['airports']()">
+        <input type="text" name="fly_from" class="autocomplete_airport"
+          list="airports" placeholder="Any"
+          value="${itinerary.get(i, "fly_from")}">
         <label class="active">
           Origin
           <i class="material-icons tiny tooltipped" data-position="top"
@@ -123,9 +123,9 @@ class ItineraryTable {
         </label>
       </div></div></td>
       <td><div class="row"><div class="input-field col s12">
-        <input type="text" name="fly_to" list="airports"
-          placeholder="Any" value="${itinerary.get(i, "fly_to")}"
-          onblur="autocorrect['airports']()">
+        <input type="text" name="fly_to" class="autocomplete_airport"
+          list="airports" placeholder="Any"
+          value="${itinerary.get(i, "fly_to")}">
         <label class="active">
           Destination
           <i class="material-icons tiny tooltipped" data-position="top"
@@ -146,8 +146,7 @@ class ItineraryTable {
           </div>
           <input type="text" name="select_airlines"
             class="autocomplete_select_airlines" placeholder="Any"
-            value="${itinerary.get(i, "select_airlines")}"
-            onblur="autocorrect['airlines']()">
+            value="${itinerary.get(i, "select_airlines")}">
           <label class="active">
             Airline
             <i class="material-icons tiny tooltipped" data-position="top"
@@ -242,9 +241,9 @@ class ItineraryTable {
               <span class="checkbox-label">Not</span>
             </label></p>
           </div>
-          <input type="text" name="select_stop_airport" list="airports"
-            placeholder="Any" value="${itinerary.get(i, "select_stop_airport")}"
-            onblur="autocorrect['airports']()">
+          <input type="text" name="select_stop_airport"
+            class="autocomplete_airport" list="airlines" placeholder="Any"
+            value="${itinerary.get(i, "select_stop_airport")}"
           <label class="active">
             Stop&nbsp;airport
             <i class="material-icons tiny tooltipped" data-position="top"
@@ -415,6 +414,16 @@ class ItineraryTable {
       onAutocomplete: () => autocomplete_select_airlines.forEach(trim),
       limit: 5
     });
+
+    // Add autocorrect event listeners.
+    for (const e of
+         this._table.querySelectorAll(".autocomplete_airport")) {
+      e.addEventListener("blur", () => autocorrect["airports"](e));
+    }
+    for (const e of
+         this._table.querySelectorAll(".autocomplete_select_airlines")) {
+      e.addEventListener("blur", () => autocorrect["airlines"](e));
+    }
   }
 
   /**
@@ -524,13 +533,13 @@ function generateSelectOptions(options, value) {
  * Autocorrect functions for use with the onblur event of form fields.
  */
 const autocorrect = {
-  "itinerary-name": () => {
-    event.target.value = event.target.value.trim();
+  "itinerary-name": (target = event.target) => {
+    target.value = target.value.trim();
   },
-  "airports": () => {
+  "airports": (target = event.target) => {
     // Remove autocomplete phrase.
-    if (event.target.value.includes(" - ")) {
-      event.target.value = event.target.value.split(" - ")[0].replace("↳", "");
+    if (target.value.includes(" - ")) {
+      target.value = target.value.split(" - ")[0].replace("↳", "");
     }
 
     // Use a DFA. The state represents how many letters of the current airport
@@ -539,7 +548,7 @@ const autocorrect = {
     let corrected = "", tentative = "";
     let state = 0, count = 0;
     // Remove whitespace from the string and convert it to uppercase.
-    for (const c of event.target.value.replace(/\s+/g, "").toUpperCase()) {
+    for (const c of target.value.replace(/\s+/g, "").toUpperCase()) {
       switch (state) {
         // Error state. Don't do anything.
         case -1:
@@ -592,16 +601,16 @@ const autocorrect = {
 
     // Update the value to corrected. Ignore tentative characters that didn't
     // lead to the complete state.
-    event.target.value = corrected;
+    target.value = corrected;
   },
-  "airlines": () => {
+  "airlines": (target = event.target) => {
     // Use a DFA. The state represents how many letters of the current airline
     // code have been seen. -1 represents an error state. count indicates how
     // many airline codes have been seen.
     let corrected = "", tentative = "";
     let state = 0, count = 0;
     // Remove whitespace from the string and convert it to uppercase.
-    for (const c of event.target.value.replace(/\s+/g, "").toUpperCase()) {
+    for (const c of target.value.replace(/\s+/g, "").toUpperCase()) {
       switch (state) {
         // Error state. Don't do anything.
         case -1:
@@ -649,6 +658,6 @@ const autocorrect = {
 
     // Update the value to corrected. Ignore tentative characters that didn't
     // lead to the complete state.
-    event.target.value = corrected;
+    target.value = corrected;
   }
 };

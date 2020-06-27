@@ -17,12 +17,16 @@ addEventListener("load", () => {
   // Initialize Materialize autocompletes.
   const trim = e =>
     e.value = e.value.includes(" - ") ? e.value.split(" - ")[1] : e.value;
-  const autocomplete_airline = qs("#airline")
-  M.Autocomplete.init(autocomplete_airline, {
+  const airlineInput = qs("#airline");
+  M.Autocomplete.init(airlineInput, {
     data: airlines,
-    onAutocomplete: () => trim(autocomplete_airline),
+    onAutocomplete: () => trim(airlineInput),
     limit: 5
   });
+
+  // Add autocorrect event listeners.
+  qs("#airport").addEventListener("blur", () => autocorrect["airports"]());
+  airlineInput.addEventListener("blur", () => autocorrect["airlines"]());
 
   // Load field values based on pre-existing user preferences.
   loadPreferencePage();
