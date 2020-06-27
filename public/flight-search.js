@@ -24,13 +24,17 @@ addEventListener("load", () => {
       i => ftables[i].remove()
   );
 
-  // Initialize Materialize selects.
+  // Initialize Materialize selects (and fix iOS touch propagation bug).
   M.FormSelect.init(qsa("select"), {});
+  for (const e of qsa("li[id^='select-options']")) {
+    e.ontouchend = event => event.stopPropagation();
+  }
+
+  // Initialize Materialize tooltips.
   M.Tooltip.init(qsa("#title-tooltip"), {});
 
   // Add autocorrect event listener.
-  qs("#itinerary-name").addEventListener("blur",
-      () => autocorrect["itinerary-name"]());
+  qs("#itinerary-name").onblur = () => autocorrect["itinerary-name"]();
 
   // Load flights into the ItineraryTable.
   loadFlights();

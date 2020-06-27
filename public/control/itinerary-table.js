@@ -402,27 +402,34 @@ class ItineraryTable {
                  .forEach(e => e.style.display = filter.selected ? "" : "none");
     }
 
-    // Re-initialize Materialize selects, tooltips, and autocompletes.
+    // Re-initialize Materialize selects (and fix iOS touch propagation bug).
     M.FormSelect.init(this._table.querySelectorAll("select"), {});
+    for (const e of qsa("li[id^='select-options']")) {
+      e.ontouchend = event => event.stopPropagation();
+    }
+
+    // Re-initialize Materialize tooltips.
     M.Tooltip.init(this._table.querySelectorAll(".tooltipped"), {});
+
+    // Re-initialize Materialize autocompletes.
+    const airlineInputs =
+      this._table.querySelectorAll(".autocomplete_select_airlines");
     const trim = e =>
       e.value = e.value.includes(" - ") ? e.value.split(" - ")[1] : e.value;
-    let autocomplete_select_airlines =
-      this._table.querySelectorAll(".autocomplete_select_airlines")
-    M.Autocomplete.init(autocomplete_select_airlines, {
+    M.Autocomplete.init(airlineInputs, {
       data: airlines,
-      onAutocomplete: () => autocomplete_select_airlines.forEach(trim),
+      onAutocomplete: () => airlineInputs.forEach(trim),
       limit: 5
     });
 
     // Add autocorrect event listeners.
     for (const e of
          this._table.querySelectorAll(".autocomplete_airport")) {
-      e.addEventListener("blur", () => autocorrect["airports"](e));
+      e.onblur = () => autocorrect["airports"](e);
     }
     for (const e of
          this._table.querySelectorAll(".autocomplete_select_airlines")) {
-      e.addEventListener("blur", () => autocorrect["airlines"](e));
+      e.onblur = () => autocorrect["airlines"](e);
     }
   }
 

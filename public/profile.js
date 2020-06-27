@@ -11,13 +11,16 @@ All Rights Reserved.
  * Function to run when profile.html loads.
  */
 addEventListener("load", () => {
-  // Initialize Materialize selects.
+  // Initialize Materialize selects (and fix iOS touch propagation bug).
   M.FormSelect.init(qsa("select"), {});
+  for (const e of qsa("li[id^='select-options']")) {
+    e.ontouchend = event => event.stopPropagation();
+  }
 
   // Initialize Materialize autocompletes.
+  const airlineInput = qs("#airline");
   const trim = e =>
     e.value = e.value.includes(" - ") ? e.value.split(" - ")[1] : e.value;
-  const airlineInput = qs("#airline");
   M.Autocomplete.init(airlineInput, {
     data: airlines,
     onAutocomplete: () => trim(airlineInput),
@@ -25,8 +28,8 @@ addEventListener("load", () => {
   });
 
   // Add autocorrect event listeners.
-  qs("#airport").addEventListener("blur", () => autocorrect["airports"]());
-  airlineInput.addEventListener("blur", () => autocorrect["airlines"]());
+  qs("#airport").onblur = () => autocorrect["airports"]();
+  airlineInput.onblur = () => autocorrect["airlines"]();
 
   // Load field values based on pre-existing user preferences.
   loadPreferencePage();
