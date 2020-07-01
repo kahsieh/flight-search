@@ -155,7 +155,7 @@ All Rights Reserved.
   </div></div>
 
   <!-- Output -->
-  <div class="row"><div class="col s12">
+  <div class="row no-margins"><div class="col s12">
     <h5>Results</h5>
     <!-- Tabs -->
     <ul class="tabs" id="tabs"></ul>
@@ -191,7 +191,21 @@ All Rights Reserved.
       </span>
     </p>
     <p class="center-align no-results-message hide">
-      No results! Did you enter everything correctly?
+      No results!<br>
+      <!-- The first applicable suggestion will be unhidden. -->
+      <span class="suggestion note hide">
+        Try filling in all origins and destinations.
+      </span>
+      <span class="suggestion note hide">
+        Try increasing max stops—direct flights might not be available.
+      </span>
+      <span class="suggestion note hide">
+        Try selecting a different cabin—most flights don't have all four cabins.
+      </span>
+      <span class="suggestion note hide">
+        Try entering a date range instead of a specific date—some flights don't
+        operate every day.
+      </span>
     </p>
   </div></div>
 </main>

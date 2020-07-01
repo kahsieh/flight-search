@@ -134,8 +134,9 @@ async function search() {
   qs("#remove-flight").classList.add("disabled");
   qs("#search").classList.add("disabled");
   qs("#spinner").classList.remove("hide");
-  qsa(".results-message").forEach(el => el.classList.add("hide"));
-  qsa(".no-results-message").forEach(el => el.classList.add("hide"));
+  qsa(".results-message").forEach(e => e.classList.add("hide"));
+  qsa(".no-results-message").forEach(e => e.classList.add("hide"));
+  qsa(".suggestion").forEach(e => e.classList.add("hide"));
   ftables.forEach(ft => ft.clearSelection());
 
   // Execute fetches.
@@ -153,6 +154,28 @@ async function search() {
   else {
     FlightTable.displayResults([], true);
     qsa(".no-results-message").forEach(e => e.classList.remove("hide"));
+
+    // Unhide the first applicable suggestion.
+    let suggestion = Infinity;
+    const itinerary = itable.get();
+    for (let i = 0; i < itinerary.length; i++) {
+      if (itinerary.get(i, "fly_from", false) === "" ||
+          itinerary.get(i, "fly_to", false) === "") {
+        suggestion = Math.min(suggestion, 0);
+      }
+      if (itinerary.get(i, "max_stopovers", false) === "0") {
+        suggestion = Math.min(suggestion, 1);
+      }
+      if (itinerary.get(i, "selected_cabins", false) !== "M") {
+        suggestion = Math.min(suggestion, 2);
+      }
+      if (itinerary.get(i, "date_to", false) === "") {
+        suggestion = Math.min(suggestion, 3);
+      }
+    }
+    if (suggestion !== Infinity) {
+      qsa(".suggestion")[suggestion].classList.remove("hide");
+    }
   }
 
   // Update UI.
