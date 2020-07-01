@@ -85,8 +85,7 @@ if (module === require.main) {
     }
     const querySnapshot = await firebase.getFirebase().firestore()
       .collection("itineraries")
-      .where("name", ">=", "*")
-      .where("name", "<", String.fromCharCode("*".charCodeAt(0) + 1))
+      .where("created", ">=", new Date("2020-06-01"))
       .get();
     // Call updateFirebaseItinerary on each match.
     querySnapshot.forEach(doc => {
