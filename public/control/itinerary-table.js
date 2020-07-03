@@ -242,8 +242,8 @@ class ItineraryTable {
             </label></p>
           </div>
           <input type="text" name="select_stop_airport"
-            class="autocomplete_airport" list="airlines" placeholder="Any"
-            value="${itinerary.get(i, "select_stop_airport")}"
+            class="autocomplete_airport" list="airports" placeholder="Any"
+            value="${itinerary.get(i, "select_stop_airport")}">
           <label class="active">
             Stop&nbsp;airport
             <i class="material-icons tiny tooltipped" data-position="top"
