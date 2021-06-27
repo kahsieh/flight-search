@@ -8,7 +8,7 @@ All Rights Reserved.
 "use strict";
 
 const KIWI_API_URL =
-  "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=picky";
+  "https://api.skypicker.com/flights_multi?locale=us&curr=USD&partner=kevinhsiehfivepeasflightsearch";
 
 /**
  * Node-specific behaviors.
