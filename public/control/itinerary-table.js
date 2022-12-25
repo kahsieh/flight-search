@@ -355,7 +355,9 @@ class ItineraryTable {
       </td>
     `;
     this.updateFilters();
-    this._removeFlight.classList.remove("disabled");
+    if (this.length >= 3) {
+      this._removeFlight.classList.remove("disabled");
+    }
     this._addFlightCallback(this.length - 1);
   }
 
@@ -371,12 +373,13 @@ class ItineraryTable {
       : [...this._table.children].indexOf(event.target.parentNode.parentNode)
     switch (this.length) {
       case 1:
-        // Don't allow the last flight to be removed by the user.
+      case 2:
+        // Don't allow the last two flights to be removed by the user.
         if (event && event.type === "click") {
           return;
         }
         // fallthrough
-      case 2:
+      case 3:
         this._removeFlight.classList.add("disabled");
         // fallthrough
       default:
